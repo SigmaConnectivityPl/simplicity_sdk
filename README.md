@@ -24,7 +24,7 @@ An archive of all documents associated with the latest release of Simplicity SDK
 
 ## Getting Started with Simplicity SDK
 
-The recommended method to get started with the Simplicity SDK is to first install [Simplicity Studio 5](https://www.silabs.com/developers/simplicity-studio), which will setup your development environment and walk you through the installation of Simplicity SDK. Alternatively, Simplicity SDK and other required tools may be installed manually.
+The recommended method to get started with the Simplicity SDK is to first install [Simplicity Studio 5](https://www.silabs.com/developers/simplicity-studio), which will set up your development environment and walk you through the installation of Simplicity SDK. Alternatively, Simplicity SDK and other required tools may be installed manually.
 
 ### Installing through Simplicity Studio
 
@@ -48,11 +48,11 @@ A Simplicity SDK development environment may also be installed and set up manual
 
 #### Simplicity SDK
 
-Simplicity SDK releases are packaged as an archive that may be downloaded from the [Releases](https://github.com/SiliconLabs/simplicity_sdk/releases) page on GitHub. You may also clone this repo using a [git client](https://github.com/git-guides/install-git). Note that an installation of [git lfs](https://git-lfs.github.com/) is also required. If you are installing git lfs only to use with the 12.2.rel1, you do not need to specify file types.
+Simplicity SDK releases are packaged as an archive that may be downloaded from the [Releases](https://github.com/SiliconLabs/simplicity_sdk/releases) page on GitHub. You may also clone this repo using a [git client](https://github.com/git-guides/install-git). Note that an installation of [git lfs](https://git-lfs.github.com/) is also required. If you are installing git lfs only to use with the Simplicity SDK, you do not need to specify file types.
 
 #### Toolchain
 
-This release of Simplicity SDK supports the Arm Embedded Toolchain version 10.3-2021.10 and IAR Embedded Workbench version 9.20.4. One of these toolchains must be installed.
+This release of Simplicity SDK supports the Arm Embedded Toolchain version 10.3-2021.10 and IAR Embedded Workbench version 9.20.4. One of these toolchains must be installed:
 
 - [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) - Download and install v10.3-2021.10 for your host operating system.
 - [IAR Embedded Workbench for Arm](https://www.iar.com/downloads) - Only the latest version is available in Downloads; for older versions you must log-in to your "My Pages".
