@@ -52,9 +52,9 @@ Simplicity SDK releases are packaged as an archive that may be downloaded from t
 
 #### Toolchain
 
-This release of Simplicity SDK supports the Arm Embedded Toolchain version 10.3-2021.10 and IAR Embedded Workbench version 9.20.4. One of these toolchains must be installed:
+This release of Simplicity SDK supports the Arm Embedded Toolchain version 12.2.1 and IAR Embedded Workbench version 9.20.4. One of these toolchains must be installed:
 
-- [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) - Download and install v10.3-2021.10 for your host operating system.
+- [GNU Arm Embedded Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads/12-2-rel1) - Download and install v12.2.1 for your host operating system.
 - [IAR Embedded Workbench for Arm](https://www.iar.com/downloads) - Only the latest version is available in Downloads; for older versions you must log-in to your "My Pages".
 
 #### Silicon Labs Configurator (SLC) Command-line Interface (CLI)
