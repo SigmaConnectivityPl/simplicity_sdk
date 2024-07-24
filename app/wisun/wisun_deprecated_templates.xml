@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='ASCII'?>
+<model:MDescriptors xmlns:model="http://www.silabs.com/ss/Studio.ecore">
+  <descriptors name="wisun_soc_tcp_client" label="Wi-SUN - SoC TCP Client - DEPRECATED" description="THIS SAMPLE APPLICATION IS DEPRECATED.&#10;The Wi-SUN TCP Client sample application provides a simple client implementation based on the connection oriented TCP protocol. The sample application operates with a command-line interface to create, close, read or write sockets. The TCP Client leverages the POSIX-like socket component on top of the Wi-SUN stack.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.wisun.example.wisun_soc_tcp_client.wisun_soc_tcp_client.slcp"/>
+    <properties key="projectFilePaths" value="example/wisun_soc_tcp_client/wisun_soc_tcp_client.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/wisun_soc_tcp_client/readme.md"/>
+    <properties key="boardCompatibility" value="brd2705a brd4270a brd4270b brd4271a brd4272a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Wi-SUN Examples"/>
+    <properties key="quality" value="DEPRECATED"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Wi-SUN"/>
+  </descriptors>
+  <descriptors name="wisun_soc_tcp_server" label="Wi-SUN - SoC TCP Server - DEPRECATED" description="THIS SAMPLE APPLICATION IS DEPRECATED.&#10;The Wi-SUN TCP Server sample application provides a simple echo server implementation based on the connection oriented TCP protocol. The sample application creates a TCP socket where every incoming packets are echoed back to the sender. The TCP Server leverages the POSIX-like socket component on top of the Wi-SUN stack.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.wisun.example.wisun_soc_tcp_server.wisun_soc_tcp_server.slcp"/>
+    <properties key="projectFilePaths" value="example/wisun_soc_tcp_server/wisun_soc_tcp_server.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/wisun_soc_tcp_server/readme.md"/>
+    <properties key="boardCompatibility" value="brd2705a brd4270a brd4270b brd4271a brd4272a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Wi-SUN Examples"/>
+    <properties key="quality" value="DEPRECATED"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Wi-SUN"/>
+  </descriptors>
+  <descriptors name="wisun_soc_udp_client" label="Wi-SUN - SoC UDP Client - DEPRECATED" description="THIS SAMPLE APPLICATION IS DEPRECATED.&#10;The Wi-SUN UDP Client sample application provides a simple client implementation based on the UDP protocol. The sample application operates with a command-line interface to create, close, read or write sockets. The UDP Client leverages the POSIX-like socket component on top of the Wi-SUN stack.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.wisun.example.wisun_soc_udp_client.wisun_soc_udp_client.slcp"/>
+    <properties key="projectFilePaths" value="example/wisun_soc_udp_client/wisun_soc_udp_client.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/wisun_soc_udp_client/readme.md"/>
+    <properties key="boardCompatibility" value="brd2705a brd4270a brd4270b brd4271a brd4272a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Wi-SUN Examples"/>
+    <properties key="quality" value="DEPRECATED"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Wi-SUN"/>
+  </descriptors>
+  <descriptors name="wisun_soc_udp_server" label="Wi-SUN - SoC UDP Server - DEPRECATED" description="THIS SAMPLE APPLICATION IS DEPRECATED.&#10;The Wi-SUN UDP Server sample application provides a simple echo server implementation based on the UDP protocol. The sample application creates a UDP socket where every incoming packets are echoed back to the sender. The UDP Server leverages the POSIX-like socket component on top of the Wi-SUN stack.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.wisun.example.wisun_soc_udp_server.wisun_soc_udp_server.slcp"/>
+    <properties key="projectFilePaths" value="example/wisun_soc_udp_server/wisun_soc_udp_server.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/wisun_soc_udp_server/readme.md"/>
+    <properties key="boardCompatibility" value="brd2705a brd4270a brd4270b brd4271a brd4272a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Wi-SUN Examples"/>
+    <properties key="quality" value="DEPRECATED"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Wi-SUN"/>
+  </descriptors>
+</model:MDescriptors>

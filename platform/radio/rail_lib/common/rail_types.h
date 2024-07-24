@@ -4369,6 +4369,59 @@ typedef struct RAIL_RxPacketDetails {
 typedef uint8_t (*RAIL_ConvertLqiCallback_t)(uint8_t lqi,
                                              int8_t rssi);
 
+/**
+ * @struct RAIL_AutoLnaBypassConfig_t
+ * @brief Configures the automatic LNA bypass.
+ */
+typedef struct RAIL_AutoLnaBypassConfig {
+  /**
+   * Maximum time in microseconds to wait for frame detection after the LNA has
+   * been bypassed. It must be greater than 0 to enable automatic LNA bypass
+   * with \ref RAIL_EnableAutoLnaBypass().
+   */
+  uint32_t timeoutUs;
+  /**
+   * Threshold (without unit) from which LNA bypass is turned on.
+   * The table below shows EFR32XG25 thresholds corresponding to received power
+   * level without the LNA gain.
+   *
+   * |  Level dB  | FSK_1a | FSK_1b | FSK_2a | FSK_2b | FSK_3 | FSK_4a | FSK_4b | FSK_5 | OFDM1 | OFDM2 | OFDM3 | OFDM4 |
+   * |------------|--------|--------|--------|--------|-------|--------|--------|-------|-------|-------|-------|-------|
+   * |   __-25__  |        |        |        |        |       |        |        |       |   9   |   9   |   9   |   10  |
+   * |   __-20__  |        |    7   |    7   |    7   |   8   |    8   |    7   |   8   |   11  |   12  |   12  |   12  |
+   * |   __-15__  |    7   |    10  |    10  |    10  |   9   |    9   |    10  |   10  |   14  |   14  |   14  |   15  |
+   * |   __-10__  |    9   |    12  |    12  |    12  |   12  |    12  |    12  |   12  |   16  |   16  |   16  |   16  |
+   * |   __-5__   |    11  |    14  |    14  |    14  |   16  |    16  |    14  |   16  |       |       |       |       |
+   * |    __0__   |    14  |    17  |    18  |    17  |   17  |    18  |    18  |   18  |       |       |       |       |
+   *
+   * For example, with OFDM1 PHY, setting the threshold to 11 will turn on the
+   * bypass when the power level at EFR32XG25 input is greater than -20 dB.
+   */
+  uint8_t threshold;
+  /**
+   * Compensation in dBm applied by RAIL to RSSI during LNA bypass. The RSSI
+   * offset set using \ref RAIL_SetRssiOffset() must corespond to the case
+   * with FEM LNA not bypassed. deltaRssiDbm is typically the FEM LNA gain
+   * value.
+   */
+  uint8_t deltaRssiDbm;
+  /**
+   * GPIO port used for the bypass.
+   */
+  uint8_t port;
+  /**
+   * GPIO pin used for the bypass.
+   */
+  uint8_t pin;
+  /**
+   * GPIO DOUT configuration for bypass.
+   *
+   * With a polarity of 1, GPIO DOUT is set to 1 for bypass and 0 for un-bypass.
+   * with a polarity of 0, GPIO DOUT is set to 0 for bypass and 1 for un-bypass.
+   */
+  bool polarity;
+} RAIL_AutoLnaBypassConfig_t;
+
 /** @} */ // end of group Receive
 
 /******************************************************************************

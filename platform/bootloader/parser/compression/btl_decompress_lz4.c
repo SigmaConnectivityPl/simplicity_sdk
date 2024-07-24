@@ -19,11 +19,28 @@
 #include "api/btl_errorcode.h"
 #include "debug/btl_debug.h"
 
+#include "gbl/btl_gbl_format.h"
+
+#include "storage/btl_storage.h"
+
 #include <string.h>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
 
 static Lz4ParserContext_t lz4ParserContext;
 
 #define DECOMPRESS_BUFFER_SIZE 32UL
+
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+#define GBL_PARSER_ARRAY_TO_U32(array, offset)         \
+  ((uint32_t)((uint32_t)((array)[(offset) + 3]) << 24) \
+   | ((uint32_t)((array)[(offset) + 2]) << 16)         \
+   | ((uint32_t)((array)[(offset) + 1]) << 8)          \
+   | ((uint32_t)((array)[(offset) + 0]) << 0))
+#endif
 
 // -----------------------------------------------------------------------------
 // LZ4 parser implementation
@@ -195,9 +212,22 @@ int32_t gbl_lz4ReadMemory(size_t backtrackOffset, uint8_t *data, size_t length)
                   &parserBuffer[programmingAddress - startOfAppSpace],
                   copyLength);
 #else
+#ifdef BOOTLOADER_SUPPORT_STORAGE
+    BootloaderStorageInformation_t storageInfo;
+    storage_getInfo(&storageInfo);
+    if ((lz4ParserContext.parserContext->customTagId == GBL_TAG_ID_DELTA_LZ4)
+        && (storageInfo.storageType == SPIFLASH)) {
+      storage_readRaw(programmingAddress, data, copyLength);
+    } else {
+      (void) memcpy(data,
+                    (void *)programmingAddress,
+                    copyLength);
+    }
+#else
     (void) memcpy(data,
                   (void *)programmingAddress,
                   copyLength);
+#endif
 #endif
     dataOffset = copyLength;
     backtrackOffset -= copyLength;
@@ -274,7 +304,11 @@ int32_t gbl_lz4WriteMemory(uint8_t *data, size_t length)
 {
   size_t offset = 0UL;
   int32_t retval = BOOTLOADER_OK;
-
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+  if (lz4ParserContext.parserContext->customTagId == GBL_TAG_ID_DELTA_LZ4) {
+    lz4ParserContext.parserContext->lengthOfPatch += length;
+  }
+#endif
   // We have some unaligned data from a previous iteration
   if (lz4ParserContext.outputOffset != 0UL) {
     // Set offset to the first word-aligned index into the write buffer,
@@ -365,10 +399,22 @@ int32_t gbl_lz4ParseProgTag(ParserContext_t *ctx,
 
   // First call to function contains programming address in first word
   if (lz4ParserContext.firstCall) {
-    BTL_ASSERT(length >= 4UL);
-    lz4ParserContext.firstCall = false;
-    ctx->programmingAddress = *(uint32_t *)data;
-    dataOffset = 4UL;
+    if (ctx->customTagId == GBL_TAG_ID_PROG_LZ4) {
+      BTL_ASSERT(length >= 4UL);
+      lz4ParserContext.firstCall = false;
+      ctx->programmingAddress = *(uint32_t *)data;
+      dataOffset = 4UL;
+    }
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+    else {
+      BTL_ASSERT(length >= 12UL);
+      lz4ParserContext.firstCall = false;
+      ctx->programmingAddress = ctx->deltaPatchAddress;
+      ctx->newFwCRC = GBL_PARSER_ARRAY_TO_U32((uint8_t *)data, 0);
+      ctx->newFwSize = GBL_PARSER_ARRAY_TO_U32((uint8_t *)data, 4);
+      dataOffset = 12UL;
+    }
+#endif
   }
   lz4ParserContext.parserCallbacks = callbacks;
 

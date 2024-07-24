@@ -30,6 +30,11 @@
 #ifndef BLE_PEER_MANAGER_CENTRAL_H
 #define BLE_PEER_MANAGER_CENTRAL_H
 
+/***********************************************************************************************//**
+ * @addtogroup ble_peer_manager_central
+ * @{
+ **************************************************************************************************/
+
 #include "sl_status.h"
 #include "sl_bt_api.h"
 
@@ -95,4 +100,5 @@ sl_status_t ble_peer_manager_central_open_connection(bd_addr *address,
  * @retval SL_STATUS_NOT_FOUND if the connection handle is not found.
  *****************************************************************************/
 sl_status_t ble_peer_manager_central_close_connection(uint8_t conn_handle);
-#endif
+/** @} (end addtogroup ble_peer_manager_central) */
+#endif // BLE_PEER_MANAGER_CENTRAL_H

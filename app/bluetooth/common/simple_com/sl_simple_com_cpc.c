@@ -180,6 +180,14 @@ void sl_simple_com_receive(void)
 }
 
 /**************************************************************************//**
+ * Receive cancel function
+ *****************************************************************************/
+SL_WEAK void sli_simple_com_cancel_receive(void)
+{
+  // Not needed in CPC communication
+}
+
+/**************************************************************************//**
  * Transmit completed callback
  *
  * Called after transmit is finished.

@@ -44,6 +44,7 @@ requires:
   - name: "spidrv_core"
   - name: "slist"
   - name: "device_peripheral"
+  - name: "device_has_usart"
 template_contribution:
   - name: "spidrv_instances"
     value: "{{instance}}"

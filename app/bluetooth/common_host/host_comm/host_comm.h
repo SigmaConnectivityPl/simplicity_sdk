@@ -38,7 +38,7 @@
 #define HOST_COMM_CPC_OPTSTRING  "C:"
 
 // Usage info.
-#define HOST_COMM_CPC_USAGE " | -C <cpcd_instance_name> |"
+#define HOST_COMM_CPC_USAGE " | -C <cpcd_instance_name>"
 
 // Options info.
 #define HOST_COMM_CPC_OPTIONS \

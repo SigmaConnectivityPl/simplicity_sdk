@@ -30,6 +30,11 @@
 #ifndef BLE_PEER_MANAGER_PERIPHERAL_H
 #define BLE_PEER_MANAGER_PERIPHERAL_H
 
+/***********************************************************************************************//**
+ * @addtogroup ble_peer_manager_peripheral
+ * @{
+ **************************************************************************************************/
+
 #include "sl_status.h"
 #include "sl_bt_api.h"
 
@@ -109,4 +114,5 @@ sl_status_t ble_peer_manager_peripheral_stop_advertising(uint8_t advertising_han
  *****************************************************************************/
 sl_status_t ble_peer_manager_peripheral_close_connection(uint8_t conn_handle);
 
+/** @} (end addtogroup ble_peer_manager_peripheral) */
 #endif // BLE_PEER_MANAGER_PERIPHERAL_H

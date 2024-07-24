@@ -6,6 +6,9 @@ description: >
   to register callback functions that are called when a GPIO interrupt is triggered.
 category: "Platform|Driver"
 quality: "production"
+metadata:
+  sbom:
+    license: Zlib
 source:
 - path: "platform/emdrv/gpiointerrupt/src/gpiointerrupt.c"
 include:

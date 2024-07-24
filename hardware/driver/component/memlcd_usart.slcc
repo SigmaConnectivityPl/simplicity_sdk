@@ -9,6 +9,9 @@ description: >
   This specific version uses the usart to drive the SPI.
 category: Platform|Board Drivers|Memory LCD|Peripheral Driver
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: hardware/driver/memlcd
 config_file:
   - path: config/memlcd_usart/sl_memlcd_usart_config.h

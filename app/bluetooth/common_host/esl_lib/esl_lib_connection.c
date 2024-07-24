@@ -58,7 +58,7 @@
 // connection parameters for PAST
 #define PAST_CONN_INTERVAL_MIN       ESL_LIB_CONN_INTERVAL_MIN
 #define PAST_CONN_INTERVAL_MAX       ESL_LIB_CONN_INTERVAL_MAX
-#define PAST_CONN_PERIPHERAL_LATENCY 1      // allow to skip one connection interval during PAST if there's no data
+#define PAST_CONN_PERIPHERAL_LATENCY 2      // allow to skip two connection interval during PAST if there's no data
 #define PAST_CONN_DEFAULT_TIMEOUT    1000   // value * 10ms, this is 10 seconds
 #define PAST_CONN_MIN_TIMEOUT        ESL_LIB_CONN_MIN_TIMEOUT
 #define PAST_CONN_MAX_TIMEOUT        ESL_LIB_CONN_MAX_TIMEOUT
@@ -1682,8 +1682,8 @@ static void run_command(esl_lib_command_list_cmd_t *cmd)
 
         if (esl_lib_pawr_contains(pawr)) {
           supervison_timeout = pawr->config.adv_interval.max + pawr->config.adv_interval.max / 4; // * 1.25ms
-          min_interval = pawr->config.adv_interval.min / 8;
-          max_interval = pawr->config.adv_interval.max / 4;
+          min_interval = pawr->config.adv_interval.min / 32;
+          max_interval = pawr->config.adv_interval.max / 16;
 
           if (max_interval > PAST_CONN_INTERVAL_MAX) {
             max_interval = PAST_CONN_INTERVAL_MAX;

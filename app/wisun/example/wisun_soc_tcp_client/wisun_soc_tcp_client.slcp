@@ -1,11 +1,14 @@
 project_name: "wisun_soc_tcp_client"
-label: "Wi-SUN - SoC TCP Client"
-description: "The Wi-SUN TCP Client sample application provides a simple client implementation based on the connection oriented TCP protocol.
-The sample application operates with a command-line interface to create, close, read or write sockets.
-The TCP Client leverages the POSIX-like socket component on top of the Wi-SUN stack."
+label: "Wi-SUN - SoC TCP Client - DEPRECATED"
+description: >
+  THIS SAMPLE APPLICATION IS DEPRECATED.
+
+  The Wi-SUN TCP Client sample application provides a simple client implementation based on the connection oriented TCP protocol.
+  The sample application operates with a command-line interface to create, close, read or write sockets.
+  The TCP Client leverages the POSIX-like socket component on top of the Wi-SUN stack.
 package: "wisun"
 category: "Wi-SUN Examples"
-quality: "production"
+quality: "deprecated"
 
 component:
 # for wisun stack and default components

@@ -306,11 +306,77 @@ void sl_zigbee_af_hal_button_isr_cb(uint8_t button, uint8_t state)
 #include "sl_bluetooth_connection_config.h"
 #include "sl_component_catalog.h"
 static uint8_t cli_adv_handle;
+static uint8_t activeBleConnections = 0;
 void zb_ble_dmp_print_ble_address(uint8_t *address)
 {
   sl_zigbee_app_debug_print("\nBLE address: [%02X %02X %02X %02X %02X %02X]\n",
                             address[5], address[4], address[3],
                             address[2], address[1], address[0]);
+}
+struct {
+  bool inUse;
+  bool isMaster;
+  uint8_t connectionHandle;
+  uint8_t bondingHandle;
+  uint8_t remoteAddress[6];
+} bleConnectionTable[SL_BT_CONFIG_MAX_CONNECTIONS];
+
+void bleConnectionInfoTableInit(void)
+{
+  uint8_t i;
+  for (i = 0; i < SL_BT_CONFIG_MAX_CONNECTIONS; i++) {
+    bleConnectionTable[i].inUse = false;
+  }
+}
+uint8_t bleConnectionInfoTableFindUnused(void)
+{
+  uint8_t i;
+  for (i = 0; i < SL_BT_CONFIG_MAX_CONNECTIONS; i++) {
+    if (!bleConnectionTable[i].inUse) {
+      return i;
+    }
+  }
+  return 0xFF;
+}
+
+bool bleConnectionInfoTableIsEmpty(void)
+{
+  uint8_t i;
+  for (i = 0; i < SL_BT_CONFIG_MAX_CONNECTIONS; i++) {
+    if (bleConnectionTable[i].inUse) {
+      return false;
+    }
+  }
+  return true;
+}
+
+uint8_t bleConnectionInfoTableLookup(uint8_t connHandle)
+{
+  uint8_t i;
+  for (i = 0; i < SL_BT_CONFIG_MAX_CONNECTIONS; i++) {
+    if (bleConnectionTable[i].inUse
+        && bleConnectionTable[i].connectionHandle == connHandle) {
+      return i;
+    }
+  }
+  return 0xFF;
+}
+
+void bleConnectionInfoTablePrintEntry(uint8_t index)
+{
+  assert(index < SL_BT_CONFIG_MAX_CONNECTIONS
+         && bleConnectionTable[index].inUse);
+  sl_zigbee_app_debug_println("**** Connection Info index[%d]****", index);
+  sl_zigbee_app_debug_println("connection handle 0x%x",
+                              bleConnectionTable[index].connectionHandle);
+  sl_zigbee_app_debug_println("bonding handle = 0x%x",
+                              bleConnectionTable[index].bondingHandle);
+  sl_zigbee_app_debug_println("local node is %s",
+                              (bleConnectionTable[index].isMaster) ? "master" : "slave");
+  sl_zigbee_app_debug_print("remote address: ");
+  zb_ble_dmp_print_ble_address(bleConnectionTable[index].remoteAddress);
+  sl_zigbee_app_debug_println("");
+  sl_zigbee_app_debug_println("*************************");
 }
 
 void sl_bt_on_event(sl_bt_msg_t* evt)
@@ -344,8 +410,25 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
       sl_zigbee_app_debug_println("sl_bt_evt_connection_opened_id \n");
       sl_bt_evt_connection_opened_t *conn_evt =
         (sl_bt_evt_connection_opened_t*) &(evt->data);
-      sl_bt_connection_set_preferred_phy(conn_evt->connection, sl_bt_test_phy_1m, 0xff);
-      sl_zigbee_app_debug_println("BLE connection opened");
+      uint8_t index = bleConnectionInfoTableFindUnused();
+      if (index == 0xFF) {
+        sl_zigbee_app_debug_println("MAX active BLE connections");
+        assert(index < 0xFF);
+      } else {
+        bleConnectionTable[index].inUse = true;
+        bleConnectionTable[index].isMaster = (conn_evt->role > 0);
+        bleConnectionTable[index].connectionHandle = conn_evt->connection;
+        bleConnectionTable[index].bondingHandle = conn_evt->bonding;
+        (void) memcpy(bleConnectionTable[index].remoteAddress,
+                      conn_evt->address.addr, 6);
+
+        activeBleConnections++;
+        sl_bt_connection_set_preferred_phy(conn_evt->connection, sl_bt_test_phy_1m, 0xff);
+        sl_zigbee_app_debug_println("BLE connection opened");
+        bleConnectionInfoTablePrintEntry(index);
+        sl_zigbee_app_debug_println("%d active BLE connection",
+                                    activeBleConnections);
+      }
     }
     break;
     case sl_bt_evt_connection_phy_status_id: {
@@ -360,9 +443,17 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
       sl_bt_evt_connection_closed_t *conn_evt =
         (sl_bt_evt_connection_closed_t*) &(evt->data);
 
+      uint8_t index = bleConnectionInfoTableLookup(conn_evt->connection);
+      assert(index < 0xFF);
+
+      bleConnectionTable[index].inUse = false;
+      if ( activeBleConnections ) {
+        --activeBleConnections;
+      }
+
       sl_zigbee_app_debug_println(
-        "BLE connection closed, handle=0x%02x, reason=0x%02x",
-        conn_evt->connection, conn_evt->reason);
+        "BLE connection closed, handle=0x%02x, reason=0x%02x : [%d] active BLE connection",
+        conn_evt->connection, conn_evt->reason, activeBleConnections);
     }
     break;
 
@@ -404,6 +495,15 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
 
     default:
       break;
+  }
+}
+void zb_ble_dmp_print_ble_connections(void)
+{
+  uint8_t i;
+  for (i = 0; i < SL_BT_CONFIG_MAX_CONNECTIONS; i++) {
+    if (bleConnectionTable[i].inUse) {
+      bleConnectionInfoTablePrintEntry(i);
+    }
   }
 }
 #endif //SL_CATALOG_BLUETOOTH_PRESENT

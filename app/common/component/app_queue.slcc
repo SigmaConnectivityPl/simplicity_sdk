@@ -8,7 +8,9 @@ description: >
   passed to the queue in order to handle overflow events as requested.
 package: platform
 quality: production
-
+metadata:
+  sbom:
+    license: Zlib
 provides:
   - name: app_queue
 

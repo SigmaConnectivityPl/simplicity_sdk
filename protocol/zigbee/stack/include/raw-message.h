@@ -39,18 +39,18 @@
  *    accept raw MAC data messages that it normally would not accept.
  *    When the stack receives a message matching one of the filters it
  *    will call ::sl_802154_filter_match_message_handler().
- *    This function should point to a list of ::sl_zigbee_mac_filter_match_data_t
- *    or NULL to clear all filters.  The passed value must point to
- *    a valiable in GLOBAL memory.
+ *    This function should point to a list of ::sl_zigbee_mac_filter_match_data_t.
+ *    To clear all filters, call this function with listLength equal to 0.
  *
  * @param macFilterMatchList A pointer to a list of ::sl_zigbee_mac_filter_match_data_t values.
- *   The last value should set the bit SL_802154_FILTER_MATCH_END and nothing else.
+ *   The length of this list is limited to SL_802154MAC_FILTER_MATCH_LIST_MAX_LENGTH entries.
  *
- * @param listLength Length of macFilterMatchList.
+ * @param listLength Length of macFilterMatchList in entries (each entry of type
+ *   ::sl_zigbee_mac_filter_match_data_t is 2 bytes), or 0 if filters are being cleared.
  *
  * @return ::SL_STATUS_OK if the MAC filter match list has been configured correctly.
  *   ::SL_STATUS_INVALID_PARAMETER if one of the filters matches a Zigbee MAC header and cannot
- *   be used.
+ *   be used, or if the filter list exceeds the supported length.
  * @internal SL_ZIGBEE_IPC_ARGS
  * {# macFilterMatchList | length: listLength | max: MAX_IPC_VEC_ARG_CAPACITY #}
  */

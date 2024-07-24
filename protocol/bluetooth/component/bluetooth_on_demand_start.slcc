@@ -14,6 +14,8 @@ quality: "production"
 root_path: "protocol/bluetooth"
 requires:
   - name: "bluetooth_stack"
+  - name: "micriumos_enable_task_exit_garbage_collect"
+    condition: [micriumos_kernel]
 provides:
   - name: "bluetooth_on_demand_start"
 template_contribution:

@@ -82,8 +82,12 @@ typedef uint16_t sl_zigbee_mac_filter_match_data_t;
 #define SL_802154_FILTER_MATCH_ON_SOURCE_SHORT         0x0080
 #define SL_802154_FILTER_MATCH_ON_SOURCE_NONE          0x0100
 
-// Last entry should set this and nothing else.  No other bits will be examined.
+// Intended to mark the end of the mac filter list, although
+// a valid list is no longer required to include this value.
 #define SL_802154_FILTER_MATCH_END                     0x8000
+
+// determines the maximum capacity of the mac filter list
+#define SL_802154MAC_FILTER_MATCH_LIST_MAX_LENGTH      32
 
 typedef uint64_t sl_mac_child_status_flags_t;
 

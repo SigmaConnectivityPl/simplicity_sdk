@@ -61,6 +61,12 @@
 #define GBL_TAG_ID_PROG_LZMA                0xFD0707FDUL
 /// Tag ID for the GBL flash erase&program tag
 #define GBL_TAG_ID_ERASEPROG                0xFD0303FDUL
+/// Tag ID for the GBL delta dfu tag
+#define GBL_TAG_ID_DELTA                    0xF80A0AF8UL
+/// Tag ID for the GBL delta dfu tag (LZ4)
+#define GBL_TAG_ID_DELTA_LZ4                0xF80B0BF8UL
+/// Tag ID for the GBL delta dfu tag (LZMA)
+#define GBL_TAG_ID_DELTA_LZMA               0xF80C0CF8UL
 /// Tag ID for the GBL end tag
 #define GBL_TAG_ID_END                      0xFC0404FCUL
 /// Tag ID for the SE upgrade tag
@@ -222,6 +228,15 @@ typedef struct {
   uint32_t       address;            ///< Address of the bootloader
   uint8_t        *data;              ///< Array of data for bootloader upgrade
 } GblBootloader_t;
+
+/// GBL delta tag type.
+typedef struct {
+  GblTagHeader_t header;             ///< Tag ID and length
+  uint32_t       newCrc;             ///< CRC for new app
+  uint32_t       newSize;            ///< Size of the new app after re-creation
+  uint32_t       flashAddr;          ///< Final flashing address of app
+  uint8_t        *data;               ///< Array of data to flash
+} GblTagDelta_t;
 
 /// GBL SE upgrade tag type.
 typedef struct {

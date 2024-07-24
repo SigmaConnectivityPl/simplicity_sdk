@@ -79,9 +79,13 @@ source:
       - path: platform-abstraction/rtos/rtos-wrappers/udp_wrapper.c
 other_file:
   - path: linker/ot-rtos-wrapper-options
+    project:
+      transfer_ownership: true
+      directory: linker_options
 toolchain_settings:
-  - option: gcc_linker_option
-    value: "@${StudioSdkPath}${SDK_PATH}/protocol/openthread/linker/ot-rtos-wrapper-options"
+  - option: linker_option
+    value: "@$project/linker_options/ot-rtos-wrapper-options"
+    condition: [toolchain_gcc]
 metadata:
   sbom:
     license: Zlib

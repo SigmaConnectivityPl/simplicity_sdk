@@ -21,7 +21,6 @@ include $(SDK_DIR)/app/bluetooth/component_host/app_signal.mk
 include $(SDK_DIR)/app/bluetooth/component_host/app_timer.mk
 include $(SDK_DIR)/app/bluetooth/component_host/ncp_host_bt.mk
 include $(SDK_DIR)/app/bluetooth/component_host/ncp_gatt.mk
-include $(SDK_DIR)/app/bluetooth/component_host/ncp_reset.mk
 include $(SDK_DIR)/app/bluetooth/component_host/ncp_version.mk
 
 

@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS reflector
+ * @brief CS Reflector
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -30,6 +30,11 @@
 
 #ifndef CS_REFLECTOR_H
 #define CS_REFLECTOR_H
+
+/***********************************************************************************************//**
+ * @addtogroup cs_reflector
+ * @{
+ **************************************************************************************************/
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -66,7 +71,7 @@ sl_status_t cs_reflector_create(uint8_t               conn_handle,
  *
  * @return the number of active reflector instances
  *****************************************************************************/
-uint32_t cs_reflector_get_active_instance_count(void);
+uint8_t cs_reflector_get_active_instance_count(void);
 
 /**************************************************************************//**
  * Delete the reflector associated with the given connection handle
@@ -86,4 +91,5 @@ sl_status_t cs_reflector_delete(uint8_t conn_handle);
  *****************************************************************************/
 bool cs_reflector_on_bt_event(sl_bt_msg_t *evt);
 
+/** @} (end addtogroup cs_reflector) */
 #endif // CS_REFLECTOR_H

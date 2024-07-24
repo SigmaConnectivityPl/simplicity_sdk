@@ -18,25 +18,41 @@
 #ifndef ZIGBEE_IPC_CALLBACK_EVENTS_H
 #define ZIGBEE_IPC_CALLBACK_EVENTS_H
 
+#ifdef SL_COMPONENT_CATALOG_PRESENT
+#include "sl_component_catalog.h"
+#endif
+
 #include "sl_enum.h"
 #include "sl_event_system.h"
 #include "sl_memory_manager.h"
 #include "stack/internal/src/ipc/binding-table-ipc-callback-events.h"
 #include "stack/internal/src/ipc/bootload_ipc_callback_events.h"
+#ifdef SL_CATALOG_ZIGBEE_CBKE_CORE_PRESENT
 #include "stack/internal/src/ipc/cbke-crypto-engine-ipc-callback-events.h"
+#endif
 #include "stack/internal/src/ipc/child_ipc_callback_events.h"
+#ifdef SL_CATALOG_HIGH_DATARATE_PHY_PRESENT
 #include "stack/internal/src/ipc/high_datarate_phy_stack_interface_ipc_callback_events.h"
+#endif
 #include "stack/internal/src/ipc/message_ipc_callback_events.h"
 #include "stack/internal/src/ipc/network-formation-ipc-callback-events.h"
 #include "stack/internal/src/ipc/raw-message-ipc-callback-events.h"
 #include "stack/internal/src/ipc/security_ipc_callback_events.h"
 #include "stack/internal/src/ipc/sl_zigbee_duty_cycle_ipc_callback_events.h"
+#ifdef SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT
 #include "stack/internal/src/ipc/sl_zigbee_dynamic_commissioning_ipc_callback_events.h"
+#endif
+#ifdef SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT
 #include "stack/internal/src/ipc/sl_zigbee_zdo_management_ipc_callback_events.h"
+#endif
+#ifdef SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT
 #include "stack/internal/src/ipc/sl_zigbee_zdo_security_ipc_callback_events.h"
+#endif
 #include "stack/internal/src/ipc/stack-info-ipc-callback-events.h"
 #include "stack/internal/src/ipc/trust-center-ipc-callback-events.h"
+#ifdef SL_CATALOG_ZIGBEE_LIGHT_LINK_PRESENT
 #include "stack/internal/src/ipc/zll-api-ipc-callback-events.h"
+#endif
 
 SL_ENUM_GENERIC(sl_zigbee_stack_cb_event_tag_t, uint16_t) {
   SLI_ZIGBEE_STACK_REMOTE_DELETE_BINDING_HANDLER_IPC_EVENT_TYPE,
@@ -96,17 +112,21 @@ typedef struct {
     sli_zigbee_stack_remote_set_binding_handler_ipc_event_t remote_set_binding_handler;
     sli_zigbee_stack_bootload_transmit_complete_handler_ipc_event_t bootload_transmit_complete_handler;
     sli_zigbee_stack_incoming_bootload_message_handler_ipc_event_t incoming_bootload_message_handler;
+    #ifdef SL_CATALOG_ZIGBEE_CBKE_CORE_PRESENT
     sli_zigbee_stack_calculate_smacs_283k1_handler_ipc_event_t calculate_smacs_283k1_handler;
     sli_zigbee_stack_calculate_smacs_handler_ipc_event_t calculate_smacs_handler;
     sli_zigbee_stack_dsa_sign_handler_ipc_event_t dsa_sign_handler;
     sli_zigbee_stack_dsa_verify_handler_ipc_event_t dsa_verify_handler;
     sli_zigbee_stack_generate_cbke_keys_283k1_handler_ipc_event_t generate_cbke_keys_283k1_handler;
     sli_zigbee_stack_generate_cbke_keys_handler_ipc_event_t generate_cbke_keys_handler;
+    #endif
     sli_zigbee_stack_child_join_handler_ipc_event_t child_join_handler;
     sli_zigbee_stack_poll_complete_handler_ipc_event_t poll_complete_handler;
     sli_zigbee_stack_poll_handler_ipc_event_t poll_handler;
+    #ifdef SL_CATALOG_HIGH_DATARATE_PHY_PRESENT
     sli_mac_stack_high_datarate_phy_rx_callback_ipc_event_t high_datarate_phy_rx_callback;
     sli_mac_stack_high_datarate_phy_tx_callback_ipc_event_t high_datarate_phy_tx_callback;
+    #endif
     sli_zigbee_stack_id_conflict_handler_ipc_event_t id_conflict_handler;
     sli_zigbee_stack_incoming_many_to_one_route_request_handler_ipc_event_t incoming_many_to_one_route_request_handler;
     sli_zigbee_stack_incoming_message_handler_ipc_event_t incoming_message_handler;
@@ -127,18 +147,26 @@ typedef struct {
     sli_zigbee_stack_switch_network_key_handler_ipc_event_t switch_network_key_handler;
     sli_zigbee_stack_zigbee_key_establishment_handler_ipc_event_t zigbee_key_establishment_handler;
     sli_zigbee_stack_duty_cycle_handler_ipc_event_t duty_cycle_handler;
+    #ifdef SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT
     sli_zigbee_stack_dynamic_commissioning_alert_callback_ipc_event_t dynamic_commissioning_alert_callback;
+    #endif
+    #ifdef SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT
     sli_zigbee_stack_beacon_survey_complete_callback_ipc_event_t beacon_survey_complete_callback;
+    #endif
+    #ifdef SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT
     sli_zigbee_stack_get_authentication_level_callback_ipc_event_t get_authentication_level_callback;
     sli_zigbee_stack_set_authenticaion_level_callback_ipc_event_t set_authenticaion_level_callback;
     sli_zigbee_stack_zdo_retrieve_authentication_token_complete_callback_ipc_event_t zdo_retrieve_authentication_token_complete_callback;
+    #endif
     sli_zigbee_stack_stack_status_handler_ipc_event_t stack_status_handler;
     sli_zigbee_stack_stack_token_changed_handler_ipc_event_t stack_token_changed_handler;
     sli_zigbee_stack_trust_center_post_join_handler_ipc_event_t trust_center_post_join_handler;
+    #ifdef SL_CATALOG_ZIGBEE_LIGHT_LINK_PRESENT
     sli_zigbee_stack_zll_address_assignment_handler_ipc_event_t zll_address_assignment_handler;
     sli_zigbee_stack_zll_network_found_handler_ipc_event_t zll_network_found_handler;
     sli_zigbee_stack_zll_scan_complete_handler_ipc_event_t zll_scan_complete_handler;
     sli_zigbee_stack_zll_touch_link_target_handler_ipc_event_t zll_touch_link_target_handler;
+    #endif
   } data;
 } sl_zigbee_stack_cb_event_t;
 

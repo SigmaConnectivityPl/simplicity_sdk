@@ -4,6 +4,16 @@ package: platform
 description: CMSIS-NN neural network kernels for Cortex-M
 category: CMSIS|NN
 quality: production
+metadata:
+  sbom:
+    license: Apache-2.0
+    upstream:
+      name: CMSIS-NN
+      version: 4.1.0
+      supplier: ARM-software
+      url:  https://github.com/ARM-software/CMSIS-NN
+      package_url: https://github.com/ARM-software/CMSIS-NN/releases/tag/23.08
+      comment: CMSIS NN Library as packaged and released by ARM-software, version 4.1.0, tag 23.08
 root_path: util/third_party/cmsis
 provides:
   - name: cmsis_nn

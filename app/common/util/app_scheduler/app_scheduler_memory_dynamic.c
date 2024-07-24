@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Application Scheduler Dynamic Memory Management Implementation
+ * @brief Scheduler Dynamic Memory Management Implementation
  *******************************************************************************
  * # License
- * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -27,7 +27,6 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-
 #include "app_scheduler_memory.h"
 #include "app_scheduler.h"
 #include "sl_memory_manager.h"
@@ -42,11 +41,15 @@
 sl_status_t app_scheduler_memory_alloc(app_scheduler_task_handle_t *data)
 {
   sl_status_t ret = SL_STATUS_OK;
-  void *pos = sl_malloc(sizeof(app_scheduler_entry_t));
-  if (pos == NULL) {
-    ret = SL_STATUS_NO_MORE_RESOURCE;
+  if (data != NULL) {
+    void *pos = sl_malloc(sizeof(app_scheduler_entry_t));
+    if (pos == NULL) {
+      ret = SL_STATUS_NO_MORE_RESOURCE;
+    } else {
+      *data = pos;
+    }
   } else {
-    *data = pos;
+    ret = SL_STATUS_NULL_POINTER;
   }
   return ret;
 }

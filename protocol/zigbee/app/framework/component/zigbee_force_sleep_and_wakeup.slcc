@@ -19,6 +19,17 @@ include:
   - path: protocol/zigbee/app/framework/plugin/force-sleep-wakeup
     file_list:
       - path: force-sleep-wakeup.h
+  - path: protocol/zigbee/stack/include
+    file_list:
+      - path: force_sleep_wakeup_stack_interface.h
+  - path: protocol/zigbee/stack/internal/inc
+    file_list:
+      - path: force_sleep_wakeup_stack_interface_internal_def.h
+  - path: protocol/zigbee/stack/internal/src/ipc
+    file_list:
+      - path: force_sleep_wakeup_stack_interface_ipc_command_messages.h
+        condition:
+          - zigbee_use_ipc
 template_contribution:
   - name: component_catalog
     value: zigbee_force_sleep_and_wakeup

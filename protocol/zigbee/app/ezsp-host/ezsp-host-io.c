@@ -272,6 +272,7 @@ sl_zigbee_ezsp_status_t sl_zigbee_ezsp_setup_serial_port(int* serialPortFdReturn
     tios.c_oflag &= ~OPOST;               // raw output
 
     (void) memset(tios.c_cc, _POSIX_VDISABLE, NCCS);  // disable all control chars
+    (void) memset(checkTios.c_cc, _POSIX_VDISABLE, NCCS); // clean to avoid mismatching padding bytes
     tios.c_cc[VSTART] = CSTART;           // define XON and XOFF
     tios.c_cc[VSTOP] = CSTOP;
 
@@ -347,9 +348,7 @@ sl_zigbee_ezsp_status_t sl_zigbee_ezsp_setup_serial_port(int* serialPortFdReturn
                maxErrorLength,
                "Termios error at c_cc[%d]\r\n",
                i);
-#ifndef SL_CATALOG_ZIGBEE_AARCH64_CORTEX_A72_GCC_12_3_0_MUSL_PRESENT
       break;
-#endif
     }
     if (  (cfgetispeed(&checkTios) != baud)
           || (cfgetospeed(&checkTios) != baud)) {

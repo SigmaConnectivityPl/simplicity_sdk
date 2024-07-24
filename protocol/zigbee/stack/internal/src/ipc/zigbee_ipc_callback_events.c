@@ -18,20 +18,32 @@
 #include "stack/internal/src/ipc/zigbee_ipc_callback_events.h"
 #include "stack/internal/src/ipc/binding-table-ipc-callback-events.h"
 #include "stack/internal/src/ipc/bootload_ipc_callback_events.h"
+#ifdef SL_CATALOG_ZIGBEE_CBKE_CORE_PRESENT
 #include "stack/internal/src/ipc/cbke-crypto-engine-ipc-callback-events.h"
+#endif
 #include "stack/internal/src/ipc/child_ipc_callback_events.h"
+#ifdef SL_CATALOG_HIGH_DATARATE_PHY_PRESENT
 #include "stack/internal/src/ipc/high_datarate_phy_stack_interface_ipc_callback_events.h"
+#endif
 #include "stack/internal/src/ipc/message_ipc_callback_events.h"
 #include "stack/internal/src/ipc/network-formation-ipc-callback-events.h"
 #include "stack/internal/src/ipc/raw-message-ipc-callback-events.h"
 #include "stack/internal/src/ipc/security_ipc_callback_events.h"
 #include "stack/internal/src/ipc/sl_zigbee_duty_cycle_ipc_callback_events.h"
+#ifdef SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT
 #include "stack/internal/src/ipc/sl_zigbee_dynamic_commissioning_ipc_callback_events.h"
+#endif
+#ifdef SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT
 #include "stack/internal/src/ipc/sl_zigbee_zdo_management_ipc_callback_events.h"
+#endif
+#ifdef SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT
 #include "stack/internal/src/ipc/sl_zigbee_zdo_security_ipc_callback_events.h"
+#endif
 #include "stack/internal/src/ipc/stack-info-ipc-callback-events.h"
 #include "stack/internal/src/ipc/trust-center-ipc-callback-events.h"
+#ifdef SL_CATALOG_ZIGBEE_LIGHT_LINK_PRESENT
 #include "stack/internal/src/ipc/zll-api-ipc-callback-events.h"
+#endif
 
 typedef void (*callback_dispatcher)(sl_zigbee_stack_cb_event_t *cb_event);
 

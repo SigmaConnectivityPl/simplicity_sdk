@@ -28,6 +28,9 @@
  *
  ******************************************************************************/
 
+// Define module name for Power Manager debug feature
+#define CURRENT_MODULE_NAME    "SLEEPTIMER_SYSRTC"
+
 #if defined(SL_COMPONENT_CATALOG_PRESENT)
 #include "sl_component_catalog.h"
 #endif

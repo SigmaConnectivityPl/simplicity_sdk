@@ -5,6 +5,9 @@ description: >
   Driver for the Cambridge CMOS Sensors CCS811 gas and indoor air quality sensor
 category: Platform|Board Drivers
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: hardware/driver/ccs811
 provides:
   - name: ccs811_driver

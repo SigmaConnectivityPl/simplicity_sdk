@@ -6,6 +6,9 @@ description: >
   to implement a delay function with microsecond accuracy.
 category: "Platform|Driver"
 quality: "production"
+metadata:
+  sbom:
+    license: Zlib
 config_file:
 - path: "platform/emdrv/ustimer/config/ustimer_config.h"
 source:

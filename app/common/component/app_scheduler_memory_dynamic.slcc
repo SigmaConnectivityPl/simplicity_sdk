@@ -1,18 +1,24 @@
 id: app_scheduler_memory_dynamic
 category: Application|Utility
-label:       Dynamic memory management implementation for Application Scheduler
+label: Dynamic memory management implementation for the Scheduler
 description: >
-  The Dynamic memory management component implements dynamic memory management for Application Scheduler.
-  If memory is free, it is allocated. Otherwise the component returns 'No more resources'.
+  This component implements dynamic memory management for the Scheduler
+  component. If memory the is free, it is allocated. Otherwise the
+  component returns 'No more resources'.
 
   Note:
   Allocated resource must be freed to avoid memory leakages.
 package: platform
-quality: evaluation
-
+quality: production
+metadata:
+  sbom:
+    license: Zlib
 provides:
   - name: app_scheduler_memory
   - name: app_scheduler_memory_dynamic
+
+conflicts:
+  - name: app_scheduler_memory_static
 
 requires:
   - name: memory_manager

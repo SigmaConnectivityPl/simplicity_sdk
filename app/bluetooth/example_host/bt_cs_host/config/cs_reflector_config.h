@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS reflector configuration
+ * @brief CS Reflector configuration
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>

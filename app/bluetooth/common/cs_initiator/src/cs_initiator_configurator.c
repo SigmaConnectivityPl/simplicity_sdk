@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS initiator configurator logic
+ * @brief CS Initiator configurator logic
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -103,10 +103,8 @@ sl_status_t cs_initiator_set_default_config(cs_initiator_config_t *config,
   // Value: 0x00. Write CS configuration in the local controller only
   // Value: 0x01. Write CS configuration in both the local and remote controller using a configuration procedure
   config->create_context =              1;
-  // RSSI measurement enabled
-  config->rssi_measurement_enabled =    true;
-  // Reference RSSI value of the Tx device at 1.0 m distance in dBm
-  config->rssi_tx_power =               -40.0F;
+  // Reference RSSI value of the remote Reflector device at 1.0 m distance in dBm
+  config->rssi_ref_tx_power =           -40.0F;
   // Peripheral latency, which defines how many connection intervals the peripheral
   // can skip if it has no data to send
   config->latency =                     0;
@@ -118,10 +116,6 @@ sl_status_t cs_initiator_set_default_config(cs_initiator_config_t *config,
   config->max_ce_length =               0xffff;
   // Antenna identifier to be used for CS
   config->cs_sync_antenna =             1;
-  // Connection maximum TX power in dBm
-  config->tx_power_requested_max_dbm =  20;
-  // Connection minimum TX power in dBm
-  config->tx_power_requested_min_dbm =  -10;
   // RTT type
   config->rtt_type =                    sl_bt_cs_rtt_type_fractional_96_bit_sounding;
   // Channel selection type.
@@ -145,16 +139,12 @@ sl_status_t cs_initiator_set_default_config(cs_initiator_config_t *config,
   config->snr_control_initiator = sl_bt_cs_snr_control_adjustment_not_applied;
   config->snr_control_reflector = sl_bt_cs_snr_control_adjustment_not_applied;
 
-  // Moving object tracking is enabled by default
-  config->use_moving_object_tracking = true;
-
   // RTL configuration
-  rtl_config->algo_mode = config->use_moving_object_tracking
-                          ? SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC
-                          : SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY;
+  // Moving object tracking is enabled by default
+  rtl_config->algo_mode = SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC;
   rtl_config->cs_parameters.max_number_of_frequencies = DEFAULT_NUM_TONES;
   rtl_config->cs_parameters.delta_f = DEFAULT_FREQUENCY_DELTA;
-  rtl_config->rtl_logging_enabled = true;
+  rtl_config->rtl_logging_enabled = CS_INITIATOR_RTL_LOG;
 
   return SL_STATUS_OK;
 }

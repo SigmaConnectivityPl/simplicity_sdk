@@ -74,6 +74,8 @@ can be read, triggered from other Z-Wave devices</li>
 
 ## Usage of Buttons and LED Status
 
+To use the sample app, the BRD8029A Button and LEDs Expansion Board must be used. BTN0-BTN3 and LED0-LED3 refer to the buttons and LEDs on the Expansion Board.
+
 The following LEDs and buttons shown in the next table below are used.
 
 <table>
@@ -140,8 +142,8 @@ In case CLI support is needed please install zw_cli_common component to the proj
 </tr>
 <tr>
     <th>set_learn_mode</th>
-    <td>It can be start or stop</td>
-    <td>Starting or stopping the learn mode</td>
+    <td></td>
+    <td>Toggling the learn mode functionality. In case the learn mode started, but inclusion does not happen,learn mode will automatically stop after about 30 seconds</td>
 </tr>
 <tr>
     <th>factory_reset</th>

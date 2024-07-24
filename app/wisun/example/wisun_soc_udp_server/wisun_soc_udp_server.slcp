@@ -1,11 +1,14 @@
 project_name: "wisun_soc_udp_server"
-label: "Wi-SUN - SoC UDP Server"
-description: "The Wi-SUN UDP Server sample application provides a simple echo server implementation based on the UDP protocol.
-The sample application creates a UDP socket where every incoming packets are echoed back to the sender.
-The UDP Server leverages the POSIX-like socket component on top of the Wi-SUN stack."
+label: "Wi-SUN - SoC UDP Server - DEPRECATED"
+description: >
+  THIS SAMPLE APPLICATION IS DEPRECATED.
+
+  The Wi-SUN UDP Server sample application provides a simple echo server implementation based on the UDP protocol.
+  The sample application creates a UDP socket where every incoming packets are echoed back to the sender.
+  The UDP Server leverages the POSIX-like socket component on top of the Wi-SUN stack.
 package: "wisun"
 category: "Wi-SUN Examples"
-quality: "production"
+quality: "deprecated"
 
 component:
 # for wisun stack and default components

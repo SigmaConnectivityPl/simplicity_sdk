@@ -2,9 +2,9 @@ id: cs_acp
 package: Bluetooth
 label: CS ACP
 description: >
-  CS ACP common provides the ACP commands and events to the CS device roles.
+  Channel Sounding (CS) Application Co-Processor (ACP) provides the ACP commands and events to the CS device roles.
 category: Bluetooth|Application|Miscellaneous
-quality: experimental
+quality: evaluation
 root_path: app/bluetooth/common/cs_acp
 
 include:
@@ -17,3 +17,6 @@ requires:
 
 provides:
   - name: cs_acp
+documentation:
+  docset: bluetooth
+  document: bluetooth-service-api/cs-acp

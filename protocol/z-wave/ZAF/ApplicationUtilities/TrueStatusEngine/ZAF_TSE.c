@@ -131,7 +131,6 @@ bool ZAF_TSE_Trigger(zaf_tse_callback_t pCallback,
           s_zaf_tse_data_input_template_t* pDataStored =
           (s_zaf_tse_data_input_template_t*)(TSE_ResourceArray[i].pData);
           RECEIVE_OPTIONS_TYPE_EX storedRxOptions = pDataStored->rxOptions;
-
           if (storedRxOptions.destNode.endpoint == RxOptions.destNode.endpoint)
           {
             pCallbackPresent = true;
@@ -168,6 +167,11 @@ bool ZAF_TSE_Trigger(zaf_tse_callback_t pCallback,
     {
       DPRINTF("ZAF_TSE_MAXIMUM_SIMULTANEOUS_TRIGGERS (%d) already active. Rejecting new trigger\r\n",
       ZAF_TSE_MAXIMUM_SIMULTANEOUS_TRIGGERS);
+     /* If the TSE "queue" is full it's because the ZAF_TSE_TimerCallback was not triggered
+     *  this means the elements where not handled by transport_tx layer
+     *  the timer should be restarted to trigger a new attempt for sending those elements. */
+      TimerRestart(&zaf_tse_timer);
+      //  No space left in TSE_RessourceArray - upcoming packet will be dropped
       return false;
     }
     else

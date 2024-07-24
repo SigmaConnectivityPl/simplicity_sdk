@@ -193,10 +193,11 @@ bool storage_bootloadBootloaderFromSlot(uint32_t slotId, uint32_t version);
  * @param slotId  Slot ID to bootload from
  * @param version Cached version number of the image contained in the slot
  *   (used for downgrade prevention)
+ * @param deltaGBLLen Length of the Delta GBL file.
  *
  * @return True if the operation succeeded
  ******************************************************************************/
-bool storage_bootloadApplicationFromSlot(uint32_t slotId, uint32_t version);
+bool storage_bootloadApplicationFromSlot(uint32_t slotId, uint32_t version, uint32_t deltaGBLLen);
 
 /***************************************************************************//**
  * Erase the contents of a storage slot including all data and metadata.

@@ -30,6 +30,11 @@
 #ifndef CS_INITIATOR_DISPLAY_H
 #define CS_INITIATOR_DISPLAY_H
 
+/***********************************************************************************************//**
+ * @addtogroup cs_initiator_display
+ * @{
+ **************************************************************************************************/
+
 // -----------------------------------------------------------------------------
 // Includes
 
@@ -44,73 +49,94 @@ extern "C"
 // -----------------------------------------------------------------------------
 // Macros
 
+#define CS_INITIATOR_DISPLAY_TITLE_VENDOR_TEXT          "Silicon Labs"
+#define CS_INITIATOR_DISPLAY_TITLE_DEVICE_TEXT          "CS Initiator"
+
+#define CS_INITIATOR_DISPLAY_MODE_TEXT                  "Mode:"
+#define CS_INITIATOR_DISPLAY_DISTANCE_TEXT              "Distance:"
+#define CS_INITIATOR_DISPLAY_RSSI_DISTANCE_TEXT         "Distance [RSSI]:"
+#define CS_INITIATOR_DISPLAY_LIKELINESS_TEXT            "Likeliness:"
+#define CS_INITIATOR_DISPLAY_BER_TEXT                   "Bit error:"
+
+#define CS_INITIATOR_DISPLAY_STATE_ESTIMATE_TEXT        "ST: Estimate"
 #define CS_INITIATOR_DISPLAY_STATE_CONNECTED_TEXT       "ST: Connected"
 #define CS_INITIATOR_DISPLAY_STATE_DISCONNECTED_TEXT    "ST: Disconnected"
 #define CS_INITIATOR_DISPLAY_STATE_SCANNING_TEXT        "ST: Scanning..."
 #define CS_INITIATOR_DISPLAY_STATE_INITIALIZED_TEXT     "ST: Initialized"
 
+#define CS_INITIATOR_DISPLAY_MODE_RTT_TEXT              "RTT"
+#define CS_INITIATOR_DISPLAY_MODE_PBR_TEXT              "PBR"
+#define CS_INITIATOR_DISPLAY_AMODE_STATIONARY_OBJ_TEXT  " [stationary]"
+#define CS_INITIATOR_DISPLAY_AMODE_MOVING_OBJ_TEXT      " [moving    ]"
+
 // -----------------------------------------------------------------------------
 // Enums, structs, typedefs
 
-/// UI rows
-typedef enum {
-  ROW_SYSTEM,
-  ROW_ROLE,
-  ROW_MODE,
-  ROW_DISTANCE_TEXT,
-  ROW_DISTANCE_VALUE,
-  ROW_LIKELINESS_TEXT,
-  ROW_LIKELINESS_VALUE,
-  ROW_RSSI_DISTANCE_TEXT,
-  ROW_RSSI_DISTANCE_VALUE,
-  ROW_BIT_ERROR_RATE_TEXT,
-  ROW_BIT_ERROR_RATE_VALUE,
-  ROW_STATE
-} cs_initiator_display_row_t;
-
-/// UI alignment
-typedef enum {
-  CS_INITIATOR_DISPLAY_ALIGNMENT_LEFT = 0u,
-  CS_INITIATOR_DISPLAY_ALIGNMENT_CENTER,
-  CS_INITIATOR_DISPLAY_ALIGNMENT_RIGHT
-} cs_initiator_display_alignment_t;
+typedef struct {
+  sl_bt_cs_mode_t mode;
+  uint8_t algo_mode;
+  float distance;
+  float rssi_distance;
+  float progress_percentage;
+  float likeliness;
+  float bit_error_rate;
+} cs_initiator_display_content_t;
 
 // -----------------------------------------------------------------------------
 // Function declarations
 
-/**************************************************************************//**
- * Initialize the display and the UI
- *****************************************************************************/
-sl_status_t cs_initiator_display_init(void);
+// -----------------------------------------------------------------------------
+// Setters
 
 /**************************************************************************//**
- * Update the display
+ * Set distance value to display
+ * @param[in] distance Distance value
  *****************************************************************************/
-void cs_initiator_display_update(void);
+void cs_initiator_display_set_distance(float distance);
 
 /**************************************************************************//**
- * Set the UI text alignment.
+ * Set distance progress percentage to display
+ * @param[in] progress_percentage Distance progress percentage
+ *****************************************************************************/
+void cs_initiator_display_set_distance_progress(float progress_percentage);
+
+/**************************************************************************//**
+ * Set RSSI based distance value to display
+ * @param[in] rssi RSSI distance value
+ *****************************************************************************/
+void cs_initiator_display_set_rssi_distance(float distance);
+
+/**************************************************************************//**
+ * Set the likeliness parameter to display
+ * @param[in] likeliness likeliness value
+ *****************************************************************************/
+void cs_initiator_display_set_likeliness(float likeliness);
+
+/**************************************************************************//**
+ * Set the Bit Error Rate (BER) value to display
+ * @param[in] ber BER value
+ *****************************************************************************/
+void cs_initiator_display_set_bit_error_rate(float ber);
+
+/**************************************************************************//**
+ * Set the measurement mode and object tracking mode to display
  *
- * @param[in] alignment text alignment to use
+ * @param[in] mode CS measurement mode.
+ * @param[in] algo_mode Object tracking mode.
  *****************************************************************************/
-void cs_initiator_display_set_alignment(cs_initiator_display_alignment_t align);
+void cs_initiator_display_set_measurement_mode(sl_bt_cs_mode_t mode,
+                                               uint8_t algo_mode);
 
 /**************************************************************************//**
- * Write text on the UI.
- *
- * @param[in] str pointer to the text to print
- * @param[in] row row to print the text on
- *****************************************************************************/
-void cs_initiator_display_write_text(char *str, uint8_t row);
-
-/**************************************************************************//**
- * Print the calculated value on the UI
+ * Print floating point value on the LCD with an optional unit string.
  *
  * @param[in] value the calculated value
  * @param[in] row number of the row to print on, see cs_initiator_display_row_t
  * @param[in] unit unit string, in case of NULL no unit displayed
  *****************************************************************************/
-void cs_initiator_display_print_value(float value, uint8_t row, char *unit);
+void cs_initiator_display_print_float_value(float value,
+                                            uint8_t row,
+                                            char *unit);
 
 // -----------------------------------------------------------------------------
 // Event / callback declarations
@@ -125,4 +151,5 @@ void cs_initiator_display_on_event(sl_bt_msg_t *evt);
 }
 #endif
 
+/** @} (end addtogroup cs_initiator_display) */
 #endif // CS_INITIATOR_DISPLAY_H

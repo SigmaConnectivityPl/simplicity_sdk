@@ -42,6 +42,7 @@
 #include "SEGGER_RTT.h"
 #include "SEGGER_RTT_Conf.h"
 #include "sl_component_catalog.h"
+#include "sl_memory_manager.h"
 
 #if defined(SL_CATALOG_MICRIUMOS_KERNEL_PRESENT)
 #include "os_cfg.h"
@@ -74,15 +75,6 @@
 #endif
 #endif
 
-// Include condition to trace heap usage
-#if APP_OS_STAT_HEAP_ENABLED
-  #include <stdlib.h>
-#if defined(__GNUC__)
-  #include <malloc.h>
-#elif defined (__ICCARM__)
-  #include <iar_dlmalloc.h>
-#endif
-#endif
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -113,17 +105,17 @@
 #endif
 
 /// App OS Heap statistic print format
-#define APP_OS_STAT_HEAP_PRINT_FORMAT             \
-  "\n" APP_OS_PRINT_PREFIX "[heap]arena    : %lu" \
-  "\n" APP_OS_PRINT_PREFIX "[heap]ordblks  : %lu" \
-  "\n" APP_OS_PRINT_PREFIX "[heap]smblks   : %lu" \
-  "\n" APP_OS_PRINT_PREFIX "[heap]hblks    : %lu" \
-  "\n" APP_OS_PRINT_PREFIX "[heap]hblkhd   : %lu" \
-  "\n" APP_OS_PRINT_PREFIX "[heap]fsmblks  : %lu" \
-  "\n" APP_OS_PRINT_PREFIX "[heap]usmblks  : %lu" \
-  "\n" APP_OS_PRINT_PREFIX "[heap]uordblks : %lu" \
-  "\n" APP_OS_PRINT_PREFIX "[heap]fordblks : %lu" \
-  "\n" APP_OS_PRINT_PREFIX "[heap]keepcost : %lu" \
+#define APP_OS_STAT_HEAP_PRINT_FORMAT \
+  "\n" APP_OS_PRINT_PREFIX "[heap]base_addr : 0x%x" \
+  "\n" APP_OS_PRINT_PREFIX "[heap]used_size : %lu" \
+  "\n" APP_OS_PRINT_PREFIX "[heap]free_size : %lu" \
+  "\n" APP_OS_PRINT_PREFIX "[heap]tot_size : %lu" \
+  "\n" APP_OS_PRINT_PREFIX "[heap]free_blk_cnt : %lu" \
+  "\n" APP_OS_PRINT_PREFIX "[heap]free_blk_lsize : %lu" \
+  "\n" APP_OS_PRINT_PREFIX "[heap]free_blk_ssize : %lu" \
+  "\n" APP_OS_PRINT_PREFIX "[heap]used_blk_cnt : %lu" \
+  "\n" APP_OS_PRINT_PREFIX "[heap]used_blk_lsize : %lu" \
+  "\n" APP_OS_PRINT_PREFIX "[heap]used_blk_ssize : %lu" \
   "\n" APP_OS_PRINT_PREFIX "[heap]max_used : %lu"
 
 /// App OS memory statistic
@@ -152,7 +144,7 @@ typedef struct app_os_stat_thread {
 /// App OS heap statistic
 typedef struct app_os_stat_heap {
   /// Malloc info
-  struct mallinfo minfo;
+  sl_memory_heap_info_t minfo;
   /// Memory statistic
   app_os_stat_mem_t stat;
 } app_os_stat_heap_t;
@@ -413,26 +405,22 @@ static void _print_heap_stat(void)
   };
 
   // get mallinfo
-#if defined (__ICCARM__)
-  heap.minfo = __iar_dlmallinfo();
-#else
-  heap.minfo = mallinfo();
-#endif
+  sl_memory_get_heap_info(&heap.minfo);
 
   // update statistic
-  _update_stat(&heap.stat, heap.minfo.fordblks, heap.minfo.uordblks);
+  _update_stat(&heap.stat, heap.minfo.free_size, heap.minfo.used_size);
 
   __print_rtt(APP_OS_STAT_HEAP_PRINT_FORMAT,
-              heap.minfo.arena,
-              heap.minfo.ordblks,
-              heap.minfo.smblks,
-              heap.minfo.hblks,
-              heap.minfo.hblkhd,
-              heap.minfo.fsmblks,
-              heap.minfo.usmblks,
-              heap.minfo.uordblks,
-              heap.minfo.fordblks,
-              heap.minfo.keepcost,
+              heap.minfo.base_addr,
+              heap.minfo.used_size,
+              heap.minfo.free_size,
+              heap.minfo.total_size,
+              heap.minfo.free_block_count,
+              heap.minfo.free_block_largest_size,
+              heap.minfo.free_block_smallest_size,
+              heap.minfo.used_block_count,
+              heap.minfo.used_block_largest_size,
+              heap.minfo.used_block_smallest_size,
               heap.stat.max_used);
 }
 #endif

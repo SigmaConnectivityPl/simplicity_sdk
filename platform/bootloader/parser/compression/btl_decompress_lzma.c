@@ -19,8 +19,18 @@
 #include "api/btl_errorcode.h"
 #include "debug/btl_debug.h"
 
+#include "gbl/btl_gbl_format.h"
+
 #include <string.h>
 
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+
+#define GBL_BYTES_ARRAY_TO_U32(array, offset)          \
+  ((uint32_t)((uint32_t)((array)[(offset) + 3]) << 24) \
+   | ((uint32_t)((array)[(offset) + 2]) << 16)         \
+   | ((uint32_t)((array)[(offset) + 1]) << 8)          \
+   | ((uint32_t)((array)[(offset) + 0]) << 0))
+#endif
 // --------------------------------
 // Configuration
 
@@ -54,17 +64,6 @@
 // --------------------------------
 // Prototypes
 
-static int32_t decompressAndFlash(ParserContext_t                   *ctx,
-                                  const BootloaderParserCallbacks_t *callbacks,
-                                  bool                              finish);
-static int32_t decompressData(uint8_t          *dstBuffer,
-                              size_t           *dstBufferLen,
-                              uint8_t          *srcBuffer,
-                              size_t           *srcBufferLen,
-                              ELzmaStatus      *status);
-static void *lzmaAlloc(ISzAllocPtr p, size_t size);
-static void lzmaFree(ISzAllocPtr p, void *address);
-
 // --------------------------------
 // Static variables
 
@@ -93,7 +92,7 @@ static int allocSeq = 0;
 // --------------------------------
 // LZMA Allocators
 
-static void *lzmaAlloc(ISzAllocPtr p, size_t size)
+void *lzmaAlloc(ISzAllocPtr p, size_t size)
 {
   BTL_DEBUG_PRINT("LZMA: Allocate 0x");
   BTL_DEBUG_PRINT_WORD_HEX(size);
@@ -117,7 +116,7 @@ static void *lzmaAlloc(ISzAllocPtr p, size_t size)
   }
 }
 
-static void lzmaFree(ISzAllocPtr p, void *address)
+void lzmaFree(ISzAllocPtr p, void *address)
 {
   (void)p;
   (void)address;
@@ -138,11 +137,11 @@ static void lzmaFree(ISzAllocPtr p, void *address)
 // --------------------------------
 // LZMA decompression implementation
 
-static int32_t decompressData(uint8_t          *dstBuffer,
-                              size_t           *dstBufferLen,
-                              uint8_t          *srcBuffer,
-                              size_t           *srcBufferLen,
-                              ELzmaStatus      *status)
+int32_t decompressData(uint8_t          *dstBuffer,
+                       size_t           *dstBufferLen,
+                       uint8_t          *srcBuffer,
+                       size_t           *srcBufferLen,
+                       ELzmaStatus      *status)
 {
   SRes res;
 
@@ -195,9 +194,9 @@ static int32_t decompressData(uint8_t          *dstBuffer,
   return BOOTLOADER_OK;
 }
 
-static int32_t decompressAndFlash(ParserContext_t                   *ctx,
-                                  const BootloaderParserCallbacks_t *callbacks,
-                                  bool                              finish)
+int32_t decompressAndFlash(ParserContext_t                   *ctx,
+                           const BootloaderParserCallbacks_t *callbacks,
+                           bool                              finish)
 {
   int32_t ret = BOOTLOADER_OK;
   ELzmaStatus status = LZMA_STATUS_NOT_FINISHED;
@@ -232,8 +231,16 @@ static int32_t decompressAndFlash(ParserContext_t                   *ctx,
     // from a previous iteration + newly decompressed data
     size_t availableData = outputBufferPos + outputPos;
     size_t alignedAvailableData = availableData & ~3UL;
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+    if (ctx->customTagId == GBL_TAG_ID_DELTA_LZMA) {
+      ctx->lengthOfPatch += alignedAvailableData;
+      ret = gbl_writeProgData(ctx, outputBuffer, alignedAvailableData, callbacks);
+    } else {
+#endif
     ret = gbl_writeProgData(ctx, outputBuffer, alignedAvailableData, callbacks);
-
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+  }
+#endif
     // Store any unaligned bytes at the beginning of the output buffer
     if ((availableData - alignedAvailableData) > 0) {
       BTL_DEBUG_PRINT("  Output data remaining: 0x");
@@ -301,15 +308,35 @@ int32_t gbl_lzmaParseProgTag(ParserContext_t *ctx,
   }
 
   if (firstCallInProgTag) {
-    BTL_ASSERT(length >= 17UL);
+    if (ctx->customTagId == GBL_TAG_ID_DELTA_LZMA) {
+      BTL_ASSERT(length >= 25UL);
+    } else {
+      BTL_ASSERT(length >= 17UL);
+    }
     firstCallInProgTag = false;
 
     // First call to function contains programming address in first word
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+    if ((callbacks->applicationCallback != NULL) && (ctx->customTagId == GBL_TAG_ID_DELTA_LZMA)) {
+      ctx->programmingAddress = (uint32_t)ctx->deltaPatchAddress;
+    } else {
+#endif
     ctx->programmingAddress = *(uint32_t *)data;
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+  }
+#endif
 
     // Parse first 5 bytes of payload to get dict size, allocate memory
+    uint8_t dataArrayOffset = 4;
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+    if (ctx->customTagId == GBL_TAG_ID_DELTA_LZMA) {
+      ctx->newFwCRC = GBL_BYTES_ARRAY_TO_U32((uint8_t *)data, 0);
+      ctx->newFwSize = GBL_BYTES_ARRAY_TO_U32((uint8_t *)data, 4);
+      dataArrayOffset = 12;
+    }
+#endif
     SRes res = LzmaDec_Allocate(&decompressorState,
-                                &dataArray[4U],
+                                &dataArray[dataArrayOffset],
                                 LZMA_PROPS_SIZE,
                                 &lzmaAllocator);
     if (res != SZ_OK) {
@@ -317,8 +344,12 @@ int32_t gbl_lzmaParseProgTag(ParserContext_t *ctx,
     }
     LzmaDec_Init(&decompressorState);
 
-    // 4 bytes address + 5 byte header + 8 byte file length should be skipped
-    dataOffset = 17UL;
+    if (ctx->customTagId == GBL_TAG_ID_DELTA_LZMA) {
+      dataOffset = 25UL;
+    } else {
+      // 4 bytes address + 5 byte header + 8 byte file length should be skipped
+      dataOffset = 17UL;
+    }
   }
 
   size_t remainingInputBytes = length - dataOffset;
@@ -390,7 +421,16 @@ int32_t gbl_lzmaExitProgTag(ParserContext_t *ctx,
     BTL_DEBUG_PRINT(" aligned len = ");
     BTL_DEBUG_PRINT_WORD_HEX(4UL);
     BTL_DEBUG_PRINT_LF();
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+    if (ctx->customTagId == GBL_TAG_ID_DELTA_LZMA) {
+      ctx->lengthOfPatch += outputBufferPos;
+      ret = gbl_writeProgData(ctx, outputBuffer, 4UL, callbacks);
+    } else {
+#endif
     ret = gbl_writeProgData(ctx, outputBuffer, 4UL, callbacks);
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+  }
+#endif
     if (ret != BOOTLOADER_OK) {
       return ret;
     }

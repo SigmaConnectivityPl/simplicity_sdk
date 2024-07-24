@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS initiator display logic.
+ * @brief CS Initiator display
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -29,128 +29,114 @@
  ******************************************************************************/
 // -----------------------------------------------------------------------------
 // Includes
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 
-#include "glib.h"
-#include "dmd/dmd.h"
+#include "sl_rtl_clib_api.h"
 
-#include "cs_initiator_display.h"
 #include "cs_initiator_display_config.h"
+#include "cs_initiator_display_core.h"
+#include "cs_initiator_display.h"
 
 // -----------------------------------------------------------------------------
 // Macros
 
-#define FONT_TYPE                                ((GLIB_Font_t *)&GLIB_FontNormal8x8)
+#define FONT_TYPE                                ((GLIB_Font_t *)&GLIB_FontNarrow6x8)
 #define STRING_LEN                               40
 
-// -----------------------------------------------------------------------------
-// Static function declarations
-static void clear_row(uint8_t row);
+extern cs_initiator_display_content_t lcd_content, prev_lcd_content;
+
+static sl_status_t cs_initiator_display_measurement_modes(sl_bt_cs_mode_t mode,
+                                                          uint8_t algo_mode,
+                                                          uint8_t row);
+
+static void cs_initiator_display_distance_measurement(float value,
+                                                      uint8_t percentage,
+                                                      uint8_t row);
 
 // -----------------------------------------------------------------------------
-// Static variables
-static GLIB_Context_t glib_context;
-static GLIB_Align_t glib_text_alignment;
-static bool scan_on = false;
+// Public function definitions
 
 /******************************************************************************
- * CS initiator display clear specified row.
+ * Set distance value to display
  *****************************************************************************/
-static void clear_row(uint8_t row)
+void cs_initiator_display_set_distance(float distance)
 {
-  const char empty[] = "                    ";
-  GLIB_drawStringOnLine(&glib_context,
-                        empty,
-                        row,
-                        GLIB_ALIGN_LEFT,
-                        0,
-                        0,
-                        true);
-}
-
-/******************************************************************************
- * CS initiator display init.
- *****************************************************************************/
-sl_status_t cs_initiator_display_init(void)
-{
-  EMSTATUS status;
-
-  status = DMD_init(0);
-  if (status != DMD_OK) {
-    return SL_STATUS_INITIALIZATION;
+  if (distance != lcd_content.distance) {
+    lcd_content.distance = distance;
   }
-
-  status = GLIB_contextInit(&glib_context);
-  if (status != GLIB_OK) {
-    return SL_STATUS_INITIALIZATION;
-  }
-
-  glib_context.backgroundColor = White;
-  glib_context.foregroundColor = Black;
-
-  GLIB_setFont(&glib_context, FONT_TYPE);
-  GLIB_clear(&glib_context);
-  cs_initiator_display_set_alignment(CS_INITIATOR_DISPLAY_GLOBAL_ALIGNMENT);
-
-  cs_initiator_display_write_text("Silabs CS", ROW_SYSTEM);
-  cs_initiator_display_write_text("Initiator", ROW_ROLE);
-  cs_initiator_display_write_text(CS_INITIATOR_DISPLAY_STATE_SCANNING_TEXT, ROW_STATE);
+  cs_initiator_display_distance_measurement(lcd_content.distance,
+                                            100u,
+                                            ROW_DISTANCE_VALUE);
   cs_initiator_display_update();
-  return SL_STATUS_OK;
 }
 
 /******************************************************************************
- * CS initiator display update display content.
+ * Set distance progress percentage to display
  *****************************************************************************/
-void cs_initiator_display_update(void)
+void cs_initiator_display_set_distance_progress(float progress_percentage)
 {
-  DMD_updateDisplay();
-}
-
-/******************************************************************************
- * CS initiator display set display alignment.
- *****************************************************************************/
-void cs_initiator_display_set_alignment(cs_initiator_display_alignment_t alignment)
-{
-  switch (alignment) {
-    case CS_INITIATOR_DISPLAY_ALIGNMENT_LEFT:
-      glib_text_alignment = GLIB_ALIGN_LEFT;
-      break;
-
-    case CS_INITIATOR_DISPLAY_ALIGNMENT_CENTER:
-      glib_text_alignment = GLIB_ALIGN_CENTER;
-      break;
-
-    case CS_INITIATOR_DISPLAY_ALIGNMENT_RIGHT:
-      glib_text_alignment = GLIB_ALIGN_RIGHT;
-      break;
+  if (progress_percentage != lcd_content.progress_percentage) {
+    lcd_content.progress_percentage = progress_percentage;
   }
+  cs_initiator_display_distance_measurement(lcd_content.distance,
+                                            (uint8_t)lcd_content.progress_percentage,
+                                            ROW_DISTANCE_VALUE);
+  cs_initiator_display_update();
 }
 
 /******************************************************************************
- * CS initiator display write string to a specified row.
+ * Set RSSI based distance value to display
  *****************************************************************************/
-void cs_initiator_display_write_text(char *str, uint8_t row)
+void cs_initiator_display_set_rssi_distance(float distance)
 {
-  if (!strlen(str)) {
-    return;
+  if (distance != lcd_content.rssi_distance) {
+    lcd_content.rssi_distance = distance;
   }
-  clear_row(row);
-  GLIB_drawStringOnLine(&glib_context,
-                        str,
-                        row,
-                        glib_text_alignment,
-                        0,
-                        0,
-                        true);
+
+  cs_initiator_display_distance_measurement(lcd_content.rssi_distance,
+                                            100u,
+                                            ROW_RSSI_DISTANCE_VALUE);
+
+  cs_initiator_display_update();
 }
 
 /******************************************************************************
- * CS initiator display print value with a specified unit.
+ * Set the likeliness parameter to display
  *****************************************************************************/
-void cs_initiator_display_print_value(float value, uint8_t row, char *unit)
+void cs_initiator_display_set_likeliness(float likeliness)
+{
+  if (likeliness != lcd_content.likeliness) {
+    lcd_content.likeliness = likeliness;
+  }
+
+  cs_initiator_display_print_float_value(lcd_content.likeliness,
+                                         ROW_LIKELINESS_VALUE,
+                                         NULL);
+
+  cs_initiator_display_update();
+}
+
+/******************************************************************************
+ * Set the Bit Error Rate (BER) value to display
+ *****************************************************************************/
+void cs_initiator_display_set_bit_error_rate(float ber)
+{
+  if (ber != lcd_content.bit_error_rate) {
+    lcd_content.bit_error_rate = ber;
+  }
+
+  cs_initiator_display_print_float_value(lcd_content.bit_error_rate,
+                                         ROW_BIT_ERROR_RATE_VALUE,
+                                         NULL);
+  cs_initiator_display_update();
+}
+
+/******************************************************************************
+ * CS Initiator display print value with a specified unit.
+ *****************************************************************************/
+void cs_initiator_display_print_float_value(float value, uint8_t row, char *unit)
 {
   char *unit_str = "";
   if (unit != NULL) {
@@ -159,49 +145,97 @@ void cs_initiator_display_print_value(float value, uint8_t row, char *unit)
   char buffer[STRING_LEN];
   uint32_t base = truncf(value);
   uint32_t ext = (value - (float)base) * 100;
-  sprintf(buffer, "%lu.%02lu%s", base, ext, unit_str);
+  sprintf(buffer, "%02lu.%02lu %s", base, ext, unit_str);
   cs_initiator_display_write_text(buffer, row);
 }
 
+/******************************************************************************
+ * Set the measurement mode and object tracking mode and show on LCD
+ *****************************************************************************/
+void cs_initiator_display_set_measurement_mode(sl_bt_cs_mode_t mode,
+                                               uint8_t algo_mode)
+{
+  sl_status_t sc = SL_STATUS_OK;
+
+  if (mode != lcd_content.mode) {
+    lcd_content.mode = mode;
+  }
+  if (algo_mode != lcd_content.algo_mode) {
+    lcd_content.algo_mode = algo_mode;
+  }
+  sc = cs_initiator_display_measurement_modes(mode, algo_mode, ROW_MODE);
+  if (sc != SL_STATUS_OK) {
+    display_log_error("Error during showing measurement mode and "
+                      "algo mode on LCD! [E: 0x%x]" NL, sc);
+  } else {
+    cs_initiator_display_update();
+  }
+}
+
 // -----------------------------------------------------------------------------
-// Event / callback declarations
+// Private function definitions
 
 /******************************************************************************
- * Bluetooth stack event handler.
+ * CS initiator display measurement mode and object tracking mode.
  *****************************************************************************/
-void cs_initiator_display_on_event(sl_bt_msg_t *evt)
+static sl_status_t cs_initiator_display_measurement_modes(sl_bt_cs_mode_t mode,
+                                                          uint8_t algo_mode,
+                                                          uint8_t row)
 {
-  bool update_display = false;
+  sl_status_t sc = SL_STATUS_OK;
+  char string[STRING_LEN] = "\0";
 
-  switch (SL_BT_MSG_ID(evt->header)) {
-    case sl_bt_evt_system_boot_id:
-      cs_initiator_display_write_text(CS_INITIATOR_DISPLAY_STATE_INITIALIZED_TEXT, ROW_STATE);
-      update_display = true;
-      break;
-    case sl_bt_evt_connection_opened_id:
-      cs_initiator_display_write_text(CS_INITIATOR_DISPLAY_STATE_CONNECTED_TEXT, ROW_STATE);
-      scan_on = false;
-      update_display = true;
-      break;
-    case sl_bt_evt_connection_closed_id:
-      cs_initiator_display_write_text(CS_INITIATOR_DISPLAY_STATE_DISCONNECTED_TEXT, ROW_STATE);
-      update_display = true;
-      break;
-    // do the same for these 2 events
-    case sl_bt_evt_scanner_extended_advertisement_report_id:
-    case sl_bt_evt_scanner_legacy_advertisement_report_id:
-      if (!scan_on) {
-        scan_on = true;
-        cs_initiator_display_write_text(CS_INITIATOR_DISPLAY_STATE_SCANNING_TEXT, ROW_STATE);
-        update_display = true;
-      }
-      break;
-    default:
-      break;
+  if (mode == sl_bt_cs_mode_rtt) {
+    if (strncat(string, CS_INITIATOR_DISPLAY_MODE_RTT_TEXT, (sizeof(string) - strlen(string) - 1u)) == NULL) {
+      display_log_error("Failed to concat \'%s\' string!" NL,
+                        CS_INITIATOR_DISPLAY_MODE_RTT_TEXT);
+      sc = SL_STATUS_FAIL;
+    }
+  } else {
+    if (strncat(string, CS_INITIATOR_DISPLAY_MODE_PBR_TEXT, (sizeof(string) - strlen(string) - 1u)) == NULL) {
+      display_log_error("Failed to concat \'%s\' string!" NL,
+                        CS_INITIATOR_DISPLAY_MODE_PBR_TEXT);
+      sc = SL_STATUS_FAIL;
+    }
   }
 
-  // update display only in case its necesarry
-  if (update_display) {
-    cs_initiator_display_update();
+  if (algo_mode == SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC) {
+    if (strncat(string, CS_INITIATOR_DISPLAY_AMODE_MOVING_OBJ_TEXT, (sizeof(string) - strlen(string) - 1u)) == NULL) {
+      display_log_error("Failed to concat \'%s\' string!" NL,
+                        CS_INITIATOR_DISPLAY_ALGO_MODE_MOVING_OBJ_TEXT);
+      sc = SL_STATUS_FAIL;
+    }
+  } else {
+    if (strncat(string, CS_INITIATOR_DISPLAY_AMODE_STATIONARY_OBJ_TEXT, (sizeof(string) - strlen(string) - 1u)) == NULL) {
+      display_log_error("Failed to concat \'%s\' string!" NL,
+                        CS_INITIATOR_DISPLAY_ALGO_MODE_STATIONARY_OBJ_TEXT);
+      sc = SL_STATUS_FAIL;
+    }
+  }
+
+  cs_initiator_display_write_text(string, row);
+  return sc;
+}
+
+/******************************************************************************
+ * CS initiator display distance measurement percentage in case of measuring is
+ * still in progress. Otherwise display measured distance only.
+ *****************************************************************************/
+static void cs_initiator_display_distance_measurement(float value,
+                                                      uint8_t percentage,
+                                                      uint8_t row)
+{
+  char buffer[STRING_LEN];
+
+  if (percentage == 100) {
+    cs_initiator_display_print_float_value(value, row, "m");
+  } else {
+    uint32_t base = truncf(value);
+    uint32_t ext = (value - (float)base) * 100;
+    sprintf(buffer, "%02lu.%02lu m (%02u%%)",
+            (unsigned long)base,
+            (unsigned long)ext,
+            (unsigned int)percentage);
+    cs_initiator_display_write_text(buffer, row);
   }
 }

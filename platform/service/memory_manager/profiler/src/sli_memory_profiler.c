@@ -237,6 +237,7 @@ static uint8_t rtt_buffer[SLI_MEMORY_PROFILER_RTT_BUFFER_SIZE];
  * checksum calculation is guaranteed not to overflow. Hence we can
  * efficiently sum and calculate the modulos just once after the loop.
  */
+#if SLI_MEMORY_PROFILER_INCLUDE_CHECKSUM
 static inline void append_checksum(uint8_t *data, uint32_t data_len)
 {
   uint32_t c0 = 0;
@@ -252,6 +253,7 @@ static inline void append_checksum(uint8_t *data, uint32_t data_len)
   data[data_len++] = (uint8_t) c0;
   data[data_len++] = (uint8_t) c1;
 }
+#endif
 
 /**
  * @brief Send a memory profiler event over RTT

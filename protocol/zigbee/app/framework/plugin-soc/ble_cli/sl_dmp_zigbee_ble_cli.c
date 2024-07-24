@@ -37,6 +37,7 @@
 #include "sl_ble_event_handler.h"
 #endif //SL_CATALOG_ZIGBEE_BLE_EVENT_HANDLER_PRESENT
 #define MAX_CHAR_SIZE                   252
+extern void zb_ble_dmp_print_ble_connections(void);
 
 // Advertisement data
 #define UINT16_TO_BYTES(n)        ((uint8_t) (n)), ((uint8_t)((n) >> 8))
@@ -584,7 +585,7 @@ void sl_zigbee_af_ble_set_tx_power_command(sl_cli_command_arg_t *arguments)
 void sl_dmp_print_connections(sl_cli_command_arg_t *arguments)
 {
   (void)arguments;
-  #ifdef SL_CATALOG_ZIGBEE_BLE_EVENT_HANDLER_PRESENT
+  #ifndef SL_CATALOG_MATTER_BLE_PRESENT
   zb_ble_dmp_print_ble_connections();
-  #endif //SL_CATALOG_ZIGBEE_BLE_EVENT_HANDLER_PRESENT
+  #endif //SL_CATALOG_MATTER_BLE_PRESENT
 }

@@ -94,4 +94,10 @@ void ncp_host_tx(uint32_t len, uint8_t *data);
  * @return Number of bytes read, -1 on error.
  *****************************************************************************/
 int32_t ncp_host_rx(uint32_t len, uint8_t *data);
+
+/**************************************************************************//**
+ * Send system reboot command to the NCP target.
+ *****************************************************************************/
+void ncp_host_reboot(void);
+
 #endif // NCP_HOST_H

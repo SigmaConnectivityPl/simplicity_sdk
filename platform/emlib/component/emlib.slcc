@@ -52,6 +52,8 @@ requires:
     condition: [ 'device_has_vdac' ]
   - name: emlib_pcnt
     condition: [ 'device_has_pcnt' ]
+  - name: emlib_pdm
+    condition: [ 'device_has_pdm' ]
   - name: emlib_prs
     condition: [ 'device_has_prs' ]
   - name: emlib_rmu

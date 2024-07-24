@@ -30,6 +30,11 @@
 #ifndef BLE_PEER_MANAGER_FILTER_CONFIG_H
 #define BLE_PEER_MANAGER_FILTER_CONFIG_H
 
+/***********************************************************************************************//**
+ * @addtogroup ble_peer_manager_filter
+ * @{
+ **************************************************************************************************/
+
 // <<< Use Configuration Wizard in Context Menu >>>
 
 // <q BLE_PEER_MANAGER_FILTER_LOG> Log
@@ -39,4 +44,5 @@
 
 // <<< end of configuration section >>>
 
+/** @} (end addtogroup ble_peer_manager_filter) */
 #endif // BLE_PEER_MANAGER_FILTER_CONFIG_H

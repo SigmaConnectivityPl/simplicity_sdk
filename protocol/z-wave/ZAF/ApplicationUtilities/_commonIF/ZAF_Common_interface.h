@@ -172,6 +172,14 @@ EInclusionMode_t ZAF_GetInclusionMode(void);
 bool isRfRegionValid(zpal_radio_region_t region);
 
 /**
+ * Check if eRegion is a Long Range region.
+ * Warning: the function does not check that the region is supported by the zpal.
+ * @param eRegion Region to check
+ * @return True if the region supports Long Range, False otherwise.
+ */
+bool ZAF_isLongRangeRegion(zpal_radio_region_t eRegion);
+
+/**
  * Registers a wake up function to keep the node awake.
  *
  * The function will be invoked on every reception of a frame to keep the node awake.

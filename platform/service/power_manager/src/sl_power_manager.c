@@ -36,6 +36,7 @@
 #include "sli_clock_manager.h"
 #include "sl_assert.h"
 #include "sl_atomic.h"
+#include "sl_clock_manager.h"
 
 #include "em_device.h"
 #if !defined(_SILICON_LABS_32B_SERIES_3)
@@ -214,6 +215,10 @@ sl_status_t sl_power_manager_init(void)
   CORE_DECLARE_IRQ_STATE;
 
   CORE_ENTER_CRITICAL();
+
+  // Initialize GPIO bus clock module if it hasn't been initialized
+  sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_GPIO);
+
   if (!is_initialized) {
     sl_status_t status = SL_STATUS_OK;
 

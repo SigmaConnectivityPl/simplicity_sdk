@@ -120,13 +120,3 @@ void sli_802154mac_send_enhanced_beacon(uint8_t mac_index)
 {
   (void)mac_index;
 }
-
-sl_802154_short_addr_t sli_zigbee_stack_child_id(uint8_t childIndex)
-{
-  return 0;
-}
-
-uint8_t sli_zigbee_stack_child_index(sl_802154_short_addr_t childId)
-{
-  return 0xFF;
-}

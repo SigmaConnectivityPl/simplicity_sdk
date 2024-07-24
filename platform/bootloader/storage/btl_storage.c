@@ -100,6 +100,7 @@ static int32_t installImageFromSlot(int32_t slotId)
 {
   BootloaderParserContext_t parseContext;
   int32_t ret;
+  uint32_t deltaGBLLength = 0;
 
   BTL_DEBUG_PRINT("Slot: ");
   BTL_DEBUG_PRINT_WORD_HEX(slotId);
@@ -120,6 +121,24 @@ static int32_t installImageFromSlot(int32_t slotId)
     BTL_DEBUG_PRINTLN("Verify fail");
     return BOOTLOADER_ERROR_STORAGE_BOOTLOAD;
   }
+#if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
+  deltaGBLLength = parseContext.parserContext.deltaGBLLength;
+  if ((parseContext.imageProperties.contents & BTL_IMAGE_CONTENT_DELTA)
+      && ((parseContext.imageProperties.contents & BTL_IMAGE_CONTENT_SE)
+          || (parseContext.imageProperties.contents & BTL_IMAGE_CONTENT_BOOTLOADER))) {
+    //Comes here only if the GBL has Bootloader/SE and a delta patch.
+    //Extract and don't copy the firmware. Then continue with the rest of the images.
+    BTL_DEBUG_PRINTLN("Image has delta.");
+    uint32_t startOfAppSpace = BTL_APPLICATION_BASE;
+    uint32_t pc = *(uint32_t *)(startOfAppSpace + 4);
+    if (pc != 0xFFFFFFFF) {
+      BTL_DEBUG_PRINTLN("Valid App in App Space. Start Reconstruction.");
+      storage_bootloadApplicationFromSlot(
+        parseContext.slotId,
+        parseContext.imageProperties.application.version, deltaGBLLength);
+    }
+  }
+#endif
 
 #if (_SILICON_LABS_32B_SERIES == 1)
   // The upgrade address can be placed to not overlap with application images on Series-2.
@@ -210,7 +229,7 @@ static int32_t installImageFromSlot(int32_t slotId)
     if ((parseContext.imageProperties.contents & BTL_IMAGE_CONTENT_APPLICATION)
         && !storage_bootloadApplicationFromSlot(
           parseContext.slotId,
-          parseContext.imageProperties.application.version)) {
+          parseContext.imageProperties.application.version, deltaGBLLength)) {
       // App upgrade failed.
       BTL_DEBUG_PRINTLN("App upgrade fail");
       // Continue to next image

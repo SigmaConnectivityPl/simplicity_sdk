@@ -4,7 +4,7 @@ label: BLE Peer Manager Peripheral
 description: >
   Peer Manager for Bluetooth Low Energy. Responsible for advertising and 
   creating connections. The user can set the advertising parameters.
-category: Bluetooth|Application|Miscellaneous|BLE Peer Manager
+category: Bluetooth|Application|Miscellaneous
 quality: production
 root_path: app/bluetooth/common/ble_peer_manager/peripheral
 include:

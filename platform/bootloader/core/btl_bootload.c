@@ -48,6 +48,11 @@ MISRAC_ENABLE
 
 // Flashing
 #include "core/flash/btl_internal_flash.h"
+#if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
+#include "storage/btl_storage.h"
+#include "btl_interface_parser.h"
+#include "btl_parse.h"
+#endif
 
 // Debug
 #include "debug/btl_debug.h"
@@ -308,18 +313,32 @@ SL_WEAK void bootload_applicationCallback(uint32_t address,
                                           size_t   length,
                                           void     *context)
 {
-  (void) context;
-  // Check if addresses to write to are within writeable space
-  if ((address < (uint32_t)(mainBootloaderTable->startOfAppSpace))
-      || ((address + length)
-          > (uint32_t)(mainBootloaderTable->endOfAppSpace))) {
-    BTL_DEBUG_PRINT("OOB 0x");
-    BTL_DEBUG_PRINT_WORD_HEX(address);
-    BTL_DEBUG_PRINT_LF();
-    return;
-  }
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+  BootloaderParserContext_t *ctx = (BootloaderParserContext_t *) context;
+  if (ctx->parserContext.newFwCRC != 0x00) {
+    uint32_t startOfAppSpace = BTL_APPLICATION_BASE;
+    uint32_t pc = *(uint32_t *)(startOfAppSpace + 4);
+    if (pc != 0xFFFFFFFF) {
+      //Carry out the patch extraction only if a valid app is present in the
+      //app area.
+      storage_writeRaw(address, data, length);
+    }
+  } else
+#endif
+  {
+    (void) context;
+    // Check if addresses to write to are within writeable space
+    if ((address < (uint32_t)(mainBootloaderTable->startOfAppSpace))
+        || ((address + length)
+            > (uint32_t)(mainBootloaderTable->endOfAppSpace))) {
+      BTL_DEBUG_PRINT("OOB 0x");
+      BTL_DEBUG_PRINT_WORD_HEX(address);
+      BTL_DEBUG_PRINT_LF();
+      return;
+    }
 
-  flashData(address, data, length);
+    flashData(address, data, length);
+  }
 }
 
 SL_WEAK void bootload_bootloaderCallback(uint32_t offset,

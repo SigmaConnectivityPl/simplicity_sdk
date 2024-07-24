@@ -149,7 +149,7 @@ bool sl_zigbee_af_on_off_cluster_off_cb(void)
     sl_zigbee_af_zll_on_off_server_off_zll_extensions(sl_zigbee_af_current_command());
   }
 #endif
-  UNUSED_VAR(status);
+  sl_zigbee_af_send_immediate_default_response(status);
   return true;
 }
 
@@ -163,7 +163,7 @@ bool sl_zigbee_af_on_off_cluster_on_cb(void)
     sl_zigbee_af_zll_on_off_server_on_zll_extensions(sl_zigbee_af_current_command());
   }
 #endif
-  UNUSED_VAR(status);
+  sl_zigbee_af_send_immediate_default_response(status);
   return true;
 }
 
@@ -177,7 +177,7 @@ bool sl_zigbee_af_on_off_cluster_toggle_cb(void)
     sl_zigbee_af_zll_on_off_server_toggle_zll_extensions(sl_zigbee_af_current_command());
   }
 #endif
-  UNUSED_VAR(status);
+  sl_zigbee_af_send_immediate_default_response(status);
   return true;
 }
 

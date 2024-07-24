@@ -31,6 +31,11 @@
 #ifndef CS_ANTENNA_H
 #define CS_ANTENNA_H
 
+/***********************************************************************************************//**
+ * @addtogroup cs_antenna
+ * @{
+ **************************************************************************************************/
+
 #include "sl_status.h"
 #include <stdbool.h>
 
@@ -49,4 +54,5 @@ sl_status_t cs_antenna_configure(bool wired);
 };
 #endif
 
+/** @} (end addtogroup cs_antenna) */
 #endif // CS_ANTENNA_H

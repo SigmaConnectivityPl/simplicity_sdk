@@ -43,3 +43,7 @@ define:
     value: 0
   - name: "OPENTHREAD_POSIX_CONFIG_CONFIGURATION_FILE_ENABLE"
     value: 0
+
+metadata:
+  sbom:
+    license: Zlib

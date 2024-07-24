@@ -5,6 +5,9 @@ description: Configuration over SWO (COS) Component.
              Note that installing of this component would consume ~0.3ms additional startup time.
 category: Platform|Board Drivers
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: "hardware/driver/configuration_over_swo"
 provides:
   - name: configuration_over_swo

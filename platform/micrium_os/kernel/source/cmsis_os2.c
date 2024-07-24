@@ -66,6 +66,11 @@
 
 #if defined CMSIS_RTOS2_TIMER_TASK_EN && (CMSIS_RTOS2_TIMER_TASK_EN == DEF_ENABLED)
 
+// If we have the timer task, enable the task garbage collect capabilities.
+#if !defined(ENABLE_MICRIUM_TASK_EXIT_GARBAGE_COLLECT)
+#define ENABLE_MICRIUM_TASK_EXIT_GARBAGE_COLLECT 1
+#endif
+
 #ifndef CMSIS_RTOS2_TIMER_TASK_STACK_SIZE
 #error CMSIS Timer task stack size not configured
 #endif
@@ -78,10 +83,18 @@
 #error CMSIS Timer task queue size not configured
 #endif
 
-static OS_TCB   timer_task_tcb;
-static CPU_STK  timer_task_stack[CMSIS_RTOS2_TIMER_TASK_STACK_SIZE];
 static OS_Q     timer_msg_queue;
 
+#endif
+
+#if defined(ENABLE_MICRIUM_TASK_EXIT_GARBAGE_COLLECT)
+#define CMSIS_RTOS2_TASK_DELETION_QUEUE_SIZE   8U
+
+static OS_TCB   timer_task_tcb;
+static CPU_STK  timer_task_stack[CMSIS_RTOS2_TIMER_TASK_STACK_SIZE];
+static OS_SEM   timer_task_event_ready_sem;
+
+static OS_Q     task_deletion_msg_queue;
 #endif
 
 /********************************************************************************************************
@@ -100,34 +113,74 @@ static void sleeptimer_callback(sl_sleeptimer_timer_handle_t *handle, void *data
 
   OSQPost(&timer_msg_queue,
           (void *)data,
-          sizeof(void *),
+          sizeof(void*),
           OS_OPT_POST_FIFO,
           &err
           );
+
+  RTOS_ASSERT_CRITICAL((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), RTOS_ERR_CODE_GET(err),; );
+
+  OSSemPost(&timer_task_event_ready_sem, OS_OPT_POST_1, &err);
+
   RTOS_ASSERT_CRITICAL((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), RTOS_ERR_CODE_GET(err),; );
 }
+#endif
 
+#if defined CMSIS_RTOS2_TIMER_TASK_EN && (CMSIS_RTOS2_TIMER_TASK_EN == DEF_ENABLED) || defined(ENABLE_MICRIUM_TASK_EXIT_GARBAGE_COLLECT)
 static void timer_task(void *arg)
 {
-  RTOS_ERR err;
-  OS_MSG_SIZE size;
-  osTimer_t *p_tmr;
+  RTOS_ERR      err;
+  osThread_t   *p_thread;
+  CPU_STK      *p_stk_base;
+  OS_MSG_SIZE  size;
   (void)arg;
 
   while (1) {
-    p_tmr = (osTimer_t *)OSQPend(&timer_msg_queue,
-                                 0,
-                                 OS_OPT_PEND_BLOCKING,
-                                 &size,
-                                 NULL,
-                                 &err);
-    if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
-      continue;
-    }
+      // Waiting for either a timer tick or a deleted thread needing to be garbage collected.
+      OSSemPend(&timer_task_event_ready_sem, 0U,  OS_OPT_PEND_BLOCKING, DEF_NULL, &err);
+      
+      RTOS_ASSERT_CRITICAL((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), RTOS_ERR_CODE_GET(err),; );
 
-    if (p_tmr != NULL) {
-      p_tmr->callback(p_tmr->callback_data);
-    }
+#if defined CMSIS_RTOS2_TIMER_TASK_EN && (CMSIS_RTOS2_TIMER_TASK_EN == DEF_ENABLED)
+      do {
+        osTimer_t *p_tmr = OSQPend(&timer_msg_queue,
+                   0,
+                   OS_OPT_PEND_NON_BLOCKING,
+                   &size,
+                   NULL,
+                   &err);
+
+        if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE && p_tmr != NULL) {
+          p_tmr->callback(p_tmr->callback_data);
+        }
+      } while (RTOS_ERR_CODE_GET(err) != RTOS_ERR_WOULD_BLOCK);
+#endif
+
+      do
+      {
+        p_thread = (osThread_t *)OSQPend(&task_deletion_msg_queue,
+             0,
+             OS_OPT_PEND_NON_BLOCKING,
+             &size,
+             NULL,
+             &err);
+
+        if (RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE && p_thread != NULL) {
+          p_stk_base = p_thread->tcb.StkBasePtr;
+          
+          OSTaskDel(&p_thread->tcb, &err);
+          
+          RTOS_ASSERT_CRITICAL((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), RTOS_ERR_CODE_GET(err),; );
+          
+          if (p_thread->stack_dyn_alloc == DEF_TRUE) {
+            free(p_stk_base);
+          }
+          
+          if (p_thread->obj_dyn_alloc == DEF_TRUE) {
+            free(p_thread);
+          }
+        }
+      } while (RTOS_ERR_CODE_GET(err) != RTOS_ERR_WOULD_BLOCK);
   }
 }
 #endif
@@ -166,7 +219,7 @@ static void timer_task(void *arg)
 osStatus_t  osKernelInitialize(void)
 {
   RTOS_ERR   err;
-
+  
   if (OSRunning == OS_STATE_OS_RUNNING) {
     if (CORE_InIrqContext() == true) {
       return osErrorISR;
@@ -189,7 +242,13 @@ osStatus_t  osKernelInitialize(void)
     return osError;
   }
 
-#if defined CMSIS_RTOS2_TIMER_TASK_EN && (CMSIS_RTOS2_TIMER_TASK_EN == DEF_ENABLED)
+#if (defined(ENABLE_MICRIUM_TASK_EXIT_GARBAGE_COLLECT) && ENABLE_MICRIUM_TASK_EXIT_GARBAGE_COLLECT == 1)
+  OSSemCreate(&timer_task_event_ready_sem, "Timer task event ready", 0, &err);
+  
+  if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
+    return osError;
+  }
+
   OSTaskCreate(&timer_task_tcb,
                "CMSIS RTOS2 Timer Task",
                timer_task,
@@ -203,19 +262,32 @@ osStatus_t  osKernelInitialize(void)
                (void *)0,
                OS_OPT_TASK_STK_CHK + OS_OPT_TASK_STK_CLR,
                &err);
+
   if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
     return osError;
   }
 
+  OSQCreate(&task_deletion_msg_queue,
+            "CMSIS RTOS2 Task deletion Queue",
+            CMSIS_RTOS2_TASK_DELETION_QUEUE_SIZE,
+            &err);
+
+  if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
+    return osError;
+  }
+#endif
+
+#if defined CMSIS_RTOS2_TIMER_TASK_EN && (CMSIS_RTOS2_TIMER_TASK_EN == DEF_ENABLED)
   OSQCreate(&timer_msg_queue,
             "CMSIS RTOS2 Timer Queue",
             CMSIS_RTOS2_TIMER_TASK_QUEUE_SIZE,
             &err);
+
   if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
     return osError;
   }
-
 #endif
+
   return osOK;
 }
 
@@ -2738,10 +2810,8 @@ osStatus_t  osThreadJoin(osThreadId_t  thread_id)
  */
 void  osThreadExit(void)
 {
-  RTOS_ERR  err;
-
   if (CORE_InIrqContext() == false) {
-    OSTaskDel((OS_TCB *)0, &err);
+    osThreadTerminate(osThreadGetId());
   }
   for (;; ) {
     ;       // This function cannot return
@@ -2767,6 +2837,9 @@ void  osThreadExit(void)
  *              osErrorISR          the function osThreadSuspend cannot be called from interrupt service routines.
  *
  * Note(s)    : 1) This function CANNOT be called from an ISR
+ *              2) The delete current task feature relies on the activation of the Timer task and should be enabled
+ *                 with the CMSIS_RTOS2_TIMER_TASK_EN  or with the ENABLE_MICRIUM_TASK_EXIT_GARBAGE_COLLECT 
+ *                 configuration.
  ****************************************************************************************************
  */
 osStatus_t  osThreadTerminate(osThreadId_t  thread_id)
@@ -2784,6 +2857,38 @@ osStatus_t  osThreadTerminate(osThreadId_t  thread_id)
   if (p_thread == (osThread_t *)0) {
     return osErrorParameter;
   }
+
+#if defined(ENABLE_MICRIUM_TASK_EXIT_GARBAGE_COLLECT)
+  if (thread_id == osThreadGetId()) {
+
+    // Kernel should be running when calling thread terminate on self.
+    if (osKernelGetState() != osKernelRunning) {
+      return osError;
+    }
+
+    OSQPost(&task_deletion_msg_queue,
+            thread_id,
+            sizeof(void*),
+            OS_OPT_POST_FIFO,
+            &err
+            );
+    
+    RTOS_ASSERT_CRITICAL((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), RTOS_ERR_CODE_GET(err),; );
+
+    OSSemPost(&timer_task_event_ready_sem, OS_OPT_POST_1, &err);
+  
+    RTOS_ASSERT_CRITICAL((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), RTOS_ERR_CODE_GET(err),; );
+
+    // Suspend self waiting for the timer task to terminate the current task and release its ressources.
+    OSTaskSuspend(NULL, &err);
+
+    RTOS_ASSERT_CRITICAL((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), RTOS_ERR_CODE_GET(err),; );
+
+    // Waiting for garbage collect.
+    while (true) {
+    }
+  }
+#endif
 
   p_stk_base = p_thread->tcb.StkBasePtr;
 

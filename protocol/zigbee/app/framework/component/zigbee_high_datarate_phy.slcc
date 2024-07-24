@@ -14,6 +14,20 @@ include:
   - path: protocol/zigbee/app/framework/plugin-soc/high_datarate_phy
     file_list:
       - path: high_datarate_phy.h
+  - path: protocol/zigbee/stack/include
+    file_list:
+      - path: high_datarate_phy_stack_interface.h
+  - path: protocol/zigbee/stack/internal/inc
+    file_list:
+      - path: high_datarate_phy_stack_interface_internal_def.h
+  - path: protocol/zigbee/stack/internal/src/ipc
+    file_list:
+      - path: high_datarate_phy_stack_interface_ipc_command_messages.h
+        condition:
+          - zigbee_use_ipc
+      - path: high_datarate_phy_stack_interface_ipc_callback_events.h
+        condition:
+          - zigbee_use_ipc
 
 source:
   - path: protocol/zigbee/app/framework/plugin-soc/high_datarate_phy/high_datarate_phy.c

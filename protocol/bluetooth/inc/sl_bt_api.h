@@ -11569,6 +11569,15 @@ typedef enum
   sl_bt_cs_abort_reason_no_map_update         = 0x3, /**< (0x3) Channel map
                                                           update instant has
                                                           passed */
+  sl_bt_cs_abort_reason_busy                  = 0xb, /**< (0xb) Controller busy
+                                                          with other CS
+                                                          Procedure */
+  sl_bt_cs_abort_reason_sync_error            = 0xc, /**< (0xc) Mode-0 packet
+                                                          exchanges failure */
+  sl_bt_cs_abort_reason_scheduling_conflict   = 0xd, /**< (0xd) Link Layer
+                                                          failed to schedule the
+                                                          CS procedure */
+  sl_bt_cs_abort_reason_radio_failure         = 0xe, /**< (0xe) Radio error */
   sl_bt_cs_abort_reason_unspecified           = 0xf  /**< (0xf) Unspecified
                                                           reasons for abortion */
 } sl_bt_cs_abort_reason_t;
@@ -12033,6 +12042,17 @@ PACKSTRUCT( struct sl_bt_evt_cs_result_s
                                             - <b>sl_bt_cs_abort_reason_no_map_update
                                               (0x3):</b> Channel map update
                                               instant has passed
+                                            - <b>sl_bt_cs_abort_reason_busy
+                                              (0xb):</b> Controller busy with
+                                              other CS Procedure
+                                            - <b>sl_bt_cs_abort_reason_sync_error
+                                              (0xc):</b> Mode-0 packet exchanges
+                                              failure
+                                            - <b>sl_bt_cs_abort_reason_scheduling_conflict
+                                              (0xd):</b> Link Layer failed to
+                                              schedule the CS procedure
+                                            - <b>sl_bt_cs_abort_reason_radio_failure
+                                              (0xe):</b> Radio error
                                             - <b>sl_bt_cs_abort_reason_unspecified
                                               (0xf):</b> Unspecified reasons for
                                               abortion */

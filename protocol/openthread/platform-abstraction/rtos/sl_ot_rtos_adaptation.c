@@ -333,3 +333,9 @@ __WEAK void sl_ot_rtos_release_stack_mutex(void)
     osStatus_t error = osMutexRelease(sli_ot_stack_mutex);
     OT_UNUSED_VARIABLE(error);
 }
+
+__WEAK bool sl_ot_rtos_try_acquire_stack_mutex(void)
+{
+    osStatus_t error = osMutexAcquire(sli_ot_stack_mutex, 0);
+    return (error == osOK);
+}

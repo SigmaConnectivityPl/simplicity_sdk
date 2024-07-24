@@ -28,6 +28,12 @@
  *
  ******************************************************************************/
 
+#include "rtl_log.h"
+#include "cs_initiator_config.h"
+
+#if CS_INITIATOR_RTL_LOG
+// RTL logging enabled
+
 #include "sl_rtl_clib_api.h"
 #include "sl_bt_version.h"
 #include "sl_power_manager.h"
@@ -49,7 +55,7 @@ void rtl_log_init(void)
   int ret;
   enum sl_rtl_error_code ec;
   const char hash[] = SL_BT_VERSION_HASH;
-  sl_rtl_log_configure_params config_params = {
+  sl_rtl_log_params config_params = {
     .log_callback_function = rtl_log_callback,
     .sdk_version = { 0 },
     .command_line_options = { 0 }
@@ -102,3 +108,16 @@ static void rtl_log_callback(uint8_t *log_data, size_t log_data_len)
   // Keep the MCU awake until log message is sent.
   sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
 }
+
+#else // CS_INITIATOR_RTL_LOG
+// RTL logging disabled
+
+void rtl_log_init(void)
+{
+}
+
+void rtl_log_step(void)
+{
+}
+
+#endif // CS_INITIATOR_RTL_LOG

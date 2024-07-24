@@ -35,6 +35,24 @@ const GblCustomTag_t gblCustomTags[] = {
     .numBytesRequired = gbl_lz4NumBytesRequired
   },
 #endif
+#if defined(BTL_PARSER_SUPPORT_LZ4) && defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+  {
+    .tagId = GBL_TAG_ID_DELTA_LZ4,
+    .enterTag = gbl_lz4EnterProgTag,
+    .parseTag = gbl_lz4ParseProgTag,
+    .exitTag = gbl_lz4ExitProgTag,
+    .numBytesRequired = gbl_lz4NumBytesRequired
+  },
+#endif
+#if defined(BTL_PARSER_SUPPORT_LZMA) && defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+  {
+    .tagId = GBL_TAG_ID_DELTA_LZMA,
+    .enterTag = gbl_lzmaEnterProgTag,
+    .parseTag = gbl_lzmaParseProgTag,
+    .exitTag = gbl_lzmaExitProgTag,
+    .numBytesRequired = gbl_lzmaNumBytesRequired
+  },
+#endif
 #if defined(BTL_PARSER_SUPPORT_LZMA)
   {
     .tagId = GBL_TAG_ID_PROG_LZMA,

@@ -115,11 +115,17 @@ typedef enum {
   GblParserStateMetadataData,         ///< Parsing metadata tag data
   GblParserStateProg,                 ///< Parsing flash program tag
   GblParserStateProgData,             ///< Parsing flash program tag data
+#if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
+  GblParserStateDeltaData,            ///< Parsing delta DFU tag data
+#endif
 #if defined(SEMAILBOX_PRESENT) || defined(CRYPTOACC_PRESENT)
   GblParserStateSe,                   ///< Parsing SE tag
   GblParserStateSeData,               ///< Parsing SE tag data
 #endif
   GblParserStateEraseProg,            ///< Parsing flash erase&program tag
+#if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
+  GblParserStateDelta,                ///< Parsing Delta DFU Tag
+#endif
   GblParserStateFinalize,             ///< Finalizing file
   GblParserStateDone,                 ///< Parsing complete
   GblParserStateEncryptionInit,       ///< Parsing encryption init tag
@@ -197,7 +203,8 @@ typedef struct {
 #define BTL_IMAGE_CONTENT_BOOTLOADER        0x02U
 /// Upgrade image contains SE upgrade
 #define BTL_IMAGE_CONTENT_SE                0x04U
-
+/// Upgrade image contains Delta upgrade
+#define BTL_IMAGE_CONTENT_DELTA             0x08U
 /// Application upgrade should be applied from upgrade image
 #define BTL_IMAGE_INSTRUCTION_APPLICATION   0x01U
 /// Bootloader upgrade should be applied from upgrade image
@@ -249,6 +256,20 @@ typedef struct {
   uint32_t            fileCrc;
   /// Context for custom tag
   uint32_t            customTagId;
+#if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
+  /// Length of Delta patch GBl
+  uint32_t            deltaGBLLength;
+  /// Address where the GBL has to be extracted
+  uint32_t            deltaPatchAddress;
+  /// Length of extracted data
+  uint32_t            lengthOfPatch;
+  /// CRC of expected image
+  uint32_t            newFwCRC;
+  //Size of the newly created firmware
+  uint32_t            newFwSize;
+  /// Enable delta GBL length counting
+  bool                enableDeltaGBLLenCount;
+#endif
 #if defined(_SILICON_LABS_32B_SERIES_2)
   /// GBL Certificate
   ApplicationCertificate_t certificate;

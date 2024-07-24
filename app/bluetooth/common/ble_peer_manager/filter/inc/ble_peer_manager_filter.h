@@ -30,6 +30,11 @@
 #ifndef BLE_PEER_MANAGER_FILTER_H
 #define BLE_PEER_MANAGER_FILTER_H
 
+/***********************************************************************************************//**
+ * @addtogroup ble_peer_manager_filter
+ * @{
+ **************************************************************************************************/
+
 #include <stdbool.h>
 #include "sl_status.h"
 #include "sl_bt_api.h"
@@ -226,4 +231,15 @@ bool ble_peer_manager_find_match(bd_addr *address,
 
 bool ble_peer_manager_is_filter_set_allowed(void);
 
+/**************************************************************************//**
+ * Parse BT address from string.
+ *
+ * @param[in] str Hexadecimal representation of the BLE address with optional
+ *                separator characters ':' or ' ', e.g. "AA:BB:CC:DD:EE:FF".
+ * @param[out] address Output.
+ * @return Status of the operation.
+ *****************************************************************************/
+sl_status_t ble_peer_manager_str_to_address(const char *str, bd_addr *address);
+
+/** @} (end addtogroup ble_peer_manager_filter) */
 #endif // BLE_PEER_MANAGER_FILTER_H

@@ -22,7 +22,7 @@
  */
 
 /**
- * Application Major Version <1..255:1>
+ * Application Major Version <0..255:1>
  *
  */
 #if !defined(APP_VERSION)
@@ -30,7 +30,7 @@
 #endif /* !defined(APP_VERSION) */
 
 /**
- * Application Minor Version <1..255:1>
+ * Application Minor Version <0..255:1>
  *
  */
 #if !defined(APP_REVISION)
@@ -38,7 +38,7 @@
 #endif /* !defined(APP_REVISION) */
 
 /**
- * Application Patch Version <1..255:1>
+ * Application Patch Version <0..255:1>
  *
  */
 #if !defined(APP_PATCH)

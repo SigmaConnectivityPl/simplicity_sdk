@@ -29,6 +29,11 @@
  ******************************************************************************/
 
 #include "rtl_log.h"
+#include "cs_initiator_config.h"
+
+#if CS_INITIATOR_RTL_LOG
+// RTL logging enabled
+
 #include "app_log.h"
 #include "app_assert.h"
 #include "cs_acp.h"
@@ -121,3 +126,21 @@ void rtl_log_deinit(void)
     app_log_error("Failed to close RTL log file" APP_LOG_NL);
   }
 }
+
+#else // CS_INITIATOR_RTL_LOG
+// RTL logging disabled
+
+void rtl_log_init(void)
+{
+}
+
+void rtl_log_deinit(void)
+{
+}
+
+void rtl_log_on_event(cs_acp_log_evt_t *log_evt)
+{
+  (void)log_evt;
+}
+
+#endif // CS_INITIATOR_RTL_LOG

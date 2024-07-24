@@ -260,7 +260,7 @@ sl_status_t sli_clock_manager_hal_get_clock_branch_frequency(sl_clock_branch_t c
       *frequency = CMU_ClockFreqGet(cmuClock_EUSART0CLK);
       break;
 #endif
-#if defined(_CMU_LCDCLKCTRL_MASK)
+#if defined(LCD_PRESENT) && defined(_CMU_LCDCLKCTRL_MASK)
     case SL_CLOCK_BRANCH_LCDCLK:
       *frequency = CMU_ClockFreqGet(cmuClock_LCDCLK);
       break;
@@ -430,7 +430,7 @@ sl_status_t sli_clock_manager_hal_get_clock_branch_precision(sl_clock_branch_t c
       return_status =  SL_STATUS_NOT_SUPPORTED;
       break;
 #endif
-#if defined(_CMU_LCDCLKCTRL_MASK)
+#if defined(LCD_PRESENT) && defined(_CMU_LCDCLKCTRL_MASK)
     case SL_CLOCK_BRANCH_LCDCLK:
       *precision = CMU_LF_ClockPrecisionGet(cmuClock_LCDCLK);
       if (*precision == 0xFFFF) {

@@ -64,3 +64,4 @@ otLogLevel OT_API_WRAPPER_NAME(otLoggingGetLevel)(void)
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
+

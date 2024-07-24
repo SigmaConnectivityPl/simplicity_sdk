@@ -2,13 +2,13 @@ id: spidrv_core
 label: "SPIDRV Core"
 package: "platform"
 description: >
-  The SPI driver sets up the USART for SPI communication and supports
+  The SPI driver sets up SPI communication and supports
   both master and slave roles. Both blocking and interrupt driven asynchrounous
   APIs are provided for transmit and receive operations.
 
 
   This component includes only the SPI driver core. To configure and create
-  instances of this driver, the SPIDRV component should be included in the 
+  instances of this driver, the SPIDRV_USART or SPIDRV_EUSART component should be included in the 
   project.
 category: "Platform|Driver|SPI"
 quality: "production"

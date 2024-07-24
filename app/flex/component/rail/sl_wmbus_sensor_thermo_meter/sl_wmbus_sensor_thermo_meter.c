@@ -40,7 +40,9 @@
 #include "sl_i2cspm_instances.h"
 #include "app_assert.h"
 #include "sl_wmbus_packet_assembler.h"
-
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+#include "sl_udelay.h"
+#endif
 #if defined(SL_CATALOG_SEGMENT_LCD_DRIVER_PRESENT)
 #include "sl_segmentlcd.h"
 #endif
@@ -122,7 +124,12 @@ sl_status_t sl_wmbus_sensor_thermo_meter_init(void)
   if (!sl_si70xx_present(sl_i2cspm_sensor, SI7021_ADDR, &device_id)) {
     // wait a bit before re-trying
     // the si7021 sensor can take up to 80 ms (25 ms @25 deg C) to start up
-    sl_sleeptimer_delay_millisecond(80);
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+      // we can't use sleeptimer before the scheduler start.
+      sl_udelay_wait(80000);
+#else
+      sl_sleeptimer_delay_millisecond(80);
+#endif
     // init temperature sensor (2nd attempt)
     if (!sl_si70xx_present(sl_i2cspm_sensor, SI7021_ADDR, &device_id)) {
       return SL_STATUS_FAIL;

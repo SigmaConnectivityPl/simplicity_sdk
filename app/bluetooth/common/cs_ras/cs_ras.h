@@ -31,6 +31,11 @@
 #ifndef CS_RAS_H
 #define CS_RAS_H
 
+/***********************************************************************************************//**
+ * @addtogroup cs_ras
+ * @{
+ **************************************************************************************************/
+
 #include "sl_common.h"
 #include "sl_bgapi.h"
 #include "sl_status.h"
@@ -109,9 +114,10 @@ void cs_ras_periodic_notification_mode_set_enabled(bool state);
 bool cs_ras_periodic_notification_mode_enabled(void);
 
 /**************************************************************************//**
- * CS initiator init function that sets the first discovery and
- * initiator config and register the selected callback function pointer as a
- * callback for the distance measurement.
+ * Parse a RAS control point message and extract the payload contents.
+ * The opcode in the result structure will indicate whether
+ * the parsing was successful.
+ *
  * @param[in] message pointer to the RAS message
  * @param[in] message_len length of the message
  * @return ras_control_point_parse_result struct with the results
@@ -139,4 +145,5 @@ sl_status_t cs_ras_create_control_point_response(uint8_t *data,
 };
 #endif
 
+/** @} (end addtogroup cs_ras) */
 #endif // CS_RAS_H

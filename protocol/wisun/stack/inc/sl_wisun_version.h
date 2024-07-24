@@ -36,7 +36,7 @@
 #endif
 
 #ifndef SL_WISUN_VERSION_MINOR
-#define SL_WISUN_VERSION_MINOR 0
+#define SL_WISUN_VERSION_MINOR 1
 #endif
 
 #ifndef SL_WISUN_VERSION_PATCH

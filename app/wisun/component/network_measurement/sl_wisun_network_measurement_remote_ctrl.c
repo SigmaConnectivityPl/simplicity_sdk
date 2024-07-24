@@ -57,7 +57,7 @@
 // -----------------------------------------------------------------------------
 
 /// Network Measurement Remote Control buffer size
-#define SL_WISUN_NWM_REMOTE_CTRL_BUFF_SIZE                 2048UL
+#define SL_WISUN_NWM_REMOTE_CTRL_BUFF_SIZE                 1024UL
 
 /// Remote CLI measurement max query length
 #define SL_WISUN_NWM_REMOTE_CTRL_MAX_QUERY_LENGTH          (SL_WISUN_NWM_REMOTE_CTRL_BUFF_SIZE)

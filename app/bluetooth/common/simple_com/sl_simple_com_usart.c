@@ -216,12 +216,12 @@ void sl_simple_com_receive(void)
   // Clear pending RX interrupt flag in NVIC
   NVIC_ClearPendingIRQ(irq_number);
   NVIC_EnableIRQ(irq_number);
-  // Setup RX timeout to 65 bit-time
+  // Setup RX timeout to 255 bit-time
   uartdrv_handle->peripheral.uart->TIMECMP1 = \
     (USART_TIMECMP1_TSTOP_RXACT
      | USART_TIMECMP1_TSTART_RXEOF
      | USART_TIMECMP1_RESTARTEN
-     | (0x40 << _USART_TIMECMP1_TCMPVAL_SHIFT));
+     | (0xff << _USART_TIMECMP1_TCMPVAL_SHIFT));
   // Clear any USART interrupt flags
   USART_IntClear(uartdrv_handle->peripheral.uart, _USART_IF_MASK);
   CORE_ATOMIC_SECTION(
@@ -266,6 +266,11 @@ SL_WEAK void sl_simple_com_receive_cb(sl_status_t status,
   (void)len;
 }
 
+void sli_simple_com_cancel_receive(void)
+{
+  (void) cancel_receive(uartdrv_handle);
+}
+
 // -----------------------------------------------------------------------------
 // Private functions
 
@@ -279,29 +284,31 @@ SL_WEAK void sl_simple_com_receive_cb(sl_status_t status,
  *****************************************************************************/
 void sli_simple_com_isr(void)
 {
+  CORE_DECLARE_IRQ_STATE;
   // RX timeout, stop transfer and handle what we got in buffer
   if (uartdrv_handle->peripheral.uart->IF & USART_IF_TCMP1) {
-    CORE_DECLARE_IRQ_STATE;
-
-    CORE_ENTER_ATOMIC();
     // Assert nRTS
+    UARTDRV_FlowControlSet(uartdrv_handle, uartdrvFlowControlOff);
+
+    // Atomic section ensures that other ISRs with lower or equal priorities won't disrupt these operations.
+    CORE_ENTER_ATOMIC();
+    // Mask further TCMP1 interrupts (until receive will be restarted)
+    USART_IntDisable(uartdrv_handle->peripheral.uart, USART_IF_TCMP1);
+    // Clear current timer compare interrupt flag
     USART_IntClear(uartdrv_handle->peripheral.uart,
                    USART_IF_TCMP1);
-    uartdrv_handle->peripheral.uart->TIMECMP1 &= ~_USART_TIMECMP1_TSTART_MASK;
-    // Restart TCMP1 as RX timeout timer and let it run "free"
-    uartdrv_handle->peripheral.uart->TIMECMP1 |= USART_TIMECMP1_TSTART_RXEOF
-                                                 | USART_TIMECMP1_RESTARTEN;
-    // Assert nRTS
-    if (uartdrv_handle->fcType != uartdrvFlowControlHwUart) {
-      UARTDRV_FlowControlSet(uartdrv_handle, uartdrvFlowControlOff);
-    }
 
-    // mask further TCMP1 interrupts (until receive will be restarted)
-    USART_IntDisable(uartdrv_handle->peripheral.uart, USART_IF_TCMP1);
+    // Raise to critical section to make the "blind spot" on RX (for the START edge) as short as possible.
+    CORE_CRITICAL_SECTION(
+      // TCMP1 needs to be stopped in order to be able to save power once we received a whole BGAPI message.
+      uartdrv_handle->peripheral.uart->TIMECMP1 &= ~_USART_TIMECMP1_TSTART_MASK;
+      // Restart TCMP1 as the RX timeout timer and let it run "free" as soon as a new START bit is detected.
+      uartdrv_handle->peripheral.uart->TIMECMP1 |= USART_TIMECMP1_TSTART_RXEOF
+                                                   | USART_TIMECMP1_RESTARTEN; )
+    receive_request = true;
+    CORE_EXIT_ATOMIC();
     // cancel previous block receive operation
     (void)cancel_receive(uartdrv_handle);
-    CORE_EXIT_ATOMIC();
-    receive_request = true;
   }
   if (uartdrv_handle->peripheral.uart->IF & USART_IF_RXOF) {
     // Assert nRTS
@@ -310,8 +317,10 @@ void sli_simple_com_isr(void)
     // even with the flow control method set to "None" (disabled).
     (void)UARTDRV_Abort(uartdrv_handle, uartdrvAbortReceive); // This call may do some RX state cleanup
 
+    CORE_ENTER_ATOMIC();
     USART_IntClear(uartdrv_handle->peripheral.uart, USART_IF_RXOF);
     receive_request = true;               // Reset
+    CORE_EXIT_ATOMIC();
   }
 }
 
@@ -427,6 +436,7 @@ static Ecode_t cancel_receive(UARTDRV_Handle_t handle)
   // until after the critical section. In this case, the buffers no longer
   // exist, even though the DMA complete callback was called.
   if (status == ECODE_EMDRV_UARTDRV_QUEUE_EMPTY) {
+    CORE_EXIT_ATOMIC();
     return ECODE_EMDRV_UARTDRV_QUEUE_EMPTY;
   }
   EFM_ASSERT(rxBuffer != NULL);
@@ -550,9 +560,11 @@ static IRQn_Type irq_number_from_handle(UARTDRV_Handle_t handle)
  *****************************************************************************/
 static Ecode_t uart_receive_start(UARTDRV_Handle_t handle)
 {
-  Ecode_t ec = UARTDRV_Receive(handle, rx_buf, sizeof(rx_buf), receive_cb);
-  receive_request = (ec != ECODE_EMDRV_UARTDRV_OK);
-
+  Ecode_t ec;
+  CORE_ATOMIC_SECTION(
+    ec = UARTDRV_Receive(handle, rx_buf, sizeof(rx_buf), receive_cb);
+    receive_request = (ec != ECODE_EMDRV_UARTDRV_OK);
+    )
   if (ec == ECODE_EMDRV_UARTDRV_OK) {
     USART_IntClear(uartdrv_handle->peripheral.uart,
                    USART_IF_TCMP1);

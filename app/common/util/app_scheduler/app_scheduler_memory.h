@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Application Scheduler Memory Management Interface
+ * @brief Scheduler Memory Management Interface
  *******************************************************************************
  * # License
- * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -27,7 +27,6 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-
 #ifndef APP_SCHEDULER_MEMORY_H
 #define APP_SCHEDULER_MEMORY_H
 

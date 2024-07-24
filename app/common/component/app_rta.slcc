@@ -20,6 +20,9 @@ description: >
   integration with the system.
 category: Application|Utility
 quality: evaluation
+metadata:
+  sbom:
+    license: Zlib
 tag:
   - Low-Code
 provides:

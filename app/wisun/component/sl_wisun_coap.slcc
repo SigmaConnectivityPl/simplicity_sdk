@@ -25,7 +25,13 @@ category: "Wi-SUN|Wi-SUN Services"
 quality: "production"
 metadata:
   sbom:
-    license: Zlib
+    license: Zlib AND Apache-2.0
+    upstream:
+      name: mbed-coap
+      version: 5.1.9
+      supplier: Pelion and affiliates
+      url: https://github.com/PelionIoT/mbed-coap/tree/v5.1.9
+
 root_path: "app/wisun/component/coap"
 
 requires:

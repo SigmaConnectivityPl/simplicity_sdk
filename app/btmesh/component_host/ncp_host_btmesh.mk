@@ -12,6 +12,7 @@ ifeq (1, ${HOST_THREADING})
 include $(SDK_DIR)/app/bluetooth/component_host/ncp_host_bt.mk
 else
 include $(SDK_DIR)/app/bluetooth/component_host/ncp_host_nothread.mk
+include $(SDK_DIR)/app/bluetooth/component_host/ncp_reset.mk
 endif
 
 override C_SRC += \

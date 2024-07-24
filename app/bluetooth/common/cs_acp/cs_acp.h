@@ -113,7 +113,8 @@ typedef PACKSTRUCT (struct {
 SL_ENUM(cs_acp_event_id_t) {
   CS_ACP_EVT_RESULT_ID = 0,
   CS_ACP_EVT_LOG_DATA_ID = 1,
-  CS_ACP_EVT_STATUS_ID = 2
+  CS_ACP_EVT_STATUS_ID = 2,
+  CS_ACP_EVT_INTERMEDIATE_RESULT_ID = 3
 };
 
 // Log source
@@ -131,6 +132,11 @@ typedef PACKSTRUCT (struct {
   uint8_t bit_error_rate;
 }) cs_acp_result_evt_t;
 
+// Intermediate result event data
+typedef PACKSTRUCT (struct {
+  float progress_percentage;
+}) cs_acp_intermediate_result_evt_t;
+
 // Log event data
 typedef PACKSTRUCT (struct {
   cs_acp_src_t src;
@@ -146,7 +152,7 @@ typedef PACKSTRUCT (struct {
 typedef PACKSTRUCT (struct {
   cs_acp_src_t src;
   sl_status_t sc;
-  cs_error_event_t error;
+  uint8_t error;
 }) cs_acp_status_t;
 
 // Event data
@@ -155,6 +161,7 @@ typedef PACKSTRUCT (struct {
   cs_acp_event_id_t acp_evt_id;
   union {
     cs_acp_result_evt_t result;
+    cs_acp_intermediate_result_evt_t intermediate_result;
     cs_acp_status_t stat;
     cs_acp_log_evt_t log;
   } data;

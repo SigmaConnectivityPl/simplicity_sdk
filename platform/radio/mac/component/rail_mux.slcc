@@ -40,3 +40,7 @@ template_contribution:
       runtime_phy_select_stack_support: 1
       update_active_radio_config: sl_rail_mux_update_active_radio_config
     priority: -9020
+
+metadata:
+  sbom:
+    license: MSLA

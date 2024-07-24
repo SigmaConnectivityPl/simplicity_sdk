@@ -182,7 +182,7 @@ typedef struct sl_wisun_meter_packet_packed {
   uint32_t humidity;
   /// Light       [Lux]
   uint16_t light;
-} sl_wisun_meter_packet_packed_t;
+} SL_ATTRIBUTE_PACKED sl_wisun_meter_packet_packed_t;
 SL_PACK_END()
 
 /// Collector received packet parser type definition

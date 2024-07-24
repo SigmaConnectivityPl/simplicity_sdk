@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS initiator component configuration
+ * @brief CS Initiator configuration
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -31,9 +31,14 @@
 #ifndef CS_INITIATOR_CONFIG_H
 #define CS_INITIATOR_CONFIG_H
 
+/***********************************************************************************************//**
+ * @addtogroup cs_initiator
+ * @{
+ **************************************************************************************************/
+
 // <<< Use Configuration Wizard in Context Menu >>>
 
-// <h> CS initiator component configuration
+// <h> CS Initiator configuration
 
 // <o CS_INITIATOR_MAX_CONNECTIONS> Specify maximum initiator connections <1..4>
 // <i> Default: 1
@@ -53,11 +58,25 @@
 #define CS_INITIATOR_MAX_STEP_DATA_LEN                (2048)
 #endif
 
-// <q CS_INITIATOR_LOG> Enable initiator log
+// <e CS_INITIATOR_LOG> Enable initiator log
 // <i> Default: 1
-// <i> Enable Initiator event buffer managers own log
+// <i> Enable Initiator component logger
 #ifndef CS_INITIATOR_LOG
-#define CS_INITIATOR_LOG                       (1)
+#define CS_INITIATOR_LOG                              (1)
+#endif
+
+// <s CS_INITIATOR_LOG_PREFIX> Log prefix
+// <i> Default: "[Initiator]"
+#ifndef CS_INITIATOR_LOG_PREFIX
+#define CS_INITIATOR_LOG_PREFIX                       "[Initiator]"
+#endif
+
+// </e>
+
+// <q CS_INITIATOR_RTL_LOG> Enable RTL log
+// <i> Default: 1
+#ifndef CS_INITIATOR_RTL_LOG
+#define CS_INITIATOR_RTL_LOG                          (1)
 #endif
 
 // <o CS_INITIATOR_CS_EVENT_BUF_SIZE> Size of the Channel Sounding event buffer [elements] <1..255>
@@ -86,28 +105,26 @@
 // <1=> Wired antenna offset
 // <i> Default: 0
 #ifndef CS_INITIATOR_ANTENNA_OFFSET
-#define CS_INITIATOR_ANTENNA_OFFSET                   (0)
-#endif
-
-// <e CS_INITIATOR_ERROR_TIMER_USED> Use error timer
-// <i> Enable usage of error timer
-// <i> Default: On
-#ifndef CS_INITIATOR_ERROR_TIMER_USED
-#define CS_INITIATOR_ERROR_TIMER_USED                 (1)
+#define CS_INITIATOR_ANTENNA_OFFSET                   0
 #endif
 
 // <o CS_INITIATOR_ERROR_TIMEOUT_MS> Error timeout [msec] <100-5000>
-
 // <i> Timeout value in order to avoid stuck in error state indefinitely.
-// <i> Once the time elapse the initiator instances' error callback executes to
+// <i> Once the time elapses the initiator instance's error callback executes to
 // <i> inform the user about the issue.
 // <i> Default: 3000
-#define CS_INITIATOR_ERROR_TIMEOUT_MS     3000
+#define CS_INITIATOR_ERROR_TIMEOUT_MS                3000
 
-// </e>
+// <o CS_INITIATOR_PROCEDURE_TIMEOUT_MS> CS procedure timeout [msec] <100-5000>
+// <i> Timeout value for procedures - in order to avoid getting stuck in a procedure indefinitely.
+// <i> Once the time elapses the initiator instance's error callback executes to
+// <i> inform the user about the issue.
+// <i> Default: 3000
+#define CS_INITIATOR_PROCEDURE_TIMEOUT_MS            3000
 
 // </h>
 
 // <<< end of configuration section >>>
 
+/** @} (end addtogroup cs_initiator) */
 #endif // CS_INITIATOR_CONFIG_H

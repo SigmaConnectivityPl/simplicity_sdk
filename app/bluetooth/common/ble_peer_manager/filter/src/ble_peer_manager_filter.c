@@ -27,6 +27,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#include <stdio.h>
 #include "sl_component_catalog.h"
 #include "sl_common.h"
 #include "ble_peer_manager_filter.h"
@@ -112,20 +113,10 @@ static ble_peer_manager_filter_t active_filter;
 // Public functions
 void ble_peer_manager_filter_init(void)
 {
-  active_filter.filter_set.total = FILTER_CLEARED;
-  active_filter.rssi = 0;
-  active_filter.device_name = NULL;
-  active_filter.device_name_len = 0;
   for (uint8_t i = 0; i < MAX_NUMBER_OF_ADDRESS_FILTERS; i++) {
     memset(&(active_filter.address[i].addr), 0xFF, sizeof(bd_addr));
   }
-  active_filter.address_type = INVALID_ADDRESS_TYPE;
-  active_filter.service_data = NULL;
-  active_filter.service_data_offset = 0;
-  active_filter.service_data_len = 0;
-  active_filter.manufacturer_data = NULL;
-  active_filter.manufacturer_data_offset = 0;
-  active_filter.manufacturer_data_len = 0;
+  ble_peer_manager_reset_filter();
 }
 
 void ble_peer_manager_set_filter_bt_address(bool enabled)
@@ -337,6 +328,15 @@ void ble_peer_manager_reset_filter()
   sl_free(active_filter.manufacturer_data);
   active_filter.manufacturer_data = NULL;
 
+  // Set values of active_filter to 0
+  active_filter.rssi = 0;
+  active_filter.device_name_len = 0;
+  active_filter.service_data_len = 0;
+  active_filter.manufacturer_data_len = 0;
+  active_filter.address_type = INVALID_ADDRESS_TYPE;
+  active_filter.service_data_offset = 0;
+  active_filter.manufacturer_data_offset = 0;
+
   // Set flags to 0
   active_filter.filter_set.total = FILTER_CLEARED;
 }
@@ -488,4 +488,38 @@ bool ble_peer_manager_find_match(bd_addr *address,
 SL_WEAK bool ble_peer_manager_is_filter_set_allowed()
 {
   return true;
+}
+
+sl_status_t ble_peer_manager_str_to_address(const char *str, bd_addr *address)
+{
+  if ((str == NULL) || (address == NULL)) {
+    return SL_STATUS_NULL_POINTER;
+  }
+  const char * const format[] = {
+    "%2X%2X%2X%2X%2X%2X%n",
+    "%2X:%2X:%2X:%2X:%2X:%2X%n"
+  };
+  // Due to the limitations of newlib, reading directly to the uint8_t array of
+  // the address variable doesn't work. This intermediate buffer also helps to
+  // leave the address value unchanged if the parsing fails.
+  unsigned int read_buffer[sizeof(bd_addr)];
+  for (size_t i = 0; i < sizeof(format) / sizeof(format[0]); i++) {
+    int processed = 0;
+    int items_read = sscanf(str,
+                            format[i],
+                            &read_buffer[5],
+                            &read_buffer[4],
+                            &read_buffer[3],
+                            &read_buffer[2],
+                            &read_buffer[1],
+                            &read_buffer[0],
+                            &processed);
+    if (items_read == sizeof(bd_addr) && str[processed] == '\0') {
+      for (int j = 0; j < items_read; j++) {
+        address->addr[j] = (uint8_t)read_buffer[j];
+      }
+      return SL_STATUS_OK;
+    }
+  }
+  return SL_STATUS_INVALID_PARAMETER;
 }

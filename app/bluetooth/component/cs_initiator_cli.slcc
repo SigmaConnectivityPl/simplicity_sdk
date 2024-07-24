@@ -1,0 +1,89 @@
+id: cs_initiator_cli
+package: Bluetooth
+label: CS Initiator CLI
+description: >
+  Command Line Interface (CLI) for the bt_cs_soc_initiator example.
+  Serves testing purposes only.
+category: Bluetooth|Application|Miscellaneous
+quality: experimental
+root_path: app/bluetooth/common/cs_initiator_cli
+include:
+  - path: .
+    file_list:
+      - path: cs_initiator_cli.h
+source:
+  - path: cs_initiator_cli.c
+provides:
+  - name: cs_initiator_cli
+requires:
+  - name: app_log
+  - name: ble_peer_manager_filter
+  - name: ble_peer_manager_central
+  - name: bluetooth_api
+  - name: cli
+  - name: component_catalog
+  - name: rtllib
+recommends:
+  - id: cli
+    instance:
+      - example
+template_contribution: 
+  - name: cli_command
+    value:
+      name: mode
+      handler: cs_initiator_cli_initiator_mode
+      shortcuts:
+        - name: sm
+      help: "Set mode"
+      argument:
+        - type: uint8
+          help: "PBR:2 or RTT:1"
+    condition:
+      - "cli"
+  - name: cli_command
+    value:
+      name: algo_mode
+      handler: cs_initiator_cli_initiator_algo_mode
+      shortcuts:
+        - name: sa
+      help: "Set algo_mode"
+      argument:
+        - type: uint8
+          help: "Moving Object Tracking:0 or Stationary Object Tracking:1"
+    condition:
+      - "cli"      
+  - name: cli_command
+    value:
+      name: filter_address
+      handler: cs_initiator_cli_initiator_filter_address
+      shortcuts:
+        - name: fa
+      help: "Set filter"
+      argument:
+        - type: string
+          help: "Filter address in format AA:BB:CC:DD:EE:FF or AABBCCDDEEFF."
+    condition:
+      - "cli"
+  - name: cli_command
+    value:
+      name: log_level
+      handler: cs_initiator_cli_initiator_log_level
+      shortcuts:
+        - name: ll
+      help: "Set log level"
+      argument:
+        - type: uint8
+          help: "Values: critical:0|error:1|warning:2|info:3|debug:4"
+    condition:
+      - "cli"
+  - name: cli_command
+    value:
+      name: start
+      handler: cs_initiator_cli_initiator_start
+      shortcuts:
+        - name: s
+      help: "Start scanning"
+    condition:
+      - "cli"
+  - name: component_catalog
+    value: cs_initiator_cli

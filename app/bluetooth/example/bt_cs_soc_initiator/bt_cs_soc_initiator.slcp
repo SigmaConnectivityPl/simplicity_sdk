@@ -2,10 +2,30 @@ project_name: bt_cs_soc_initiator
 package: Bluetooth
 label: Bluetooth - SoC CS Initiator
 description: >
-  CS initiator for Bluetooth. The example connects to an CS reflector
-  and starts distance measurement. Results are printed on the display of the WSTK.
+  Channel Sounding (CS) Initiator for Bluetooth LE. This example connects to
+  a CS Reflector device and starts the distance measurement. Results are
+  printed on the display of the WSTK and can be read via the serial
+  port VCOM. It can measure in two CS measurement modes PBR (default) and
+  RTT. RTT mode can be selected by pressing down the BTN0 while
+  resetting the device. It can measure in two object tracking modes as well:
+  in moving object tracking mode (default) or in stationary object tracking
+  mode. In moving object tracking mode measurement results will be
+  calculated for every procedure. In stationary object tracking mode multiple
+  CS procedure data is required for the estimation process. The progress of
+  the estimation will be shown on the LCD and in the logs in percentages. Once
+  the estimation process is done the measurement results will be shown similarly
+  like in the moving object tracking mode. Stationary object tracking mode can
+  be selected by pressing down the BTN1 while resetting the device. In case the
+  default CS mode or object tracking mode is changed in
+  initiator_app_config.h the other CS mode or object tracking mode can be
+  selected with its dedicated push button (BTN0 or BTN1). The actual mode can be
+  checked on the serial output and in the captured logs. To capture JSONL and
+  text logs a log_filter.py Python3 script is provided with this example. This
+  utility will listen to the same serial port VCOM and will extract the necessary
+  logs. Check out the help of log_filter.py for more on capturing logs while
+  measuring distance with CS.
 category: Bluetooth Examples
-quality: experimental
+quality: evaluation
 
 filter:
   - name: "Wireless Technology"
@@ -42,6 +62,7 @@ component:
   - id: simple_button
     instance:
       - btn0
+      - btn1
   - id: toolchain_gcc
   - id: sl_system
 

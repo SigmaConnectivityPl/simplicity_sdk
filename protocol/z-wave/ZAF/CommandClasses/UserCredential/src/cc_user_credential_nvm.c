@@ -274,27 +274,43 @@ static void ordered_insert_user_descriptor(u3c_user_descriptor * users, u3c_user
   ++n_users;
 }
 
+/**
+ * Returns the index of a Credential in the Credential descriptor table.
+ */
+static uint16_t get_credential_descriptor_index(
+  const u3c_credential_descriptor * const credentials, u3c_credential_type type, uint16_t slot)
+{
+  uint16_t index = 0;
+
+  // Seek until current Credential Type
+  while (
+    (index < n_credentials)
+    && (credentials[index].credential_type < type)
+  ) {
+    ++index;
+  }
+
+  // Seek until after previous Credential Slot or next Credential Type
+  while (
+    (index < n_credentials)
+    && (credentials[index].credential_type == type)
+    && (credentials[index].credential_slot < slot)
+  ) {
+    ++index;
+  }
+
+  return index;
+}
+
+/**
+ * Inserts a Credential descriptor into the Credential Descriptor table,
+ * preserving:
+ * 1. The ascending order of Credential Types, and
+ * 2. The ascending order of Credential Slots inside of each Credential Type.
+ */
 static void ordered_insert_credential_descriptor(u3c_credential_descriptor * credentials, u3c_credential * p_credential, uint16_t object_offset)
 {
-  uint16_t insert_index_base = n_credentials;
-  uint16_t insert_index = n_credentials;
-
-  // Find the minimum Credential type, this is used as a base for the insert index
-  for (uint16_t i = 0; i < n_credentials; ++i) {
-    if (credentials[i].credential_type == p_credential->metadata.type) {
-      insert_index_base = i;
-      break;
-    }
-  }
-
-  // Find the correct position to insert the new credential according to the slot
-  for (uint16_t i = insert_index_base; i < n_credentials; ++i) {
-    if (credentials[i].credential_slot > p_credential->metadata.slot 
-        || credentials[i].credential_type != p_credential->metadata.type) {
-      insert_index = i;
-      break;
-    }
-  }
+  uint16_t insert_index = get_credential_descriptor_index(credentials, p_credential->metadata.type, p_credential->metadata.slot);
 
   // Shift the elements to make room for the new credential
   memmove(&credentials[insert_index + 1], &credentials[insert_index], (n_credentials - insert_index) * sizeof(u3c_credential_descriptor));
@@ -573,10 +589,9 @@ u3c_db_operation_result CC_UserCredential_delete_user(
       --n_users;
 
       // If the deleted User was not the last in the list
-      if (i != n_users) {
+      if (i < n_users) {
         // Shift the elements to fill the gap
-        memmove(&users[i], &users[n_users], (n_users - i) * sizeof(u3c_user_descriptor));
-
+        memmove(&users[i], &users[i + 1], (n_users - i) * sizeof(u3c_user_descriptor));
       }
       // Otherwise, simply consider its entry 'popped' from the array.
 
@@ -687,34 +702,51 @@ bool CC_UserCredential_get_next_credential(
   }
 
   bool match_any_user = (user_unique_identifier == 0);
+  bool match_any_type = (credential_type == CREDENTIAL_TYPE_NONE);
 
-  if (credential_type == 0 && credential_slot == 0) {
+  if (credential_slot == 0) {
     // Find the first Credential
     for (uint16_t i = 0; i < n_credentials; ++i) {
-      if (match_any_user
-          || credentials[i].user_unique_identifier == user_unique_identifier) {
+      if (
+        (match_any_user
+         || credentials[i].user_unique_identifier == user_unique_identifier)
+        && (match_any_type || credentials[i].credential_type == credential_type)
+      ) {
         *next_credential_type = credentials[i].credential_type;
         *next_credential_slot = credentials[i].credential_slot;
         return true;
       }
     }
   } else {
-    // Find the next Credential for this User
+    uint16_t current_index = n_credentials;
+
+    // Find the current Credential
     for (uint16_t i = 0; i < n_credentials - 1; ++i) {
       if (
-        /**
-         * If the associated UUID is specified, then it must be the same for
-         * both the current and the next Credential
-         */
-        (match_any_user || (
-          credentials[i].user_unique_identifier == user_unique_identifier
-          && credentials[i + 1].user_unique_identifier == user_unique_identifier
-        ))
-        && credentials[i].credential_type == credential_type
-        && credentials[i].credential_slot == credential_slot
+        (match_any_user
+        || (credentials[i].user_unique_identifier == user_unique_identifier))
+        && (credentials[i].credential_type == credential_type)
+        && (credentials[i].credential_slot == credential_slot)
       ) {
-        *next_credential_type = credentials[i + 1].credential_type;
-        *next_credential_slot = credentials[i + 1].credential_slot;
+        current_index = i;
+        break;
+      }
+    }
+
+    if (current_index >= (n_credentials - 1)) {
+      // The current Credential was not found or it is the very last one
+      return false;
+    }
+
+    // Find the next Credential of a Type or belonging to a User
+    for (uint16_t i = current_index + 1; i < n_credentials; ++i) {
+      if (
+        match_any_user
+        ? (credentials[i].credential_type == credential_type)
+        : (credentials[i].user_unique_identifier == user_unique_identifier)
+      ) {
+        *next_credential_type = credentials[i].credential_type;
+        *next_credential_slot = credentials[i].credential_slot;
         return true;
       }
     }
@@ -866,11 +898,9 @@ u3c_db_operation_result CC_UserCredential_delete_credential(
       --n_credentials;
 
       // If the deleted Credential was not the last in the list
-      if (i != n_credentials) {
-        // Move the entry at the end of the table into the deleted entry's
-        // position.
-        memcpy(&credentials[i], &credentials[n_credentials],
-               sizeof(u3c_credential_descriptor));
+      if (i < n_credentials) {
+        // Shift the elements to fill the gap
+        memmove(&credentials[i], &credentials[i + 1], (n_credentials - i) * sizeof(u3c_credential_descriptor));
       }
       // Otherwise, simply consider its entry 'popped' from the array.
 

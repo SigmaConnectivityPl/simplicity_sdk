@@ -101,7 +101,9 @@ Y: For Z-Wave node count is equal to 5 and for Z-Wave Long Range it is 0.
 
 ## Usage of Buttons and LED Status
 
-The following buttons and LEDs are used.
+To use the sample app, the BRD8029A Button and LEDs Expansion Board must be used. BTN0-BTN3 and LED0-LED3 refer to the buttons and LEDs on the Expansion Board.
+
+The following LEDs and buttons shown in the next table below are used.
 
 <table>
 <tr>
@@ -218,8 +220,8 @@ Please note the zw_cli_common component will modify the power consumption in cas
 </tr>
 <tr>
     <th>set_learn_mode</th>
-    <td>It can be start or stop</td>
-    <td>Starting or stopping the learn mode</td>
+    <td></td>
+    <td>Toggling the learn mode functionality. In case the learn mode started, but inclusion does not happen,learn mode will automatically stop after about 30 seconds</td>
 </tr>
 <tr>
     <th>factory_reset</th>
@@ -238,7 +240,13 @@ Please note the zw_cli_common component will modify the power consumption in cas
 </tr>
 <tr>
     <th>send_central_scene_key</th>
-    <td>First argument is the number of the key, which could be 1, 2 or 3. Second argument is the action we want to do, which could be press, hold or release</td>
+    <td>
+    First argument is the number of the key, which could be 1, 2 or 3. Second argument is the action we want to do, which could be press, hold or release. The funcitonality of the keys are equivalent to BTN0, BTN2 and BTN3's from above.
+    Functionality mapping:
+            <li>BTN0 -> parameter 1
+            <li>BTN2 -> parameter 2
+            <li>BTN3 -> parameter 3
+    </td>
     <td>Triggering central scene key</td>
 </tr>
 </table>

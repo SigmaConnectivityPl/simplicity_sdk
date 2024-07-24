@@ -152,13 +152,13 @@ void app_process_action(RAIL_Handle_t rail_handle)
       //let's setup the time for the next tx.
       /*
        * from EN13757-4:
-       * tACC=(1+(|nACC-128|-64)/2048*tNOM
+       * tACC=1+(|nACC-128|-64)/2048*tNOM
        * a bit easier to calculate:
        * tACC=(2048+|nACC-128|-64)*tNOM/2048
        */
       access_number++;
       wmbus_app_period_acc = access_number > 128 ? access_number - 128 : 128 - access_number;       //abs(gAccessNumber-128)
-      wmbus_app_period_acc = (2048 + wmbus_app_period_acc - 64) * (wmbus_app_period_nom / 2048);
+      wmbus_app_period_acc = (uint64_t)(2048 + wmbus_app_period_acc - 64) * wmbus_app_period_nom / 2048;
       switch (get_wmbus_accessibility()) {
         case WMBUS_ACCESSIBILITY_LIMITED_ACCESS:
           state = S_RESPONSE_DELAY;

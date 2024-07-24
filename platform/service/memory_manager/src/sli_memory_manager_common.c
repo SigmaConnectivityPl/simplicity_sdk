@@ -225,9 +225,10 @@ size_t sli_memory_find_free_block(size_t size,
   size_t data_payload_offset;
   bool is_aligned = false;
 
+  *block = NULL;
+
   current_block_metadata = (type == BLOCK_TYPE_LONG_TERM) ? sli_free_lt_list_head : sli_free_st_list_head;
   if (current_block_metadata == NULL) {
-    *block = NULL;
     return 0;
   }
 
@@ -255,8 +256,6 @@ size_t sli_memory_find_free_block(size_t size,
         if (block_align == SLI_BLOCK_ALLOC_MIN_ALIGN) {
           // If alignment is 8 bytes (default min alignment), take the requested adjusted size.
           size_adjusted = size;
-
-          break;
         } else {
           // If non 8-byte alignment, search the more optimized size accounting for the required alignment. See Note #3.
           uint8_t *block_end = (uint8_t *)((uint64_t *)current_block_metadata + SLI_BLOCK_METADATA_SIZE_DWORD + current_block_metadata->length);
@@ -264,10 +263,10 @@ size_t sli_memory_find_free_block(size_t size,
           data_payload = (void *)(block_end - size);
           data_payload = (void *)SLI_ALIGN_ROUND_DOWN(((uintptr_t)data_payload), block_align);
           size_adjusted = (size_t)(block_end - (uint8_t *)data_payload);
+        }
 
-          if (current_block_len >= size_adjusted) {
-            break;
-          }
+        if (current_block_len >= size_adjusted) {
+          break;
         }
       }
     }
@@ -275,14 +274,12 @@ size_t sli_memory_find_free_block(size_t size,
     // Get next block.
     if (type == BLOCK_TYPE_LONG_TERM) {
       if (current_block_metadata->offset_neighbour_next == 0) {
-        *block = NULL;
         return 0;  // End of heap. No block found.
       }
       // Long-term browsing direction goes from start to end of heap.
       current_block_metadata = (sli_block_metadata_t *)((uint64_t *)current_block_metadata + (current_block_metadata->offset_neighbour_next));
     } else {
       if (current_block_metadata->offset_neighbour_prev == 0) {
-        *block = NULL;
         return 0;  // Start of heap. No block found.
       }
       // Short-term browsing direction goes from end to start of heap.

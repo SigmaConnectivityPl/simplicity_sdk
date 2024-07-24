@@ -34,6 +34,10 @@
 #include "ZAF_PrintAppInfo.h"
 #endif
 
+#ifdef SL_CATALOG_ZW_CLI_COMMON_PRESENT
+#include "zw_cli_common.h"
+#endif
+
 static ESwTimerStatus notificationOverLoadTimerStatus = ESWTIMER_STATUS_FAILED;
 // Timer
 static SSwTimer NotificationTimer;
@@ -221,6 +225,10 @@ zaf_event_distributor_app_event_manager(const uint8_t event)
     default:
       break;
   }
+
+#ifdef SL_CATALOG_ZW_CLI_COMMON_PRESENT
+  cli_log_system_events(event);
+#endif
 }
 
 void

@@ -97,7 +97,7 @@ typedef struct sl_wisun_ping_echo_request {
   uint16_t sequence_number;
   /// Payload array
   uint8_t payload[SL_WISUN_PING_MAX_PAYLOAD_LENGTH];
-} sl_wisun_ping_echo_request_t;
+} SL_ATTRIBUTE_PACKED sl_wisun_ping_echo_request_t;
 SL_PACK_END()
 
 /// Ping response type definition

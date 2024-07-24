@@ -2,9 +2,9 @@ id: cs_antenna
 package: Bluetooth
 label: CS Antenna
 description: >
-  Manage CS antenna offset settings.
+  Channel Sounding (CS) Antenna manages CS antenna offset settings.
 category: Bluetooth|Application|Miscellaneous
-quality: experimental
+quality: evaluation
 root_path: app/bluetooth/common/cs_antenna
 include:
   - path: .
@@ -17,3 +17,6 @@ provides:
 requires:
   - name: rail_util_ble_cs
   - name: bluetooth_api
+documentation:
+  docset: bluetooth
+  document: bluetooth-service-api/cs-antenna

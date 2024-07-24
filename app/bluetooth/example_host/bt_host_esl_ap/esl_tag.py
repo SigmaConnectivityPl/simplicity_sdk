@@ -365,8 +365,7 @@ class Tag():
             # Reset the image counter also in this corner case
             self.auto_image_count = 0
         # Reset timers
-        if self._advertising_timer.is_alive():
-            self._advertising_timer.cancel()
+        self.reset_advertising()
         if self._past_timer.is_alive():
             self._past_timer.cancel()
         if self._connection_timer.is_alive():
@@ -375,7 +374,6 @@ class Tag():
         self.busy = False
         self.connection_handle = None
         self._past_initiated = False
-        self._advertising = False
 
     def block(self, lib_status = elw.ESL_LIB_STATUS_UNSPECIFIED_ERROR):
         """ Set blocked state if not set already"""
@@ -392,6 +390,16 @@ class Tag():
         if self._advertising_timer.is_alive():
             self._advertising_timer.cancel()
         self._advertising = False
+
+    def start_advertising_governor(self):
+        """(Re)start a governor timeout for an advertising tag"""
+        if self._advertising_timer.is_alive():
+            self._advertising_timer.cancel()
+        self._advertising_timer = threading.Timer(
+            ADVERTISING_TIMEOUT, self.__advertising_timeout
+        )
+        self._advertising_timer.daemon = True
+        self._advertising_timer.start()
 
     def unassociate(self):
         """ Unassociate tag object """
@@ -568,9 +576,7 @@ class Tag():
             if evt.address == self.ble_address:
                 if self._connection_timer.is_alive():
                     self._connection_timer.cancel()
-                if self._advertising_timer.is_alive():
-                    self._advertising_timer.cancel()
-                self._advertising = False
+                self.reset_advertising()
                 self._past_timer.cancel()
                 self._past_initiated = False
                 self.connection_handle = evt.connection_handle
@@ -695,18 +701,14 @@ class Tag():
                     self._advertising = True # setting this has to precede self.esl_state == EslState.SYNCHRONIZED check!
                 if self.advertising:
                     if self.esl_state == EslState.SYNCHRONIZED:
-                        self.log.warning("ESL at address %s lost sync!", self.ble_address)
-                        self.reset() # reset will clear _advertising state, too
-                        self._advertising = True # set _advertising back - since it is indeed advertising
-                    if self._advertising_timer.is_alive():
-                        self._advertising_timer.cancel()
-                    self._advertising_timer = threading.Timer(ADVERTISING_TIMEOUT, self.__advertising_timeout)
-                    self._advertising_timer.daemon = True
-                    self._advertising_timer.start()
+                        self.log.warning(
+                            "ESL at address %s lost sync!", self.ble_address
+                        )
+                        self.reset()  # reset will clear _advertising state, too
+                        self._advertising = True  # set _advertising back - since it is indeed advertising
+                    self.start_advertising_governor()
         elif isinstance(evt, esl_lib.EventError):
-            self._advertising = False
-            if self._connection_timer.is_alive():
-                self._connection_timer.cancel()
+            self.reset_advertising()
             if evt.lib_status == elw.ESL_LIB_STATUS_BONDING_FAILED:
                 self.state = TagState.IDLE
             elif evt.lib_status == elw.ESL_LIB_STATUS_CONN_SUBSCRIBE_FAILED:
@@ -719,6 +721,9 @@ class Tag():
                 if evt.sl_status is not elw.SL_STATUS_ALREADY_EXISTS:
                     self.connection_handle = None
                 self.state = TagState.IDLE
+                if evt.sl_status in [elw.SL_STATUS_NO_MORE_RESOURCE, elw.SL_STATUS_BT_CTRL_CONNECTION_LIMIT_EXCEEDED] and not self.advertising:
+                    self._advertising = True  # set _advertising back - since it should advertising - to prevent re-report of already known tag
+                    self.start_advertising_governor() # the advertising governor will take care of it if it does not advertise as we expect
             elif evt.lib_status == elw.ESL_LIB_STATUS_CONN_CLOSE_FAILED:
                 self.connection_handle = None
                 self.busy = False

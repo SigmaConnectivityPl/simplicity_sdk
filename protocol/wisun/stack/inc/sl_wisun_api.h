@@ -234,8 +234,10 @@ sl_status_t sl_wisun_get_statistics(sl_wisun_statistics_type_t statistics_type,
  * The function must be called before initiating a connection.
  *
  * @note Available in libraries: Full, FFN, LFN (see @ref API_AVAILABILITY)
+ * @deprecated This function will be removed in the future versions of the
+ *             Wi-SUN stack, use sl_wisun_set_tx_power_ddbm() instead.
  *****************************************************************************/
-sl_status_t sl_wisun_set_tx_power(int8_t tx_power);
+sl_status_t sl_wisun_set_tx_power(int8_t tx_power) SL_DEPRECATED_API_SDK_2024_6;
 
 /**************************************************************************//**
  * Set a mask of operating channels.
@@ -763,6 +765,21 @@ sl_status_t sl_wisun_get_excluded_channel_mask(sl_wisun_channel_mask_type_t type
                                                uint8_t *channel_count);
 
 /** @} (end SL_WISUN_API) */
+
+/**************************************************************************//**
+ * Set the maximum TX power.
+ *
+ * @param[in] tx_power_ddbm TX power in ddBm
+ * @return SL_STATUS_OK if successful, an error code otherwise
+ *
+ * This function sets the maximum TX power. The device may use
+ * a lower value based on internal decision making or hardware limitations but
+ * will never exceed the given value.
+ * The function must be called before initiating a connection.
+ *
+ * @note Available in libraries: Full, FFN, LFN (see @ref API_AVAILABILITY)
+ *****************************************************************************/
+sl_status_t sl_wisun_set_tx_power_ddbm(int16_t tx_power_ddbm);
 
 #ifdef __cplusplus
 }

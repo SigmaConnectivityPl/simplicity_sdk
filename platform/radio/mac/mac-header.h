@@ -179,7 +179,10 @@ typedef struct {
 
 bool sli_mac_filter_match_check(uint8_t mac_index, uint8_t nwk_index, uint8_t* mac_header);
 sl_status_t sli_mac_set_filter_match_list(bool custom_filter,
-                                          const sl_zigbee_mac_filter_match_data_t* mac_filter_match_list);
+                                          const sl_zigbee_mac_filter_match_data_t* mac_filter_match_list,
+                                          uint8_t list_length);
+
+uint8_t sli_mac_filter_match_list_length(const sl_zigbee_mac_filter_match_data_t* mac_filter_match_list);
 
 #ifndef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
 bool sli_mac_is_broadcast_pan(uint8_t *rawMacHeader, bool hasPhyHeader);

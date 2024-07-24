@@ -5,6 +5,9 @@ description: |-
   Driver for the Si7006, Si7013, Si7020 and Si7021 Temperature / Humidity sensors
 category: Platform|Board Drivers
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: hardware/driver/si70xx
 provides:
   - name: si70xx_driver

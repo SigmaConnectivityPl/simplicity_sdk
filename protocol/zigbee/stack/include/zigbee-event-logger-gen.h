@@ -120,6 +120,7 @@ typedef enum {
 /** @brief The length of the Trust Center Join Decision event data. */
 #define SL_ZIGBEE_LOGGER_ZIGBEE_TRUST_CENTER_JOIN_DECISION_LENGTH 3
 
+#ifndef ZNET_HEADER_SCRIPT
 /** @brief Record an event indicating that the device has booted.
  * @param bootCount  The number of times the device has booted.
  * @param resetType  A reset cause. See micro.h and reset-def.h.
@@ -230,6 +231,7 @@ void sl_zigbee_af_zig_bee_event_logger_add_time_sync(uint32_t utcTime, uint32_t 
 void sl_zigbee_af_zig_bee_event_logger_add_trust_center_join_decision(sl_802154_short_addr_t nodeId, uint8_t decision)
 ;
 
+#endif // #ifndef ZNET_HEADER_SCRIPT
 /** @} END addtogroup */
 
 #endif  // #ifndef _ZIGBEE_EVENT_LOGGER_GEN_H_

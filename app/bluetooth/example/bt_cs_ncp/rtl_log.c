@@ -55,7 +55,7 @@ void rtl_log_init(void)
   int ret;
   enum sl_rtl_error_code ec;
   const char hash[] = SL_BT_VERSION_HASH;
-  sl_rtl_log_configure_params config_params = {
+  sl_rtl_log_params config_params = {
     .log_callback_function = rtl_log_callback,
     .sdk_version = { 0 },
     .command_line_options = { 0 }

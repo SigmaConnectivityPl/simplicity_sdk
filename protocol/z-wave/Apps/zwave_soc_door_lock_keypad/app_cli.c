@@ -80,8 +80,10 @@ void cli_battery_report(sl_cli_command_arg_t *arguments)
 void cli_enter_user_code(sl_cli_command_arg_t *arguments)
 {
   char* user_code = sl_cli_get_argument_string(arguments, 0);
-  if (sizeof(user_code) < 4) {
-    app_log_error("User code must be 4 digits\r\n");
+  uint8_t user_code_length = strlen(user_code);
+
+  if ((user_code_length < USERCODE_MIN_LEN) || (user_code_length > USERCODE_MAX_LEN)) {
+    app_log_error("User code length must be between %d and %d\r\n", USERCODE_MIN_LEN, USERCODE_MAX_LEN);
     return;
   }
   app_log_info("Enter User Code: %s\r\n", user_code);
@@ -94,8 +96,10 @@ void cli_enter_user_code(sl_cli_command_arg_t *arguments)
 void cli_set_new_user_code(sl_cli_command_arg_t *arguments)
 {
   char* user_code = sl_cli_get_argument_string(arguments, 0);
-  if (sizeof(user_code) > USERCODE_MAX_LEN) {
-    app_log_error("User code must be less than %d digits\r\n", USERCODE_MAX_LEN);
+  uint8_t user_code_length = strlen(user_code);
+
+  if ((user_code_length < USERCODE_MIN_LEN) || (user_code_length > USERCODE_MAX_LEN)) {
+    app_log_error("User code length must be between %d and %d\r\n", USERCODE_MIN_LEN, USERCODE_MAX_LEN);
     return;
   }
   CC_UserCode_set_usercode(user_code);
@@ -125,13 +129,18 @@ void cli_set_doorhandle_state(sl_cli_command_arg_t *arguments)
 
 static void send_user_code_for_validation(char* user_code)
 {
-  cc_user_code_event_validate_data_t user_code_event_validate_data;
-  user_code_event_validate_data.id = 1;
-  user_code_event_validate_data.data = (uint8_t *)user_code;
-  user_code_event_validate_data.length = sizeof(user_code); // must be a 4 digit code
+  static char user_code_buffer[USERCODE_MAX_LEN];
+  static cc_user_code_event_validate_data_t user_code_event_validate_data;
+  uint8_t user_code_length = strlen(user_code);
 
-  const void *cc_data = &user_code_event_validate_data;
-  zaf_event_distributor_enqueue_cc_event(COMMAND_CLASS_USER_CODE, CC_USER_CODE_EVENT_VALIDATE, cc_data);
+  memset(user_code_buffer, 0, sizeof(user_code_buffer));
+  memcpy(user_code_buffer, user_code, user_code_length);
+
+  user_code_event_validate_data.id = 1;
+  user_code_event_validate_data.data = user_code_buffer;
+  user_code_event_validate_data.length = user_code_length;
+
+  zaf_event_distributor_enqueue_cc_event(COMMAND_CLASS_USER_CODE, CC_USER_CODE_EVENT_VALIDATE, (const void*) &user_code_event_validate_data);
 }
 
 /******************************************************************************

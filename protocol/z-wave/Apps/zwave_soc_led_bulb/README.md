@@ -80,7 +80,9 @@ X: For Z-Wave node count is equal to 5 and for Z-Wave Long Range it is 1.
 
 ## Usage of Buttons and LED Status
 
-The following LEDs and buttons shown in the table below are used.
+To use the sample app, the BRD8029A Button and LEDs Expansion Board must be used. BTN0-BTN3 and LED0-LED3 refer to the buttons and LEDs on the Expansion Board.
+
+The following LEDs and buttons shown in the next table below are used.
 
 <table>
 <tr>
@@ -144,8 +146,8 @@ Please note the zw_cli_common component will modify the power consumption in cas
 </tr>
 <tr>
     <th>set_learn_mode</th>
-    <td>It can be start or stop</td>
-    <td>Starting or stopping the learn mode</td>
+    <td></td>
+    <td>Toggling the learn mode functionality. In case the learn mode started, but inclusion does not happen,learn mode will automatically stop after about 30 seconds</td>
 </tr>
 <tr>
     <th>factory_reset</th>

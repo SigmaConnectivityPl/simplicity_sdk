@@ -10,8 +10,8 @@ ifeq (, $(filter $(MAKECMDGOALS), clean export help))
   endif
 endif
 
-RTL_DIR = $(SDK_DIR)/util/silicon_labs/aox
-LIBNAME := aox_static
+RTL_DIR = $(SDK_DIR)/util/silicon_labs/rtl
+LIBNAME := rtl_static
 
 override INCLUDEPATHS += $(RTL_DIR)/inc
 

@@ -121,10 +121,6 @@ include:
       - path: sl_zigbee_zdo_configuration.h
       - path: sl_zigbee_zdo_dlk_negotiation.h
       - path: sl_zigbee_zdo_management.h
-      - path: high_datarate_phy_stack_interface.h
-      - path: force_sleep_wakeup_stack_interface.h
-      - path: zigbee_direct_stack_interface.h
-      - path: pro_compliance_stack_interface.h
   - path: protocol/zigbee/stack/include
     file_list:
       - path: gp-token-config.h
@@ -183,38 +179,17 @@ include:
       - path: bootload_internal_def.h
       - path: zigbee-device-stack-internal-def.h
       - path: library_internal_def.h
-      - path: zll-api-internal-def.h
       - path: multi-phy-internal-def.h
       - path: sl_zigbee_duty_cycle_internal_def.h
       - path: mac-layer-internal-def.h
       - path: sl_zigbee_random_api_internal_def.h
-      - path: sl_zigbee_alternate_mac_internal_def.h
       - path: raw-message-internal-def.h
       - path: multi-network-internal-def.h
-      - path: sl_zigbee_zdo_dlk_negotiation_internal_def.h
-      - path: sl_zigbee_stack_specific_tlv_internal_def.h
       - path: sl_zigbee_address_info_internal_def.h
-      - path: sl_zigbee_security_manager_dlk_ecc_internal_def.h
-      - path: sl_zigbee_security_manager_dlk_ecc_test_vectors_internal_def.h
-      - path: sl_zigbee_dlk_negotiation_internal_def.h
-      - path: sl_zigbee_dynamic_commissioning_internal_def.h
-      - path: sl_zigbee_zdo_configuration_internal_def.h
-      - path: sl_zigbee_zdo_management_internal_def.h
-      - path: sl_zigbee_zdo_security_internal_def.h
       - path: zigbee-security-manager-internal-def.h
-      - path: zigbee-event-logger-gen-internal-def.h
-      - path: source-route-internal-def.h
       - path: trust-center-internal-def.h
-      - path: cbke-crypto-engine-internal-def.h
-      - path: gp-types-internal-def.h
-      - path: gp-sink-table-internal-def.h
-      - path: gp-proxy-table-internal-def.h
       - path: mfglib_internal_def.h
       - path: internal-callbacks-patch.h
-      - path: high_datarate_phy_stack_interface_internal_def.h
-      - path: force_sleep_wakeup_stack_interface_internal_def.h
-      - path: zigbee_direct_stack_interface_internal_def.h
-      - path: pro_compliance_stack_interface_internal_def.h
   - path: protocol/zigbee/app/em260/
     file_list:
       - path: command-handlers-zll.h
@@ -235,9 +210,6 @@ include:
         condition:
           - zigbee_use_ipc
       - path: bootload_ipc_command_messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: cbke-crypto-engine-ipc-callback-events.h
         condition:
           - zigbee_use_ipc
       - path: child_ipc_callback_events.h
@@ -261,53 +233,13 @@ include:
       - path: security_ipc_callback_events.h
         condition:
           - zigbee_use_ipc
-      - path: sl_zigbee_dynamic_commissioning_ipc_callback_events.h
-        condition:
-          - zigbee_use_ipc
-      - path: sl_zigbee_zdo_management_ipc_callback_events.h
-        condition:
-          - zigbee_use_ipc
-          # Need this to resolve IPC dependencies
-          #- zigbee_r23_support
-      - path: sl_zigbee_zdo_security_ipc_callback_events.h
-        condition:
-          - zigbee_use_ipc
-          # Need this to resolve IPC dependencies
-          #- zigbee_r23_support
       - path: stack-info-ipc-callback-events.h
-        condition:
-          - zigbee_use_ipc
-      - path: zll-api-ipc-callback-events.h
-        condition:
-          - zigbee_use_ipc
-      # The following files each belong in their respective components, but the
-      # issue at present is that there's one large file that pulls in all the
-      # various -ipc-command-messages.h files, which won't resolve if each of
-      # the below is mentioned in a component that is not brought into the
-      # project (e.g. if cbke-crypto-engine-ipc-command-messages.h is in
-      # zigbee_cbke_core.slcc instead of this file, Z3Light will fail to compile
-      # the top-level zigbee_ipc_command_messages.h, which includes this CBKE
-      # file. The file is never brought into project resolution because CBKE is
-      # not enabled)
-      - path: cbke-crypto-engine-ipc-command-messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: sl_zigbee_alternate_mac_ipc_command_messages.h
         condition:
           - zigbee_use_ipc
       - path: sl_zigbee_duty_cycle_ipc_command_messages.h
         condition:
           - zigbee_use_ipc
       - path: sl_zigbee_random_api_ipc_command_messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: gp-proxy-table-ipc-command-messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: gp-sink-table-ipc-command-messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: gp-types-ipc-command-messages.h
         condition:
           - zigbee_use_ipc
       - path: library_ipc_command_messages.h
@@ -340,36 +272,6 @@ include:
       - path: sl_zigbee_address_info_ipc_command_messages.h
         condition:
           - zigbee_use_ipc
-      - path: sl_zigbee_dlk_negotiation_ipc_command_messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: sl_zigbee_dynamic_commissioning_ipc_command_messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: sl_zigbee_security_manager_dlk_ecc_ipc_command_messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: sl_zigbee_security_manager_dlk_ecc_test_vectors_ipc_command_messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: sl_zigbee_stack_specific_tlv_ipc_command_messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: sl_zigbee_zdo_configuration_ipc_command_messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: sl_zigbee_zdo_dlk_negotiation_ipc_command_messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: sl_zigbee_zdo_management_ipc_command_messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: sl_zigbee_zdo_security_ipc_command_messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: source-route-ipc-command-messages.h
-        condition:
-          - zigbee_use_ipc
       - path: stack-info-ipc-command-messages.h
         condition:
           - zigbee_use_ipc
@@ -379,32 +281,10 @@ include:
       - path: zigbee-device-stack-ipc-command-messages.h
         condition:
           - zigbee_use_ipc
-      - path: zigbee-event-logger-gen-ipc-command-messages.h
-        condition:
-          - zigbee_use_ipc
       - path: zigbee-security-manager-ipc-command-messages.h
         condition:
           - zigbee_use_ipc
-      - path: zll-api-ipc-command-messages.h
-        condition:
-          - zigbee_use_ipc
       - path: trust-center-ipc-callback-events.h
-        condition:
-          - zigbee_use_ipc
-      - path: high_datarate_phy_stack_interface_ipc_command_messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: high_datarate_phy_stack_interface_ipc_callback_events.h
-        condition:
-          - zigbee_use_ipc
-      - path: force_sleep_wakeup_stack_interface_ipc_command_messages.h
-        condition:
-          - zigbee_use_ipc
-      - path: zigbee_direct_stack_interface_ipc_command_messages.h
-        condition:
-          - zigbee_use_ipc
-      #TODO: untangle all the IPC headers from each other
-      - path: pro_compliance_stack_interface_ipc_command_messages.h
         condition:
           - zigbee_use_ipc
 
@@ -695,9 +575,6 @@ source:
   - path: protocol/zigbee/stack/internal/src/ipc/bootload_ipc_command_messages.c
     condition:
       - zigbee_use_ipc
-  - path: protocol/zigbee/stack/internal/src/ipc/cbke-crypto-engine-ipc-callback-events.c
-    condition:
-      - zigbee_use_ipc
   - path: protocol/zigbee/stack/internal/src/ipc/child_ipc_callback_events.c
     condition:
       - zigbee_use_ipc
@@ -719,21 +596,7 @@ source:
   - path: protocol/zigbee/stack/internal/src/ipc/security_ipc_callback_events.c
     condition:
       - zigbee_use_ipc
-  - path: protocol/zigbee/stack/internal/src/ipc/sl_zigbee_dynamic_commissioning_ipc_callback_events.c
-    condition:
-      - zigbee_use_ipc
-  - path: protocol/zigbee/stack/internal/src/ipc/sl_zigbee_zdo_management_ipc_callback_events.c
-    condition:
-      - zigbee_use_ipc
-      - zigbee_r23_support
-  - path: protocol/zigbee/stack/internal/src/ipc/sl_zigbee_zdo_security_ipc_callback_events.c
-    condition:
-      - zigbee_use_ipc
-      - zigbee_r23_support
   - path: protocol/zigbee/stack/internal/src/ipc/stack-info-ipc-callback-events.c
-    condition:
-      - zigbee_use_ipc
-  - path: protocol/zigbee/stack/internal/src/ipc/zll-api-ipc-callback-events.c
     condition:
       - zigbee_use_ipc
   - path: protocol/zigbee/stack/internal/src/ipc/sl_zigbee_random_api_ipc_command_messages.c

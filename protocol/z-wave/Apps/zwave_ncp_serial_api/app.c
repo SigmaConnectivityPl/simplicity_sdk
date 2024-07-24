@@ -14,6 +14,7 @@
 #endif /* ZW_CONTROLLER */
 #include "AppTimer.h"
 #include "ZW_system_startup_api.h"
+#include "zpal_retention_register.h"
 /* Include app header file - containing version and */
 /* SerialAPI functionality support definitions */
 #include "DebugPrintConfig.h"
@@ -816,10 +817,27 @@ ApplicationInitSW(void)
       compl_workbuf[6 + i] = apCCLists[0]->pCommandClasses[i];
     }
   }
-  eSerialAPIStartedCapabilities capabilities = (RadioConfig->eRegion == REGION_US_LR) ? SERIAL_API_STARTED_CAPABILITIES_L0NG_RANGE : 0;
+
+  eSerialAPIStartedCapabilities capabilities = 0;
+  if (ZAF_isLongRangeRegion(RadioConfig->eRegion))
+      capabilities = SERIAL_API_STARTED_CAPABILITIES_L0NG_RANGE;
   compl_workbuf[6 + i] = capabilities;
 
+  uint32_t zpal_reset_info = 0;
+  if (ZPAL_STATUS_OK != zpal_retention_register_read(ZPAL_RETENTION_REGISTER_RESET_INFO, &zpal_reset_info))
+  {
+    DPRINT("ERROR while reading the reset information\n");
   Request(FUNC_ID_SERIAL_API_STARTED, compl_workbuf, 7 + i);
+  }
+  else
+  {
+    compl_workbuf[7 + i] = (uint8_t)(zpal_reset_info >> 24);
+    compl_workbuf[8 + i] = (uint8_t)(zpal_reset_info >> 16);
+    compl_workbuf[9 + i] = (uint8_t)(zpal_reset_info >> 8);
+    compl_workbuf[10 + i] = (uint8_t)zpal_reset_info;
+    DPRINTF("zpal_reset_reason: %u\n", zpal_reset_info);
+    Request(FUNC_ID_SERIAL_API_STARTED, compl_workbuf, 11 + i);
+  }
 
 #endif /* #if SUPPORT_STARTUP_NOTIFICATION */
    AppTimerDeepSleepPersistentRegister(&mWakeupTimer, false, ZCB_WakeupTimeout);  // register for event jobs timeout event
@@ -1097,7 +1115,7 @@ ApplicationNodeUpdate(
   /*  - Buffer boundary check */
   bLen = (bLen > MAX_NODE_INFO_LENGTH) ? MAX_NODE_INFO_LENGTH : bLen;
   bLen = (bLen > (uint8_t)(BUF_SIZE_TX - (offset + 3))) ? (uint8_t)(BUF_SIZE_TX - (offset + 3)) : bLen;
-  
+
   BYTE_IN_AR(compl_workbuf, offset + 2) = bLen;
   if(bLen > 0 && pCmd)
   {

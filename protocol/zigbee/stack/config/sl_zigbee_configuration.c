@@ -111,6 +111,8 @@ bool sl_zigbee_enable_aps_ack_for_cmds = SL_ZIGBEE_ENABLE_APS_ACKS_FOR_COMMANDS;
 //------------------------------------------------------------------------------
 // MAC Layer
 
+//This array's length is stored just below its declaration
+//as zigbee_mac_filter_list_length.
 const sl_zigbee_mac_filter_match_data_t zigbeeMacFilterList[] = {
 #if (defined(SL_ZIGBEE_AF_PLUGIN_GP_LIBRARY) || defined(SL_CATALOG_ZIGBEE_GREEN_POWER_PRESENT))
   (SL_802154_FILTER_MATCH_ON_PAN_DEST_BROADCAST
@@ -145,6 +147,8 @@ const sl_zigbee_mac_filter_match_data_t zigbeeMacFilterList[] = {
 #endif // SL_ZIGBEE_AF_PLUGIN_ZLL_LIBRARY
   SL_802154_FILTER_MATCH_END
 };
+
+uint8_t zigbee_mac_filter_list_length = COUNTOF(zigbeeMacFilterList);
 
 // Pass a pointer to child table in memory to the unified mac layer.
 //sl_mac_child_entry_t *sli_zigbee_child_table_data = (sl_mac_child_entry_t *) &emAvailableMemory[0];

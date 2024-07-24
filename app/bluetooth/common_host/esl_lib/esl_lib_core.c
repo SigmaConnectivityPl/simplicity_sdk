@@ -128,10 +128,8 @@ void esl_lib_init(char *config)
     esl_lib_log_core_critical("Error initializing host library: 0x%04x" APP_LOG_NL, sc);
     exit(EXIT_FAILURE);
   }
-  esl_lib_log_core_info("Resetting NCP target..." APP_LOG_NL);
-  // Reset NCP to ensure it gets into a defined state.
-  // Once the chip successfully boots, boot event should be received.
-  sl_bt_system_reboot();
+  // NCP host initialization implicitly reboots the target.
+  esl_lib_log_core_info("Waiting for boot event..." APP_LOG_NL);
 
   // Initialize L2CAP transfer
   esl_lib_log_core_debug("Init L2CAP transfer layer" APP_LOG_NL);

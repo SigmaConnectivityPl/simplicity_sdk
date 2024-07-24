@@ -184,6 +184,10 @@ zaf_event_distributor_app_event_manager(const uint8_t event)
     default:
       break;
   }
+
+#ifdef SL_CATALOG_ZW_CLI_COMMON_PRESENT
+  cli_log_system_events(event);
+#endif
 }
 
 void

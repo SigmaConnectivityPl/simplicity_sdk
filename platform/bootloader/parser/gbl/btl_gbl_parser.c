@@ -34,6 +34,10 @@
 #include "core/btl_util.h"
 #include "core/btl_bootload.h"
 
+#if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
+#include <stddef.h>
+#endif
+
 MISRAC_DISABLE
 #include "em_device.h"
 MISRAC_ENABLE
@@ -133,6 +137,12 @@ static int32_t parser_parseBootloader(ParserContext_t   *parserContext,
 static int32_t parser_parseProg(ParserContext_t  *parserContext,
                                 GblInputBuffer_t *input);
 
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+// Parse Delta tag header
+static int32_t parser_parseDelta(ParserContext_t  *parserContext,
+                                 GblInputBuffer_t *input,
+                                 ImageProperties_t *imageProperties);
+#endif
 // Parse (Se|Prog|Bootloader|Metadata)Data
 static int32_t parser_parseData(ParserContext_t                   *parserContext,
                                 GblInputBuffer_t                  *input,
@@ -364,6 +374,28 @@ static int32_t gbl_parseHeader(ParserContext_t  *context,
   context->lengthOfTag = gblTagHeader->length;
   context->offsetInTag = 0UL;
 
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+  if (context->enableDeltaGBLLenCount == true) {
+    if (BOOTLOADER_ENFORCE_ENCRYPTED_UPGRADE == 1U ) {
+      //Take only the lenght of un-encrypted tags
+      if ((gblTagHeader->tagId == GBL_TAG_ID_HEADER_V3)
+          || (gblTagHeader->tagId == GBL_TAG_ID_ENC_HEADER)
+          || (gblTagHeader->tagId == GBL_TAG_ID_ENC_INIT)
+          || (gblTagHeader->tagId == GBL_TAG_ID_ENC_GBL_DATA)
+          || (gblTagHeader->tagId == GBL_TAG_ID_SIGNATURE_ECDSA_P256)
+          || (gblTagHeader->tagId == GBL_TAG_ID_END)) {
+        //If Encryption is enabled, count only the lenght of un-encrypted tags.
+        context->deltaGBLLength += context->lengthOfTag;  //gblTagHeader->length;
+        context->deltaGBLLength += 8;   // To account for tag id and length
+      }
+    } else {
+      //Encryption not enabled.
+      context->deltaGBLLength += context->lengthOfTag;
+      context->deltaGBLLength += 8;
+    }
+  }
+#endif
+
   BTL_DEBUG_PRINT("tag 0x");
   BTL_DEBUG_PRINT_WORD_HEX(gblTagHeader->tagId);
   BTL_DEBUG_PRINT(" len 0x");
@@ -454,7 +486,6 @@ int32_t gbl_writeProgData(ParserContext_t *context,
                           const BootloaderParserCallbacks_t *callbacks)
 {
   uint32_t startWithhold, endWithhold, withholdSrcOffset, withholdDstOffset;
-
   if (callbacks->applicationCallback == NULL) {
     // Nothing to do
     return BOOTLOADER_OK;
@@ -511,6 +542,7 @@ int32_t gbl_writeProgData(ParserContext_t *context,
                                  length,
                                  callbacks->context);
   context->programmingAddress += length;
+
   return BOOTLOADER_OK;
 }
 
@@ -551,6 +583,13 @@ int32_t parser_init(void *context, void *decryptContext, void *authContext, uint
 #endif
   parserContext->currentTagOrder = GBL_TAG_ORDER_INIT;
 
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+  parserContext->deltaGBLLength = 0U;
+  parserContext->lengthOfPatch = 0U;
+  parserContext->newFwCRC = 0x0U;
+  parserContext->enableDeltaGBLLenCount = false;
+#endif
+
   if ((PARSER_REQUIRE_CONFIDENTIALITY) && (decryptContext == NULL)) {
     return BOOTLOADER_ERROR_PARSER_INIT;
   }
@@ -582,6 +621,12 @@ int32_t parser_parse(void                              *context,
     .offset = 0UL
   };
   volatile int32_t retval;
+
+#if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
+  if (callbacks->applicationCallback == NULL) {
+    parserContext->enableDeltaGBLLenCount = true;
+  }
+#endif
 
   // This is pretty much purely a state machine...
   while (input.offset < length) {
@@ -702,7 +747,21 @@ int32_t parser_parse(void                              *context,
           return retval;
         }
         break;
-
+#if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
+      case GblParserStateDelta:
+        retval = parser_parseDelta(parserContext, &input, imageProperties);
+        if (callbacks->applicationCallback != NULL) {
+          parserContext->deltaPatchAddress = parserContext->deltaPatchAddress + parserContext->deltaGBLLength;
+          if (parserContext->deltaPatchAddress & (FLASH_PAGE_SIZE - 1)) {
+            parserContext->deltaPatchAddress = parserContext->deltaPatchAddress - (parserContext->deltaPatchAddress & (FLASH_PAGE_SIZE - 1)) + FLASH_PAGE_SIZE;
+            parserContext->programmingAddress = parserContext->deltaPatchAddress;
+          }
+        }
+        if (retval != BOOTLOADER_ERROR_PARSER_PARSED) {
+          return retval;
+        }
+        break;
+#endif
       case GblParserStateMetadata:
         parserContext->tagAddress = 0UL;
         parserContext->internalState = GblParserStateMetadataData;
@@ -713,6 +772,9 @@ int32_t parser_parse(void                              *context,
       case GblParserStateProgData:
       case GblParserStateBootloaderData:
       case GblParserStateMetadataData:
+#if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
+      case GblParserStateDeltaData:
+#endif
         retval = parser_parseData(parserContext,
                                   &input,
                                   imageProperties,
@@ -724,6 +786,18 @@ int32_t parser_parse(void                              *context,
 
 #if defined(BTL_PARSER_SUPPORT_CUSTOM_TAGS)
       case GblParserStateCustomTag:
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+        if ((parserContext->customTagId == GBL_TAG_ID_DELTA_LZ4) || (parserContext->customTagId == GBL_TAG_ID_DELTA_LZMA) ) {
+          imageProperties->contents |= BTL_IMAGE_CONTENT_DELTA;
+          if ((callbacks->applicationCallback != NULL) && (parserContext->programmingAddress == 0U)) {
+            parserContext->deltaPatchAddress = parserContext->deltaPatchAddress + parserContext->deltaGBLLength;
+            if (parserContext->deltaPatchAddress & (FLASH_PAGE_SIZE - 1)) {
+              parserContext->deltaPatchAddress = parserContext->deltaPatchAddress - (parserContext->deltaPatchAddress & (FLASH_PAGE_SIZE - 1)) + FLASH_PAGE_SIZE;
+              parserContext->programmingAddress = parserContext->deltaPatchAddress;
+            }
+          }
+        }
+#endif
         retval = parser_parseCustomTag(parserContext,
                                        &input,
                                        imageProperties,
@@ -1565,6 +1639,54 @@ static int32_t parser_parseProg(ParserContext_t  *parserContext,
   return BOOTLOADER_ERROR_PARSER_PARSED;
 }
 
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+/***************************************************************************//**
+ * Parse Delta DFU tag header.
+ *
+ * @param[in, out] parserContext Context variable
+ * @param[in] input Input buffer
+ * @returns BOOTLOADER_ERROR_PARSER_PARSED when successfully parsed.
+ *
+ * Updates parserContext->internalState.
+ * Next state: GblParserStateDeltaData
+ ******************************************************************************/
+static int32_t parser_parseDelta(ParserContext_t  *parserContext,
+                                 GblInputBuffer_t *input,
+                                 ImageProperties_t *imageProperties)
+{
+  volatile int32_t retval;
+  uint32_t temporaryWord;
+  uint8_t tagBuffer[GBL_PARSER_BUFFER_SIZE];
+
+  while (parserContext->offsetInTag < 4UL) {
+    // Get data
+    retval = gbl_getData(parserContext,
+                         input,
+                         tagBuffer,
+                         GBL_PARSER_BUFFER_SIZE,
+                         12UL,
+                         true, /* Do SHA hashing */
+                         true /* Decrypt if necessary */);
+    if (retval != BOOTLOADER_ERROR_PARSER_PARSED) {
+      return retval;
+    }
+
+    imageProperties->contents |= BTL_IMAGE_CONTENT_DELTA;
+    parserContext->newFwCRC = GBL_PARSER_ARRAY_TO_U32(tagBuffer, 0);
+    parserContext->newFwSize = GBL_PARSER_ARRAY_TO_U32(tagBuffer, 4);
+
+    temporaryWord = GBL_PARSER_ARRAY_TO_U32(tagBuffer, 8);
+
+    if (parserContext->lengthOfTag > 4UL) {
+      // Only set programmingAddress if the tag actually contains data
+      parserContext->programmingAddress = temporaryWord;
+    }
+  }
+  parserContext->internalState = GblParserStateDeltaData;
+  return BOOTLOADER_ERROR_PARSER_PARSED;
+}
+#endif
+
 /***************************************************************************//**
  * Parse the data part of the (Se|Prog|Bootloader|Metadata) tags.
  *
@@ -1590,7 +1712,14 @@ static int32_t parser_parseData(ParserContext_t                   *parserContext
   while (parserContext->offsetInTag < parserContext->lengthOfTag) {
     // Get amount of bytes left in this tag
     tmpSize = parserContext->lengthOfTag - parserContext->offsetInTag;
-
+#if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
+    if (parserContext->lengthOfPatch == 0) {
+      if ((parserContext->internalState == GblParserStateDelta)
+          || (parserContext->internalState == GblParserStateDeltaData)) {
+        parserContext->lengthOfPatch = tmpSize;
+      }
+    }
+#endif
     // Check buffer size vs. bytes we want to parse
     if (tmpSize >= 4UL) {
       // Always parse minimum one word
@@ -1704,7 +1833,18 @@ static int32_t parser_parseData(ParserContext_t                   *parserContext
         parserContext->tagAddress += tmpSize;
 #endif // BOOTLOADER_SE_UPGRADE_NO_STAGING
 #endif // SEMAILBOX_PRESENT
-      } else {
+      }
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+      else if (parserContext->internalState == GblParserStateDeltaData) {
+        if (callbacks->applicationCallback != NULL) {
+          retval = gbl_writeProgData(parserContext, tagBuffer, tmpSize, callbacks);
+          if (retval != BOOTLOADER_OK) {
+            return retval;
+          }
+        }
+      }
+#endif
+      else {
         // Not a valid tag
       }
     }

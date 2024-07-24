@@ -41,6 +41,7 @@
 #include "app_log.h"
 #include "ev_man.h"
 #include "events.h"
+#include "CC_MultilevelSwitch_Support.h"
 
 #define DIMMING_TRANSITION_PERIOD_SEC 1 //Time [s] required for transition between 2 values, 0 means instant transition
 // -----------------------------------------------------------------------------
@@ -85,15 +86,15 @@ void cli_toggle_endpoint(sl_cli_command_arg_t *arguments)
  *****************************************************************************/
 void cli_dim_endpoint(sl_cli_command_arg_t *arguments)
 {
-  uint8_t dimming_rate_percent = sl_cli_get_argument_uint8(arguments, 0);
-  if (dimming_rate_percent > 100) {
+  uint8_t dimming_rate_level = sl_cli_get_argument_uint8(arguments, 0);
+  if (dimming_rate_level > CC_MULTILEVEL_SWITCH_ACTUATOR_MAX_VALUE) {
     app_log_error("Invalid dimming rate\r\n");
     return;
   }
-  app_log_info("Dimming endpoint 2 to %d%%\r\n", dimming_rate_percent);
+  app_log_info("Dimming endpoint 2 to %d%%\r\n", dimming_rate_level);
   cc_multilevel_switch_t *switches;
   switches = cc_multilevel_switch_support_config_get_switches();
-  cc_multilevel_switch_set_level(&switches[0], dimming_rate_percent, DIMMING_TRANSITION_PERIOD_SEC);
+  cc_multilevel_switch_set_level(&switches[0], dimming_rate_level, DIMMING_TRANSITION_PERIOD_SEC);
 }
 
 /******************************************************************************

@@ -6,6 +6,7 @@
 #include <assert.h>
 #include "ZAF_Common_interface.h"
 #include "zaf_protocol_config.h"
+#include "zpal_radio_utils.h"
 //#define DEBUGPRINT
 #include "DebugPrint.h"
 
@@ -150,6 +151,11 @@ bool isRfRegionValid(zpal_radio_region_t region)
   {
     return false;
   }
+}
+
+bool ZAF_isLongRangeRegion(zpal_radio_region_t eRegion)
+{
+  return zpal_radio_region_is_long_range(eRegion);
 }
 
 void zaf_set_stay_awake_callback(zaf_wake_up_callback_t callback) {

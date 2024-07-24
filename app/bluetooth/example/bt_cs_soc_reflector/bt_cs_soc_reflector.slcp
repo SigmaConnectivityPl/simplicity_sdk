@@ -1,12 +1,18 @@
 project_name: bt_cs_soc_reflector
 package: Bluetooth
-label: Bluetooth - SoC CS reflector
+label: Bluetooth - SoC CS Reflector
 description: >
-  Channel Sounding reflector for Bluetooth. The example sends measurement results to the initiator via GATT.
-  The application starts advertising after boot and restarts advertising after a connection is closed.
-  It also supports Over-the-Air Device Firmware Upgrade (OTA DFU).
+  Channel Sounding (CS) Reflector for Bluetooth LE. This example sends
+  measurement results back to the CS Initiator device via GATT notifications.
+  It is scheduled by the CS Ranging Service. CS Reflector should have to
+  connect to at least one CS Initiator device to send measurement data to
+  and it is also capable to connect to multiple CS Initiators. Check the
+  CS Reflector component for more on the available connections. The application
+  starts advertising after boot and keeps advertising until not every
+  connection slots are occupied. It will stop advertising when it is full.
+  Once at least one slot becomes free again the device start to advertise.
 category: Bluetooth Examples
-quality: experimental
+quality: evaluation
 
 filter:
   - name: "Wireless Technology"

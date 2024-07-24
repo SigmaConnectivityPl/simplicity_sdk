@@ -70,8 +70,10 @@ typedef struct {
 static buf_t buf_tmp = { 0 };
 static buf_t buf_in = { 0 };
 
-// end the receiving loop if signol is received.
+// end the receiving loop if signal is received.
 static volatile bool run = true;
+
+static bool comm_channel_selected = false;
 
 // UART serial port options.
 static char uart_port[MAX_OPT_LEN] = DEFAULT_UART_PORT;
@@ -109,6 +111,12 @@ sl_status_t host_comm_init(void)
   int32_t status;
   int iret;
 
+  if (!comm_channel_selected) {
+    app_log_error("No communication channel provided, "
+                  "but exactly one is expected!" APP_LOG_NL);
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
   if (!IS_EMPTY_STRING(uart_port)) {
     // Initialise UART serial connection.
     handle_ptr = &handle;
@@ -129,7 +137,7 @@ sl_status_t host_comm_init(void)
     app_assert(status == HANDLE_VALUE_MIN,
                "[E: %d] Failed to open TCP/IP connection" APP_LOG_NL,
                status);
-  } else if (named_socket_target_address[0] != '\0') {
+  } else if (!IS_EMPTY_STRING(named_socket_target_address)) {
     handle_ptr = &handle;
     // Initialise serial communication as non-blocking.
     HOST_COMM_API_INITIALIZE_NONBLOCK(tcp_tx, tcp_rx, tcp_rx_peek);
@@ -148,8 +156,6 @@ sl_status_t host_comm_init(void)
     }
 #endif // defined (CPC) && CPC == 1
   } else {
-    app_log_error("Either UART serial port or TCP/IP address is mandatory."
-                  APP_LOG_NL);
     return SL_STATUS_INVALID_PARAMETER;
   }
 
@@ -172,11 +178,25 @@ sl_status_t host_comm_set_option(char option, char *value)
   switch (option) {
     // TCP/IP address.
     case 't':
-      strncpy(tcp_address, value, MAX_OPT_LEN);
+      if (!comm_channel_selected) {
+        strncpy(tcp_address, value, MAX_OPT_LEN);
+        comm_channel_selected = true;
+      } else {
+        app_log_error("More than one communication channel "
+                      "provided, but exactly one is expected!" APP_LOG_NL);
+        sc = SL_STATUS_INVALID_PARAMETER;
+      }
       break;
     // UART serial port.
     case 'u':
-      strncpy(uart_port, value, MAX_OPT_LEN);
+      if (!comm_channel_selected) {
+        strncpy(uart_port, value, MAX_OPT_LEN);
+        comm_channel_selected = true;
+      } else {
+        app_log_error("More than one communication channel "
+                      "provided, but exactly one is expected!" APP_LOG_NL);
+        sc = SL_STATUS_INVALID_PARAMETER;
+      }
       break;
     // UART baud rate.
     case 'b':
@@ -188,13 +208,28 @@ sl_status_t host_comm_set_option(char option, char *value)
       break;
     // AF socket descriptor
     case 'n':
-      strncpy(named_socket_target_address, value, MAX_OPT_LEN);
+      if (!comm_channel_selected) {
+        strncpy(named_socket_target_address, value, MAX_OPT_LEN);
+        comm_channel_selected = true;
+      } else {
+        app_log_error("More than one communication channel "
+                      "provided, but exactly one is expected!" APP_LOG_NL);
+        sc = SL_STATUS_INVALID_PARAMETER;
+      }
       break;
 #if defined (CPC) && CPC == 1
     // CPC connection
     case 'C':
-      strncpy(cpc_instance_name, value, MAX_OPT_LEN);
-      cpc_conn = true;
+      if (!comm_channel_selected) {
+        strncpy(cpc_instance_name, value, MAX_OPT_LEN);
+        cpc_conn = true;
+        comm_channel_selected = true;
+      } else {
+        app_log_error("More than one communication channel "
+                      "provided, but exactly one is expected!" APP_LOG_NL);
+        sc = SL_STATUS_INVALID_PARAMETER;
+      }
+
       break;
 #endif // defined (CPC) && CPC == 1
     // Unknown option.

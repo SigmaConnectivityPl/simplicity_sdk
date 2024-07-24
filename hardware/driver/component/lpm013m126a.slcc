@@ -7,6 +7,9 @@ description: >
   pixel on the screen.
 category: Platform|Board Drivers|Memory LCD|Display Driver
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: hardware/driver
 include:
   - path: memlcd/src/lpm013m126a

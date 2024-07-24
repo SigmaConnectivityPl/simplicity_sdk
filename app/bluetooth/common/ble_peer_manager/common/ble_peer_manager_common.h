@@ -30,11 +30,15 @@
 #ifndef BLE_PEER_MANAGER_COMMON_H
 #define BLE_PEER_MANAGER_COMMON_H
 
+/***********************************************************************************************//**
+ * @addtogroup ble_peer_manager_common
+ * @{
+ **************************************************************************************************/
+
 #include <stdint.h>
 
 typedef enum {
-  BLE_PEER_MANAGER_ON_BOOT = 0u,
-  BLE_PEER_MANAGER_ON_CONN_OPENED_CENTRAL,
+  BLE_PEER_MANAGER_ON_CONN_OPENED_CENTRAL = 0,
   BLE_PEER_MANAGER_ON_CONN_OPENED_PERIPHERAL,
   BLE_PEER_MANAGER_ON_CONN_CLOSED,
   BLE_PEER_MANAGER_ON_ADV_STOPPED,
@@ -48,4 +52,5 @@ typedef struct ble_peer_manager_evt_type_s {
 
 void ble_peer_manager_on_event(ble_peer_manager_evt_type_t *event);
 
+/** @} (end addtogroup ble_peer_manager_common) */
 #endif // BLE_PEER_MANAGER_COMMON_H

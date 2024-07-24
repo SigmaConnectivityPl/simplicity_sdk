@@ -10,6 +10,7 @@ provides:
   - name: ot_sbom_tcplp
 metadata:
   sbom:
+    id: ot_sbom_tcplp
     license: BSD-3-Clause
     upstream:
       name: TCPlp

@@ -44,3 +44,6 @@ library:
     condition: [device_sdid_230, toolchain_iar]
   - path: lib/libbluetooth_controller_efr32xg28_iar_release.a
     condition: [device_sdid_235, toolchain_iar]
+metadata:
+  sbom:
+    license: MSLA

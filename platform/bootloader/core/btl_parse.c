@@ -83,7 +83,7 @@ int32_t core_parseImageInfo(BootloaderParserContext_t *context,
     .context = NULL,
     .applicationCallback = NULL,
     .metadataCallback = NULL,
-    .bootloaderCallback = NULL,
+    .bootloaderCallback = NULL
   };
 
   // Default versions to zero
@@ -112,6 +112,7 @@ int32_t core_parseImageInfo(BootloaderParserContext_t *context,
   }
 }
 
-uint32_t core_parserContextSize(void) {
+uint32_t core_parserContextSize(void)
+{
   return sizeof(BootloaderParserContext_t);
 }

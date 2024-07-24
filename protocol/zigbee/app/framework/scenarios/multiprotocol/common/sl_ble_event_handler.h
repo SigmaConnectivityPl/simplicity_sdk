@@ -35,7 +35,6 @@ void zb_ble_dmp_notify_source_address(uint8_t connection);
 
 void zb_ble_dmp_set_source_address (sl_802154_long_addr_t set_address);
 void zb_ble_dmp_print_ble_address(uint8_t *address);
-void zb_ble_dmp_print_ble_connections();
 void sli_ble_application_init(uint8_t init_level);
 
 #endif //__SL_DMP_ZIGBEE_BLE_EVENT_HANDLER_H__

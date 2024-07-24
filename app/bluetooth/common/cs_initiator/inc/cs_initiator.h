@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS initiator API.
+ * @brief CS Initiator API.
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -31,6 +31,11 @@
 #ifndef CS_INITIATOR_H
 #define CS_INITIATOR_H
 
+/***********************************************************************************************//**
+ * @addtogroup cs_initiator
+ * @{
+ **************************************************************************************************/
+
 // -----------------------------------------------------------------------------
 // Includes
 
@@ -50,6 +55,8 @@ extern "C" {
 
 /***************************************************************************//**
  * Initiator error callback type
+ * Called in case any CS initiator related error occurred.
+ *
  * @param[in] conn_handle connection handle.
  * @param[in] evt         error event.
  * @param[in] sc          status code.
@@ -58,10 +65,27 @@ typedef void (*cs_error_cb_t)(uint8_t conn_handle, cs_error_event_t evt, sl_stat
 
 /***************************************************************************//**
  * Initiator result callback type
+ * Called in case a CS procedure extracted successfully and based on the
+ * extracted data a distance measurement by the RTL library has been successfully
+ * performed.
+ *
  * @param[in] result pointer to the result structure.
  * @param[in] user_data pointer to additional user data.
  ******************************************************************************/
 typedef void (*cs_result_cb_t)(const cs_result_t *result, const void *user_data);
+
+/***************************************************************************//**
+ * Initiator intermediate result callback type
+ * Called only in case the static object tracking mode is active.
+ * That means not in every CS procedure the CS initiator gets a distance
+ * measurement. When the measurement is still in progress at the end of a
+ * successfully extracted CS procedure this callback will be called instead of
+ * the result callback.
+ *
+ * @param[in] result pointer to the intermediate result structure.
+ * @param[in] user_data pointer to additional user data.
+ ******************************************************************************/
+typedef void (*cs_intermediate_result_cb_t)(const cs_intermediate_result_t *result, const void *user_data);
 
 // cs procedure triggering
 typedef enum {
@@ -71,37 +95,44 @@ typedef enum {
   CS_PROCEDURE_ACTION_TRIGGER_STOP
 } cs_procedure_action_t;
 
+typedef union {
+  struct {
+    cs_error_event_t error_type;
+    sl_status_t sc;
+  } evt_error;
+  struct {
+    sl_bt_evt_cs_result_t *cs_result_data;
+    bool initiator_part;
+  } evt_cs_result;
+  bool evt_init_completed;
+  bool evt_procedure_enable_starting;
+  sl_bt_evt_cs_procedure_enable_complete_t *evt_procedure_enable_completed;
+} state_machine_event_data_t;
+
+typedef enum {
+  INITIATOR_EVT_INIT_STARTED = 0U,
+  INITIATOR_EVT_INIT_COMPLETED,
+  INITIATOR_EVT_START_PROCEDURE,
+  INITIATOR_EVT_PROCEDURE_ENABLE_STARTING,
+  INITIATOR_EVT_PROCEDURE_ENABLE_COMPLETED,
+  INITIATOR_EVT_PROCEDURE_DISABLE_COMPLETED,
+  INITIATOR_EVT_CS_RESULT,
+  INITIATOR_EVT_DELETE_INSTANCE,
+  INITIATOR_EVT_ERROR
+} state_machine_event_t;
+
+// cs procedure triggering
+typedef enum {
+  CS_PROCEDURE_STATE_IN_PROGRESS = 0u,
+  CS_PROCEDURE_STATE_ABORTED,
+  CS_PROCEDURE_STATE_COMPLETED
+} cs_procedure_state_t;
+
 // -----------------------------------------------------------------------------
 // Function declarations
 
-/******************************************************************************
- * Get pointer to cs_procedure.
- * @param[in] conn_handle connection handle
- * @return Returns the current channel sounding procedure parameter struct.
- *****************************************************************************/
-sl_rtl_cs_procedure *cs_initiator_get_procedure(const uint8_t conn_handle);
-
 /**************************************************************************//**
- * Extract result from the event.
- * @param[in] conn_handle connection handle
- * @param[in] initiator_part true if initiator data is used
- * @param[in] evt bluetooth event
- * @return action for the ongoing procedure
- *****************************************************************************/
-cs_procedure_action_t extract_cs_result_data(const uint8_t conn_handle,
-                                             bool initiator_part,
-                                             sl_bt_evt_cs_result_t *evt);
-
-/**************************************************************************//**
- * Identify CS initiator based on the connection handle.
- * @param[in] conn_handle connection handle
- *
- * @return true if the handle has an associated initiator instance.
- *****************************************************************************/
-bool cs_initiator_identify(const uint8_t conn_handle);
-
-/**************************************************************************//**
- * Create CS initiator instance for the given connection handle.
+ * Create CS Initiator instance for the given connection handle.
  * @param[in] conn_handle connection handle
  * @param[in] initiator_config pointer to the initiator config
  * @param[in] result_cb callback for result
@@ -109,11 +140,12 @@ bool cs_initiator_identify(const uint8_t conn_handle);
  *
  * @return status of the operation.
  *****************************************************************************/
-sl_status_t cs_initiator_create(const uint8_t         conn_handle,
-                                cs_initiator_config_t *initiator_config,
+sl_status_t cs_initiator_create(const uint8_t               conn_handle,
+                                cs_initiator_config_t       *initiator_config,
                                 const rtl_config_t          *rtl_config,
-                                cs_result_cb_t        result_cb,
-                                cs_error_cb_t         error_cb);
+                                cs_result_cb_t              result_cb,
+                                cs_intermediate_result_cb_t intermediate_result_cb,
+                                cs_error_cb_t               error_cb);
 
 /**************************************************************************//**
  * Create and configure initiator instances.
@@ -121,7 +153,7 @@ sl_status_t cs_initiator_create(const uint8_t         conn_handle,
 void cs_initiator_init(void);
 
 /**************************************************************************//**
- * Delete CS initiator instance associated with the given connection handle.
+ * Delete CS Initiator instance associated with the given connection handle.
  * @param[in] conn_handle connection handle
  *
  * @return status of the operation.
@@ -129,14 +161,9 @@ void cs_initiator_init(void);
 sl_status_t cs_initiator_delete(const uint8_t conn_handle);
 
 /**************************************************************************//**
- * Deinitialization function of CS initiator component.
+ * Deinitialization function of CS Initiator component.
  *****************************************************************************/
 void cs_initiator_deinit(void);
-
-/**************************************************************************//**
- * Periodically called step function.
- *****************************************************************************/
-void cs_initiator_step(void);
 
 // -----------------------------------------------------------------------------
 // Event / callback declarations
@@ -152,4 +179,5 @@ bool cs_initiator_on_event(sl_bt_msg_t *evt);
 };
 #endif
 
+/** @} (end addtogroup cs_initiator) */
 #endif // CS_INITIATOR_H

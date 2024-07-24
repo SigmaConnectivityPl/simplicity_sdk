@@ -27,3 +27,6 @@ template_contribution:
     priority: -1000
 provides:
   - name: "bluetooth_controller_rtos_adaptation"
+metadata:
+  sbom:
+    license: MSLA

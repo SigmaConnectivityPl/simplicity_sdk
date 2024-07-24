@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS reflector example application logic
+ * @brief CS Reflector example application logic
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -40,6 +40,10 @@
 #include "cs_reflector_config.h"
 #include "cs_antenna.h"
 
+#define APP_PREFIX                  "[APP] "
+#define INSTANCE_PREFIX             "[%u] "
+#define APP_INSTANCE_PREFIX         APP_PREFIX INSTANCE_PREFIX
+
 static cs_reflector_config_t cs_reflector_config = {
   .max_tx_power_dbm = CS_REFLECTOR_MAX_TX_POWER_DBM
 };
@@ -54,15 +58,17 @@ SL_WEAK void app_init(void)
   app_log_filter_threshold_set(APP_LOG_LEVEL_INFO);
 
   app_log_info(APP_LOG_NL);
-  app_log_append_info("Silicon Labs CS Reflector" APP_LOG_NL);
-  app_log_append_info("--------------------------" APP_LOG_NL);
-  app_log_append_info("Maximum concurrent connections: %u" APP_LOG_NL, CS_REFLECTOR_MAX_CONNECTIONS);
-  app_log_append_info("Channel Sounding event buffer size: %u" APP_LOG_NL, CS_REFLECTOR_CS_EVENT_BUF_SIZE);
-  app_log_append_info("Minimum transmit power: %d dBm" APP_LOG_NL, CS_REFLECTOR_MIN_TX_POWER_DBM);
-  app_log_append_info("Maximum transmit power: %d dBm" APP_LOG_NL, CS_REFLECTOR_MAX_TX_POWER_DBM);
+  app_log_info("+-[CS Reflector by Silicon Labs]------------------------+" APP_LOG_NL);
+  app_log_info("+-------------------------------------------------------+" APP_LOG_NL);
+  app_log_info(APP_PREFIX "Maximum concurrent connections: %u" APP_LOG_NL, CS_REFLECTOR_MAX_CONNECTIONS);
+  app_log_info(APP_PREFIX "Channel Sounding event buffer size: %u" APP_LOG_NL, CS_REFLECTOR_CS_EVENT_BUF_SIZE);
+  app_log_info(APP_PREFIX "Default minimum transmit power: %d dBm" APP_LOG_NL, CS_REFLECTOR_MIN_TX_POWER_DBM);
+  app_log_info(APP_PREFIX "Default maximum transmit power: %d dBm" APP_LOG_NL, CS_REFLECTOR_MAX_TX_POWER_DBM);
 
-  app_log_info("Wire%s antenna offset will be used." APP_LOG_NL,
+  app_log_info(APP_PREFIX "Wire%s antenna offset will be used." APP_LOG_NL,
                CS_REFLECTOR_ANTENNA_OFFSET ? "d" : "less");
+
+  app_log_info("+-------------------------------------------------------+" APP_LOG_NL APP_LOG_NL);
 
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application init code here!                         //
@@ -96,12 +102,21 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     case sl_bt_evt_system_boot_id:
     {
       sl_status_t sc;
-      // Print the Bluetooth address
       bd_addr address;
       uint8_t address_type;
+      int16_t min_tx_power_x10 = CS_REFLECTOR_MIN_TX_POWER_DBM * 10;
+      int16_t max_tx_power_x10 = CS_REFLECTOR_MAX_TX_POWER_DBM * 10;
+      sc = sl_bt_system_set_tx_power(min_tx_power_x10,
+                                     max_tx_power_x10,
+                                     &min_tx_power_x10,
+                                     &max_tx_power_x10);
+      app_assert_status(sc);
+      app_log_info(APP_PREFIX "Set minimum transmit power to: %d dBm" APP_LOG_NL, min_tx_power_x10 / 10);
+      app_log_info(APP_PREFIX "Set maximum transmit power to: %d dBm" APP_LOG_NL, max_tx_power_x10 / 10);
       sc = sl_bt_system_get_identity_address(&address, &address_type);
       app_assert_status(sc);
-      app_log_info("Bluetooth %s address: %02X:%02X:%02X:%02X:%02X:%02X\n",
+      // Print the Bluetooth address
+      app_log_info(APP_PREFIX "Bluetooth %s address: %02X:%02X:%02X:%02X:%02X:%02X\n",
                    address_type ? "static random" : "public device",
                    address.addr[5],
                    address.addr[4],
@@ -114,20 +129,11 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       sc = cs_antenna_configure(CS_REFLECTOR_ANTENNA_OFFSET);
       app_assert_status(sc);
 
-      int16_t min_tx_power_x10 = CS_REFLECTOR_MIN_TX_POWER_DBM * 10;
-      int16_t max_tx_power_x10 = CS_REFLECTOR_MAX_TX_POWER_DBM * 10;
-      sc = sl_bt_system_set_tx_power(CS_REFLECTOR_MIN_TX_POWER_DBM,
-                                     CS_REFLECTOR_MAX_TX_POWER_DBM,
-                                     &min_tx_power_x10,
-                                     &max_tx_power_x10);
-
-      app_assert_status(sc);
-
       // Start advertising for initiator connections
       if (CS_REFLECTOR_MAX_CONNECTIONS > 0) {
         sc = ble_peer_manager_peripheral_start_advertising(SL_BT_INVALID_ADVERTISING_SET_HANDLE);
         app_assert_status(sc);
-        app_log_info("Advertising started for initiator connections..." APP_LOG_NL);
+        app_log_info(APP_PREFIX "Advertising started for initiator connections..." APP_LOG_NL);
       }
     }
     break;
@@ -139,8 +145,8 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       uint8_t num_buffers_discarded = evt->data.evt_system_resource_exhausted.num_buffers_discarded;
       uint8_t num_buffer_allocation_failures = evt->data.evt_system_resource_exhausted.num_buffer_allocation_failures;
       uint8_t num_heap_allocation_failures = evt->data.evt_system_resource_exhausted.num_heap_allocation_failures;
-      app_log_error("BT stack buffers exhausted, data loss may have occurred! "
-                    "buf_discarded='%u' buf_alloc_fail='%u' heap_alloc_fail='%u'" APP_LOG_NL,
+      app_log_error(APP_PREFIX "BT stack buffers exhausted, data loss may have occurred! "
+                               "buf_discarded='%u' buf_alloc_fail='%u' heap_alloc_fail='%u'" APP_LOG_NL,
                     num_buffers_discarded,
                     num_buffer_allocation_failures,
                     num_heap_allocation_failures);
@@ -150,7 +156,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     // -------------------------------
     // This event is received when a BT stack system error occurs
     case sl_bt_evt_system_error_id:
-      app_log_error("System error occurred; reason='0x%02x'" APP_LOG_NL, evt->data.evt_system_error.reason);
+      app_log_error(APP_PREFIX "System error occurred; reason='0x%02x'" APP_LOG_NL, evt->data.evt_system_error.reason);
       break;
 
     // -------------------------------
@@ -158,7 +164,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     case sl_bt_evt_sm_bonding_failed_id:
     {
       uint8_t conn_handle = evt->data.evt_sm_bonding_failed.connection;
-      app_log_error("#%d - Bonding failed; reason='0x%02x'" APP_LOG_NL,
+      app_log_error(APP_INSTANCE_PREFIX "Bonding failed; reason='0x%02x'" APP_LOG_NL,
                     conn_handle,
                     evt->data.evt_sm_bonding_failed.reason);
       sl_status_t sc = sl_bt_connection_close(conn_handle);
@@ -171,7 +177,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     case sl_bt_evt_gatt_mtu_exchanged_id:
     {
       uint8_t conn_handle = evt->data.evt_gatt_mtu_exchanged.connection;
-      app_log_info("#%u - MTU exchange completed" APP_LOG_NL, conn_handle);
+      app_log_info(APP_INSTANCE_PREFIX "MTU exchange completed" APP_LOG_NL, conn_handle);
     }
     break;
 
@@ -180,7 +186,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     case sl_bt_evt_connection_parameters_id:
     {
       uint8_t conn_handle = evt->data.evt_connection_parameters.connection;
-      app_log_info("#%u - Connection parameters changed" APP_LOG_NL, conn_handle);
+      app_log_info(APP_INSTANCE_PREFIX "Connection parameters changed" APP_LOG_NL, conn_handle);
     }
     break;
 
@@ -189,7 +195,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     case sl_bt_evt_connection_phy_status_id:
     {
       uint8_t conn_handle = evt->data.evt_connection_phy_status.connection;
-      app_log_info("#%u - PHY update procedure completed" APP_LOG_NL, conn_handle);
+      app_log_info(APP_INSTANCE_PREFIX "PHY update procedure completed" APP_LOG_NL, conn_handle);
     }
     break;
 
@@ -198,7 +204,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     case sl_bt_evt_connection_remote_used_features_id:
     {
       uint8_t conn_handle = evt->data.evt_connection_remote_used_features.connection;
-      app_log_info("#%u - Remote LL supported features updated" APP_LOG_NL, conn_handle);
+      app_log_info(APP_INSTANCE_PREFIX "Remote LL supported features updated" APP_LOG_NL, conn_handle);
     }
     break;
 
@@ -207,7 +213,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     case sl_bt_evt_connection_data_length_id:
     {
       uint8_t conn_handle = evt->data.evt_connection_data_length.connection;
-      app_log_info("#%u - Maximum payload length changed" APP_LOG_NL, conn_handle);
+      app_log_info(APP_INSTANCE_PREFIX "Maximum payload length changed" APP_LOG_NL, conn_handle);
     }
     break;
 
@@ -216,7 +222,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     case sl_bt_evt_sm_bonded_id:
     {
       uint8_t conn_handle = evt->data.evt_sm_bonded.connection;
-      app_log_info("#%u - Bonding procedure successfully completed" APP_LOG_NL, conn_handle);
+      app_log_info(APP_INSTANCE_PREFIX "Bonding procedure successfully completed" APP_LOG_NL, conn_handle);
     }
     break;
 
@@ -226,7 +232,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     {
       uint8_t conn_handle = evt->data.evt_connection_tx_power.connection;
       int8_t tx_power = evt->data.evt_connection_tx_power.power_level;
-      app_log_info("#%u - Transmit power changed; tx_power='%d'" APP_LOG_NL, conn_handle, tx_power);
+      app_log_info(APP_INSTANCE_PREFIX "Transmit power changed; tx_power='%d'" APP_LOG_NL, conn_handle, tx_power);
     }
     break;
 
@@ -256,7 +262,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     // -------------------------------
     // Default event handler
     default:
-      app_log_info("BLE event: 0x%02lx" APP_LOG_NL, SL_BT_MSG_ID(evt->header));
+      app_log_info(APP_PREFIX "BLE event: 0x%02lx" APP_LOG_NL, SL_BT_MSG_ID(evt->header));
       break;
   }
 }
@@ -267,7 +273,7 @@ void handle_connection_opened_with_initiator(uint8_t conn_handle)
   // Create a new reflector instance for the connection handle
   sc = cs_reflector_create(conn_handle, &cs_reflector_config);
   if (sc != SL_STATUS_OK) {
-    app_log_error("Failed to create reflector instance; connection_handle='%u'" APP_LOG_NL, conn_handle);
+    app_log_error(APP_INSTANCE_PREFIX "Failed to create reflector instance'" APP_LOG_NL, conn_handle);
     ble_peer_manager_peripheral_close_connection(conn_handle);
     return;
   }
@@ -276,7 +282,7 @@ void handle_connection_opened_with_initiator(uint8_t conn_handle)
   if (cs_reflector_get_active_instance_count() < CS_REFLECTOR_MAX_CONNECTIONS) {
     sc = ble_peer_manager_peripheral_start_advertising(SL_BT_INVALID_ADVERTISING_SET_HANDLE);
     app_assert_status(sc);
-    app_log_info("Advertising restarted for new initiator connections..." APP_LOG_NL);
+    app_log_info(APP_PREFIX "Advertising restarted for new initiator connections..." APP_LOG_NL);
   }
 }
 
@@ -284,9 +290,10 @@ void handle_connection_closed(uint8_t conn_handle)
 {
   sl_status_t sc;
   bool advertisement_should_be_restarted = false;
+  uint8_t reflector_count = cs_reflector_get_active_instance_count();
   // If we are at the maximum capacity - it means that the advertisement is not running
   // Restart advertising for new initiator connections if we were at the limit
-  if (cs_reflector_get_active_instance_count() == CS_REFLECTOR_MAX_CONNECTIONS) {
+  if (reflector_count == CS_REFLECTOR_MAX_CONNECTIONS) {
     advertisement_should_be_restarted = true;
   }
 
@@ -298,36 +305,33 @@ void handle_connection_closed(uint8_t conn_handle)
   if (advertisement_should_be_restarted) {
     sc = ble_peer_manager_peripheral_start_advertising(SL_BT_INVALID_ADVERTISING_SET_HANDLE);
     app_assert_status(sc);
-    app_log_info("Advertising restarted for new initiator connections..." APP_LOG_NL);
+    app_log_info(APP_PREFIX "Advertising restarted for new initiator connections..." APP_LOG_NL);
   }
 }
 
 void ble_peer_manager_on_event_reflector(const ble_peer_manager_evt_type_t *event)
 {
   switch (event->evt_id) {
-    case BLE_PEER_MANAGER_ON_BOOT:
-      break;
-
     case BLE_PEER_MANAGER_ON_CONN_OPENED_PERIPHERAL:
-      app_log_info("[%u] Connection opened as peripheral with a CS initiator" APP_LOG_NL, event->connection_id);
+      app_log_info(APP_INSTANCE_PREFIX "Connection opened as peripheral with a CS Initiator" APP_LOG_NL, event->connection_id);
       handle_connection_opened_with_initiator(event->connection_id);
       break;
 
     case BLE_PEER_MANAGER_ON_CONN_CLOSED:
-      app_log_info("[%u] Connection closed" APP_LOG_NL, event->connection_id);
+      app_log_info(APP_INSTANCE_PREFIX "Connection closed" APP_LOG_NL, event->connection_id);
       handle_connection_closed(event->connection_id);
       break;
 
     case BLE_PEER_MANAGER_ON_ADV_STOPPED:
-      app_log_info("[%u] Advertisement stopped" APP_LOG_NL, event->connection_id);
+      app_log_info(APP_INSTANCE_PREFIX "Advertisement stopped" APP_LOG_NL, event->connection_id);
       break;
 
     case BLE_PEER_MANAGER_ERROR:
-      app_log_info("[%u] Error" APP_LOG_NL, event->connection_id);
+      app_log_info(APP_INSTANCE_PREFIX "Error" APP_LOG_NL, event->connection_id);
       break;
 
     default:
-      app_log_info("[%u] Unhandled Peer Manager event (%u)" APP_LOG_NL, event->connection_id, event->evt_id);
+      app_log_info(APP_INSTANCE_PREFIX "Unhandled Peer Manager event (%u)" APP_LOG_NL, event->connection_id, event->evt_id);
       break;
   }
 }

@@ -76,11 +76,6 @@ define:
     value: 1
     condition:
       - rail_lib_multiprotocol
-  - name: "INCLUDE_xTimerPendFunctionCall"
-    value: 1
-    condition:
-      - freertos
-    unless: ["matter_integration"]
   - name: OPENTHREAD_CONFIG_PLATFORM_RADIO_COEX_ENABLE
     value: 1
     condition:

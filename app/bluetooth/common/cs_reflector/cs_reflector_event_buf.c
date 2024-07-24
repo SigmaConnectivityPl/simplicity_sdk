@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS reflector CS event buffer manager
+ * @brief CS Reflector CS event buffer manager
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>

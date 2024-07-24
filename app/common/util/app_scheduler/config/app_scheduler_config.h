@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Application scheduler configuration
+ * @brief Scheduler configuration
  *******************************************************************************
  * # License
- * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -39,9 +39,10 @@
 // <i> Enable scheduling on startup.
 #define APP_SCHEDULER_ENABLE                    1
 
-// <q APP_SCHEDULER_EAGER_MODE> Eager mode
-// <i> Enable eager mode to run all available active tasks in one main loop iteration.
-#define APP_SCHEDULER_EAGER_MODE                0
+// <q APP_SCHEDULER_SINGLE_MODE> Single mode
+// <i> Only run one task in one main loop iteration.
+// <i> Disable to run all available active tasks in one iteration.
+#define APP_SCHEDULER_SINGLE_MODE               1
 
 // <o APP_SCHEDULER_MAX_QUEUE_SIZE> Queue length for static allocation
 // <i> Maximum queue length for static allocation.

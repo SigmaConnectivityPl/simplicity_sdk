@@ -28,6 +28,9 @@
  *
  ******************************************************************************/
 
+// Define module name for Power Manager debug feature
+#define CURRENT_MODULE_NAME    "SLEEPTIMER_TIMER"
+
 #include "em_device.h"
 #if defined(_SILICON_LABS_32B_SERIES_2)
 #include "em_timer.h"

@@ -18,7 +18,6 @@ include $(SDK_DIR)/app/bluetooth/component_host/app_log.mk
 include $(SDK_DIR)/app/bluetooth/component_host/app_assert.mk
 include $(SDK_DIR)/app/bluetooth/component_host/app_signal.mk
 include $(SDK_DIR)/app/bluetooth/component_host/app_timer.mk
-include $(SDK_DIR)/app/bluetooth/component_host/ncp_reset.mk
 include $(SDK_DIR)/app/bluetooth/component_host/ncp_version.mk
 include $(SDK_DIR)/app/btmesh/component_host/ncp_host_btmesh.mk
 

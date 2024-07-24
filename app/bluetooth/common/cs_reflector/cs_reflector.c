@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS reflector
+ * @brief CS Reflector
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -46,8 +46,9 @@
 
 // Component logging
 #if defined(SL_CATALOG_APP_LOG_PRESENT) && CS_REFLECTOR_LOG
-#define LOG_PREFIX                  "[reflector] "
+#define LOG_PREFIX                  CS_REFLECTOR_LOG_PREFIX " "
 #define LOG_NL                      APP_LOG_NL
+#define INSTANCE_PREFIX             "[%u] "
 #define reflector_log_debug(...)    app_log_debug(LOG_PREFIX  __VA_ARGS__)
 #define reflector_log_info(...)     app_log_info(LOG_PREFIX  __VA_ARGS__)
 #define reflector_log_warning(...)  app_log_warning(LOG_PREFIX  __VA_ARGS__)
@@ -55,6 +56,7 @@
 #define reflector_log_critical(...) app_log_critical(LOG_PREFIX  __VA_ARGS__)
 #else
 #define LOG_NL
+#define INSTANCE_PREFIX
 #define reflector_log_debug(...)
 #define reflector_log_info(...)
 #define reflector_log_warning(...)
@@ -84,7 +86,7 @@ bool cs_reflector_identify(uint8_t conn_handle)
 sl_status_t cs_reflector_create(uint8_t               conn_handle,
                                 cs_reflector_config_t *reflector_config)
 {
-  reflector_log_info("R#%u - Creating new reflector instance; conn_handle='%u'" LOG_NL,
+  reflector_log_info(INSTANCE_PREFIX "Creating new reflector instance; conn_handle='%u'" LOG_NL,
                      conn_handle,
                      conn_handle);
   sl_status_t sc = sl_bt_cs_set_default_settings(conn_handle,
@@ -97,22 +99,23 @@ sl_status_t cs_reflector_create(uint8_t               conn_handle,
   }
 
   // Add the new instance
-  if (!cs_rcm_add_new_initiator_connection(conn_handle)) {
+  sc = cs_rcm_add_new_initiator_connection(conn_handle);
+  if (sc != SL_STATUS_OK) {
     // New instance cannot be added - we're at capacity
-    reflector_log_warning("R#%u - Cannot add new reflector connection" LOG_NL,
+    reflector_log_warning(INSTANCE_PREFIX "Cannot add new reflector connection" LOG_NL,
                           conn_handle);
     return SL_STATUS_ALLOCATION_FAILED;
   }
 
   cs_reflector_gattdb_init();
 
-  reflector_log_info("Reflector instances: %lu/%u" LOG_NL,
+  reflector_log_info("Instances: %u/%u" LOG_NL,
                      cs_rcm_get_number_of_connections(),
                      CS_REFLECTOR_MAX_CONNECTIONS);
   return sc;
 }
 
-uint32_t cs_reflector_get_active_instance_count(void)
+uint8_t cs_reflector_get_active_instance_count(void)
 {
   return cs_rcm_get_number_of_connections();
 }
@@ -122,10 +125,10 @@ sl_status_t cs_reflector_delete(uint8_t conn_handle)
   if (!cs_reflector_identify(conn_handle)) {
     return SL_STATUS_NOT_FOUND;
   }
-  reflector_log_info("R#%u - Deleting instance" LOG_NL, conn_handle);
+  reflector_log_info(INSTANCE_PREFIX "Deleting instance" LOG_NL, conn_handle);
   cs_rcm_remove_initiator_connection(conn_handle);
   cs_reflector_event_buf_purge_data(conn_handle);
-  reflector_log_info("Reflector instances: %lu/%u" LOG_NL,
+  reflector_log_info("Instances: %u/%u" LOG_NL,
                      cs_rcm_get_number_of_connections(),
                      CS_REFLECTOR_MAX_CONNECTIONS);
   return SL_STATUS_OK;
@@ -157,7 +160,7 @@ bool cs_reflector_on_bt_event(sl_bt_msg_t *evt)
       // Set message handled
       handled = true;
       reflector_log_info("-------------------------------------------------------" LOG_NL);
-      reflector_log_info("R#%u - CS procedure started" LOG_NL, conn_handle);
+      reflector_log_info(INSTANCE_PREFIX "CS procedure started" LOG_NL, conn_handle);
     }
     break;
 
@@ -178,7 +181,7 @@ bool cs_reflector_on_bt_event(sl_bt_msg_t *evt)
       uint16_t received_procedure_index = 0u;
 
       received_procedure_index = evt->data.evt_cs_result.procedure_counter;
-      reflector_log_debug("R#%u - CS procedure result; idx_original='%u'" LOG_NL,
+      reflector_log_debug(INSTANCE_PREFIX "CS procedure result; idx_original='%u'" LOG_NL,
                           conn_handle, evt->data.evt_cs_result.procedure_counter);
 
       // Count the real procedure index (stack returns 0 for consecutive subevents)
@@ -190,7 +193,7 @@ bool cs_reflector_on_bt_event(sl_bt_msg_t *evt)
         current_procedure_index = received_procedure_index;
       }
 
-      reflector_log_info("R#%u - CS procedure result available; procedure_index='%u' se_idx='%u' se_done='%02x'" LOG_NL,
+      reflector_log_info(INSTANCE_PREFIX "CS procedure result available; procedure_index='%u' se_idx='%u' se_done='%02x'" LOG_NL,
                          conn_handle,
                          current_procedure_index,
                          current_cs_subevent_index,
@@ -244,14 +247,15 @@ bool cs_reflector_on_bt_event(sl_bt_msg_t *evt)
 
       uint8_t cs_procedure_status = evt->data.evt_cs_result.procedure_done_status;
       if (cs_procedure_status == 0x00) {
-        reflector_log_info("R#%u - CS procedure finished" LOG_NL, conn_handle);
+        reflector_log_info(INSTANCE_PREFIX "CS procedure finished" LOG_NL, conn_handle);
       } else if (cs_procedure_status == 0x01) {
-        reflector_log_info("R#%u - CS procedure ongoing, waiting for further results..." LOG_NL,
+        reflector_log_info(INSTANCE_PREFIX "CS procedure ongoing, waiting for further results..." LOG_NL,
                            conn_handle);
       } else {
-        reflector_log_error("R#%u - CS procedure failed; error='0x%02x" LOG_NL,
+        reflector_log_error(INSTANCE_PREFIX "CS procedure failed; error='0x%02x'; reason='0x%02x'" LOG_NL,
                             conn_handle,
-                            cs_procedure_status);
+                            cs_procedure_status,
+                            evt->data.evt_cs_result.abort_reason);
       }
     }
     break;
@@ -261,7 +265,6 @@ bool cs_reflector_on_bt_event(sl_bt_msg_t *evt)
     case sl_bt_evt_gatt_server_attribute_value_id:
     {
       uint8_t conn_handle = evt->data.evt_gatt_characteristic_value.connection;
-      //reflector_log_info("R#%u - Received new GATT data" LOG_NL, conn_handle);
 
       connection_ctx_t *conn_ctx = cs_rcm_get_connection_ctx(conn_handle);
       if (conn_ctx == NULL) {
@@ -271,7 +274,7 @@ bool cs_reflector_on_bt_event(sl_bt_msg_t *evt)
       handled = true;
       // If the RAS Control Point was written
       if (evt->data.evt_gatt_characteristic_value.characteristic == gattdb_ras_control_point_chr_handle) {
-        reflector_log_info("R#%u - Received new RAS Control Point message" LOG_NL,
+        reflector_log_info(INSTANCE_PREFIX "Received new RAS Control Point message" LOG_NL,
                            conn_handle);
         // Parse the incoming RAS message
         // The result - if valid - will tell the opcode and whether the
@@ -292,12 +295,12 @@ bool cs_reflector_on_bt_event(sl_bt_msg_t *evt)
 
           // If the RAS Periodic Notification was enabled
           if (conn_ctx->ras_periodic_notification_mode_enabled) {
-            reflector_log_info("R#%u - RAS Periodic Notification mode enabled" LOG_NL,
+            reflector_log_info(INSTANCE_PREFIX "RAS Periodic Notification mode enabled" LOG_NL,
                                conn_handle);
             // Send out all the results we have
             while (cs_reflector_send_next_available(conn_handle)) ;
           } else {
-            reflector_log_info("R#%u - RAS Periodic Notification mode disabled" LOG_NL,
+            reflector_log_info(INSTANCE_PREFIX "RAS Periodic Notification mode disabled" LOG_NL,
                                conn_handle);
           }
         }
@@ -317,7 +320,7 @@ bool cs_reflector_on_bt_event(sl_bt_msg_t *evt)
       if (evt->data.evt_gatt_server_characteristic_status.characteristic == gattdb_ras_control_point_chr_handle) {
         connection_ctx_t *conn_ctx = cs_rcm_get_connection_ctx(conn_handle);
         if (conn_ctx == NULL) {
-          reflector_log_warning("R#%u - Couldn't find registered connection for handle '%u'" LOG_NL,
+          reflector_log_warning(INSTANCE_PREFIX "Couldn't find registered connection for handle '%u'" LOG_NL,
                                 conn_handle,
                                 conn_handle);
           break;
@@ -326,14 +329,14 @@ bool cs_reflector_on_bt_event(sl_bt_msg_t *evt)
         handled = true;
         if ((evt->data.evt_gatt_server_characteristic_status.client_config_flags == 0x02)
             && (evt->data.evt_gatt_server_characteristic_status.status_flags == 0x01)) {
-          reflector_log_info("R#%u - RAS control point indication enabled" LOG_NL, conn_handle);
+          reflector_log_info(INSTANCE_PREFIX "RAS control point indication enabled" LOG_NL, conn_handle);
           conn_ctx->ras_control_point_indication_enabled = true;
         } else if ((evt->data.evt_gatt_server_characteristic_status.client_config_flags == 0x00)
                    && (evt->data.evt_gatt_server_characteristic_status.status_flags == 0x01)) {
-          reflector_log_info("R#%u - RAS control point indication disabled" LOG_NL, conn_handle);
+          reflector_log_info(INSTANCE_PREFIX "RAS control point indication disabled" LOG_NL, conn_handle);
           conn_ctx->ras_control_point_indication_enabled = false;
         } else if (evt->data.evt_gatt_server_characteristic_status.status_flags == 0x02) {
-          reflector_log_info("R#%u - RAS control point confirmation received" LOG_NL, conn_handle);
+          reflector_log_info(INSTANCE_PREFIX "RAS control point confirmation received" LOG_NL, conn_handle);
           conn_ctx->indication_in_progress = false;
           cs_indicate_ranging_data_ready(conn_handle);
         }
@@ -351,7 +354,7 @@ bool cs_reflector_on_bt_event(sl_bt_msg_t *evt)
       }
       // Set message handled
       handled = true;
-      reflector_log_info("R#%u - CS Security Enable completed" LOG_NL, conn_handle);
+      reflector_log_info(INSTANCE_PREFIX "CS Security Enable completed" LOG_NL, conn_handle);
     }
     break;
 
@@ -365,7 +368,7 @@ bool cs_reflector_on_bt_event(sl_bt_msg_t *evt)
       }
       // Set message handled
       handled = true;
-      reflector_log_info("R#%u - CS configuration completed" LOG_NL, conn_handle);
+      reflector_log_info(INSTANCE_PREFIX "CS configuration completed" LOG_NL, conn_handle);
     }
     break;
   }
@@ -378,19 +381,19 @@ static bool cs_reflector_send_next_available(const uint8_t conn_handle)
 {
   cs_event_data_t *cs_event_buf_entry = cs_reflector_event_buf_get_next_element(conn_handle);
   if (cs_event_buf_entry == NULL) {
-    reflector_log_warning("R#%u - No results left to transfer for this connection" LOG_NL,
+    reflector_log_warning(INSTANCE_PREFIX "No results left to transfer for this connection" LOG_NL,
                           conn_handle);
     return false;
   }
 
-  reflector_log_info("R#%u - Transferring next CS result to the initiator; index='%u' subevent_index='%u' len='%u'" LOG_NL,
+  reflector_log_info(INSTANCE_PREFIX "Transferring next CS result to the initiator; index='%u' subevent_index='%u' len='%u'" LOG_NL,
                      conn_handle,
                      cs_event_buf_entry->procedure_index,
                      cs_event_buf_entry->subevent_index,
                      cs_event_buf_entry->data_len);
 
   struct sl_bt_evt_cs_result_s* result_ptr = (struct sl_bt_evt_cs_result_s*)cs_event_buf_entry->data;
-  reflector_log_info("R#%u - CS packet details; proc_cnt='%u' proc_done='%u' se_done='%u' len='%u'" LOG_NL,
+  reflector_log_info(INSTANCE_PREFIX "CS packet details; proc_cnt='%u' proc_done='%u' se_done='%u' len='%u'" LOG_NL,
                      conn_handle,
                      result_ptr->procedure_counter,
                      result_ptr->procedure_done_status,
@@ -404,7 +407,7 @@ static bool cs_reflector_send_next_available(const uint8_t conn_handle)
   // Give warning that we couldn't transfer the data
   // Data will be discarded anyways
   if (sc != SL_STATUS_OK) {
-    reflector_log_warning("R#%u - Cannot transfer CS result, discarding; idx='%u' sc='0x%02lx'" LOG_NL,
+    reflector_log_warning(INSTANCE_PREFIX "Cannot transfer CS result, discarding; idx='%u' sc='0x%02lx'" LOG_NL,
                           conn_handle,
                           cs_event_buf_entry->procedure_index,
                           sc);
@@ -423,12 +426,12 @@ static void cs_reflector_find_and_send_cs_result(const uint8_t conn_handle,
                                                                     procedure_index,
                                                                     subevent_index);
   if (cs_event_buf_entry == NULL) {
-    reflector_log_warning("R#%u - Requested CS result cannot be found; index='%u' subevent_index='%u'" LOG_NL,
+    reflector_log_warning(INSTANCE_PREFIX "Requested CS result cannot be found; index='%u' subevent_index='%u'" LOG_NL,
                           conn_handle, procedure_index, subevent_index);
     return;
   }
 
-  reflector_log_info("R#%u - Transferring CS result to the initiator; index='%u' subevent_index='%u'" LOG_NL,
+  reflector_log_info(INSTANCE_PREFIX "Transferring CS result to the initiator; index='%u' subevent_index='%u'" LOG_NL,
                      conn_handle,
                      procedure_index,
                      subevent_index);
@@ -446,7 +449,7 @@ void cs_indicate_ranging_data_ready(const uint8_t conn_handle)
 {
   connection_ctx_t *conn_ctx = cs_rcm_get_connection_ctx(conn_handle);
   if (conn_ctx == NULL) {
-    reflector_log_warning("R#%u - Couldn't find registered connection for handle '%u'" LOG_NL,
+    reflector_log_warning(INSTANCE_PREFIX "Couldn't find registered connection for handle '%u'" LOG_NL,
                           conn_handle,
                           conn_handle);
     return;
@@ -473,8 +476,8 @@ void cs_indicate_ranging_data_ready(const uint8_t conn_handle)
   cmd.number_of_subevents = 1u;
   cmd.subevent_index = current_event->subevent_index;
   cmd.subevent_index_data_size = current_event->data_len;
-  reflector_log_info("R#%u - Sending RAS Ranging Data Ready indication; "
-                     "index='%u' num_se='%u' se_idx='%u' size='%u'" LOG_NL,
+  reflector_log_info(INSTANCE_PREFIX "Sending RAS Ranging Data Ready indication; "
+                                     "index='%u' num_se='%u' se_idx='%u' size='%u'" LOG_NL,
                      conn_handle,
                      cmd.procedure_index,
                      cmd.number_of_subevents,
@@ -487,7 +490,7 @@ void cs_indicate_ranging_data_ready(const uint8_t conn_handle)
                                                      sizeof(ras_ranging_data_ready_indication_t),
                                                      (uint8_t*)&cmd);
   if (sc != SL_STATUS_OK) {
-    reflector_log_warning("R#%u - Failed to send RAS Ranging Data Ready indication" LOG_NL,
+    reflector_log_warning(INSTANCE_PREFIX "Failed to send RAS Ranging Data Ready indication" LOG_NL,
                           conn_handle);
   } else {
     current_event->indication_sent = true;

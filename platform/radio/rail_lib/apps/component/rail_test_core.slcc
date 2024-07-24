@@ -852,6 +852,27 @@ template_contribution:
 
   - name: cli_command
     value:
+      name: enableAutoLnaBypass
+      handler: enableAutoLnaBypass
+      help: "Enable automatic LNA bypass for external FEM."
+      argument:
+        - type: uint8
+          help: "[0=Disable] 1=Enable"
+        - type: uint32
+          help: "timeoutUs"
+        - type: uint8
+          help: "threshold"
+        - type: uint8
+          help: "deltaRssiDbm = FEM LNA gain"
+        - type: uint8
+          help: "port"
+        - type: uint8
+          help: "pin"
+        - type: uint8
+          help: "polarity"
+
+  - name: cli_command
+    value:
       name: getSyncWords
       handler: getSyncWords
       help: "Get the sync word length in bits and value(s)."

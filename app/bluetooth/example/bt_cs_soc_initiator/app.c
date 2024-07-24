@@ -27,6 +27,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#include <stdint.h>
+#include <stdbool.h>
 #include "sl_bluetooth.h"
 #include "sl_component_catalog.h"
 #include "em_common.h"
@@ -41,6 +43,7 @@
 #include "cs_initiator.h"
 #include "cs_initiator_configurator.h"
 #include "cs_initiator_config.h"
+#include "cs_initiator_display_core.h"
 #include "cs_initiator_display.h"
 #include "cs_antenna.h"
 
@@ -55,112 +58,144 @@
 #include "cs_initiator_cli.h"
 #endif // SL_CATALOG_CS_INITIATOR_CLI_PRESENT
 
-#define PB0               SL_SIMPLE_BUTTON_INSTANCE(0)
-#define NL                APP_LOG_NL
+#define PB0                              SL_SIMPLE_BUTTON_INSTANCE(0)
+#define PB1                              SL_SIMPLE_BUTTON_INSTANCE(1)
+
+#define MAX_PERCENTAGE                   100u
+#define NL                               APP_LOG_NL
+#define APP_PREFIX                       "[APP] "
+#define INSTANCE_PREFIX                  "[%u] "
+#define APP_INSTANCE_PREFIX              APP_PREFIX INSTANCE_PREFIX
 
 static void cs_on_result(const cs_result_t *result, const void *user_data);
+static void cs_on_intermediate_result(const cs_intermediate_result_t *intermediate_result,
+                                      const void *user_data);
 static void cs_on_error(uint8_t conn_handle, cs_error_event_t err_evt, sl_status_t sc);
 
-static bool button_pressed = false;
+static bool mode_button_pressed = false, algo_mode_button_pressed = false;
 static bool measurement_arrived = false;
+static bool measurement_progress_changed = false;
 static uint32_t measurement_cnt = 0u;
 static cs_initiator_config_t initiator_config;
 static rtl_config_t rtl_config;
 
 static cs_result_t measurement;
+static cs_intermediate_result_t measurement_progress;
 
 /******************************************************************************
  * Application Init
  *****************************************************************************/
 SL_WEAK void app_init(void)
 {
-  uint8_t mode = CS_INITIATOR_MODE_PBR; // PBR, the default mode
+  sl_status_t sc = SL_STATUS_OK;
+  uint8_t mode = MEASUREMENT_MODE;
+  uint8_t algo_mode = OBJECT_TRACKING_MODE;
 
   app_log_filter_threshold_set(APP_LOG_LEVEL_INFO);
   app_log_filter_threshold_enable(true);
   app_log_info(NL);
-  app_log_info("+-[CS initiator by Silicon Labs]------------------------+" NL);
-  app_log_info("| Press PB0 while reset to select RTT measurement mode! |" NL);
-  app_log_info("+-------------------------------------------------------+" NL);
+  app_log_append_info("+-[CS initiator by Silicon Labs]--------------------------+" NL);
+  app_log_append_info("+---------------------------------------------------------+" APP_LOG_NL APP_LOG_NL);
 
-  app_log_info("Wire%s antenna offset will be used." NL,
+  app_log_append_info(APP_PREFIX "Default measurement mode: %s" NL,
+                      MEASUREMENT_MODE == sl_bt_cs_mode_rtt ? "RTT" : "PBR");
+
+  app_log_append_info(APP_PREFIX "Press PB0 while reset to select %s measurement mode!" NL,
+                      MEASUREMENT_MODE == sl_bt_cs_mode_rtt ? "PBR" : "RTT");
+  app_log_append_info("+---------------------------------------------------------+" NL);
+  app_log_append_info(APP_PREFIX "Default object tracking mode: %s" NL,
+                      OBJECT_TRACKING_MODE == SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY
+                      ? "stationary object tracking"
+                      : "moving object tracking    ");
+
+  app_log_append_info(APP_PREFIX "Press PB1 while reset to select object tracking mode:" NL);
+  app_log_append_info("%s" NL,
+                      OBJECT_TRACKING_MODE == SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY
+                      ? "moving object tracking    "
+                      : "stationary object tracking");
+
+  app_log_append_info("+---------------------------------------------------------+" NL);
+
+  app_log_info(APP_PREFIX "Wire%s antenna offset will be used." NL,
                CS_INITIATOR_ANTENNA_OFFSET ? "d" : "less");
 
-  app_log_info("Minimum CS procedure interval: %u" NL, CS_INITIATOR_MIN_INTERVAL);
-  app_log_info("Maximum CS procedure interval: %u" NL, CS_INITIATOR_MAX_INTERVAL);
+  app_log_info(APP_PREFIX "Minimum CS procedure interval: %u" NL, CS_INITIATOR_MIN_INTERVAL);
+  app_log_info(APP_PREFIX "Maximum CS procedure interval: %u" NL, CS_INITIATOR_MAX_INTERVAL);
 
   // initialize measurement variable
   memset(&measurement, 0u, sizeof(measurement));
+  memset(&measurement_progress, 0u, sizeof(measurement_progress));
   measurement.connection = SL_BT_INVALID_CONNECTION_HANDLE;
 
   rtl_log_init();
   ble_peer_manager_central_init();
   ble_peer_manager_filter_init();
   cs_initiator_init();
-  sl_status_t sc = cs_initiator_display_init();
-  app_assert_status_f(sc, "cs_initiator_display_init failed");
 
   // Default parameters
   cs_initiator_set_default_config(&initiator_config, &rtl_config);
 
   // Log channel map
   app_log_info("+-[ CS channel map ]------------------------------------+" NL);
-  app_log_info("");
+  app_log_info("| ");
   for (uint32_t i = 0; i < initiator_config.channel_map_len; i++) {
     app_log_append_info("0x%02x ", initiator_config.channel_map.data[i]);
   }
   app_log_append_info(NL);
   app_log_info("+-------------------------------------------------------+" NL);
 
-  // Configured parameters
-  initiator_config.rssi_measurement_enabled = CS_RSSI_MEASUREMENT_ENABLED;
-  app_log_info("RSSI will");
-  if (!initiator_config.rssi_measurement_enabled) {
-    app_log_append_info(" not");
-  }
-  app_log_append_info(" be measured." NL);
-
-  if (SL_SIMPLE_BUTTON_COUNT >= 1) {
-    button_pressed = sl_button_get_state(PB0);
-  }
-
-  if (MEASUREMENT_MODE == CS_INITIATOR_MODE_DYNAMIC) {
-    if (button_pressed == SL_SIMPLE_BUTTON_PRESSED) {
-      mode = CS_INITIATOR_MODE_RTT;
-    }
+  if (SL_SIMPLE_BUTTON_COUNT > 1) {
+    mode_button_pressed = sl_button_get_state(PB0);
+    algo_mode_button_pressed = sl_button_get_state(PB1);
   } else {
-    mode = MEASUREMENT_MODE;
+    app_assert_status_f(SL_STATUS_FAIL, "Not enough buttons configured!"
+                                        "BTN0 and BTN1 are required for this example!");
   }
 
-  switch (mode) {
-    case CS_INITIATOR_MODE_RTT:
-      initiator_config.cs_mode = sl_bt_cs_mode_rtt;
-      app_log_info("RTT");
-      cs_initiator_display_write_text("RTT mode", ROW_MODE);
-      break;
-    case CS_INITIATOR_MODE_PBR:
-      initiator_config.cs_mode = sl_bt_cs_mode_pbr;
-      app_log_info("PBR");
-      cs_initiator_display_write_text("PBR mode", ROW_MODE);
-      break;
-    default:
-      break;
+  // Start with a different mode when buttons pressed!
+  if (algo_mode_button_pressed == SL_SIMPLE_BUTTON_PRESSED
+      && OBJECT_TRACKING_MODE == SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC) {
+    algo_mode = SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY;
+  } else if (algo_mode_button_pressed == SL_SIMPLE_BUTTON_PRESSED
+             && OBJECT_TRACKING_MODE == SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY) {
+    algo_mode = SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC;
   }
 
-  app_log_append_info(" measurement mode selected." NL);
-
-  cs_initiator_display_set_alignment(CS_INITIATOR_DISPLAY_ALIGNMENT_CENTER);
-  cs_initiator_display_write_text("CS distance", ROW_DISTANCE_TEXT);
-  cs_initiator_display_print_value(0.0f, ROW_DISTANCE_VALUE, "m");
-  cs_initiator_display_write_text("Likeliness", ROW_LIKELINESS_TEXT);
-  cs_initiator_display_print_value(0.0f, ROW_LIKELINESS_VALUE, NULL);
-  if (initiator_config.rssi_measurement_enabled) {
-    cs_initiator_display_write_text("RSSI distance", ROW_RSSI_DISTANCE_TEXT);
-    cs_initiator_display_print_value(0.0f, ROW_RSSI_DISTANCE_VALUE, "m");
+  app_log_info(APP_PREFIX "Measurement mode selected: ");
+  if (mode_button_pressed == SL_SIMPLE_BUTTON_PRESSED
+      && MEASUREMENT_MODE == sl_bt_cs_mode_pbr) {
+    mode = sl_bt_cs_mode_rtt;
+  } else if (mode_button_pressed == SL_SIMPLE_BUTTON_PRESSED
+             && MEASUREMENT_MODE == sl_bt_cs_mode_rtt) {
+    mode = sl_bt_cs_mode_pbr;
   }
-  cs_initiator_display_write_text("Bit error rate", ROW_BIT_ERROR_RATE_TEXT);
-  cs_initiator_display_print_value(0, ROW_BIT_ERROR_RATE_VALUE, NULL);
-  cs_initiator_display_update();
+  app_log_append_info("%s" NL, mode == sl_bt_cs_mode_rtt ? "RTT" : "PBR");
+  initiator_config.cs_mode = mode;
+
+  app_log_info(APP_PREFIX "Object tracking mode selected: %s" NL,
+               algo_mode == SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY
+               ? "stationary object tracking"
+               : "moving object tracking");
+  rtl_config.algo_mode = algo_mode;
+
+#ifdef SL_CATALOG_CS_INITIATOR_CLI_PRESENT
+  app_log_warning(APP_PREFIX "Measurement mode and Object tracking mode selected by "
+                             "push buttons may be overruled by CLI configuration!" NL);
+#endif // SL_CATALOG_CS_INITIATOR_CLI_PRESENT
+
+  // Show the first LCD screen
+  sc = cs_initiator_display_init();
+
+  cs_initiator_display_set_measurement_mode(initiator_config.cs_mode,
+                                            rtl_config.algo_mode);
+
+  app_assert_status_f(sc, "cs_initiator_display_init failed");
+
+  app_assert_status_f(sc, "cs_initiator_display_init failed");
+
+  initiator_config.rssi_ref_tx_power = INITIATOR_APP_CONFIG_RSSI_REF_TX_POWER;
+  app_log_info(APP_PREFIX "RSSI reference TX power is %d dBm @ 1m" NL,
+               (int)initiator_config.rssi_ref_tx_power);
 
   app_log_info("+-------------------------------------------------------+" NL);
   /////////////////////////////////////////////////////////////////////////////
@@ -177,35 +212,56 @@ SL_WEAK void app_process_action(void)
   if (measurement_arrived) {
     // write results to the display & to the iostream
     measurement_arrived = false;
-
-    app_log_info("+-[I#%u - Measurement %04lu]----------------------------+" NL,
+    app_log_info("+-------------------------------------------------------+" NL);
+    app_log_info(APP_INSTANCE_PREFIX "[Measurement %04lu]" NL,
                  measurement.connection,
                  measurement_cnt);
 
-    cs_initiator_display_set_alignment(CS_INITIATOR_DISPLAY_ALIGNMENT_CENTER);
-    app_log_info("Measurement result: %lu mm" NL,
+    app_log_info(APP_INSTANCE_PREFIX "Measurement result: %lu mm" NL,
+                 measurement.connection,
                  (uint32_t)(measurement.distance * 1000.f));
-    cs_initiator_display_print_value(measurement.distance, ROW_DISTANCE_VALUE, "m");
+
+    cs_initiator_display_set_distance(measurement.distance);
+    cs_initiator_display_set_distance_progress(MAX_PERCENTAGE);
 
     uint32_t likeliness_whole = (uint32_t)measurement.likeliness;
     uint32_t likeliness_frac =
       (uint32_t)((measurement.likeliness - (float)likeliness_whole) * 100.0f);
-    app_log_info("Measurement likeliness: %lu.%02lu" NL,
+    app_log_info(APP_INSTANCE_PREFIX "Measurement likeliness: %lu.%02lu" NL,
+                 measurement.connection,
                  likeliness_whole,
                  likeliness_frac);
-    cs_initiator_display_print_value(measurement.likeliness, ROW_LIKELINESS_VALUE, NULL);
 
-    if (initiator_config.rssi_measurement_enabled) {
-      app_log_info("RSSI distance: %lu mm" NL,
-                   (uint32_t)(measurement.rssi_distance * 1000.f));
-      cs_initiator_display_print_value(measurement.rssi_distance,
-                                       ROW_RSSI_DISTANCE_VALUE,
-                                       "m");
-    }
+    cs_initiator_display_set_likeliness(measurement.likeliness);
 
-    app_log_info("CS bit error rate: %u" NL, measurement.cs_bit_error_rate);
-    cs_initiator_display_print_value(measurement.cs_bit_error_rate, ROW_BIT_ERROR_RATE_VALUE, NULL);
-    cs_initiator_display_update();
+    app_log_info(APP_INSTANCE_PREFIX "RSSI distance: %lu mm" NL,
+                 measurement.connection,
+                 (uint32_t)(measurement.rssi_distance * 1000.f));
+    cs_initiator_display_set_rssi_distance(measurement.rssi_distance);
+
+    app_log_info(APP_INSTANCE_PREFIX "CS bit error rate: %u" NL,
+                 measurement.connection,
+                 measurement.cs_bit_error_rate);
+    cs_initiator_display_set_bit_error_rate(measurement.cs_bit_error_rate);
+    app_log_info("+-------------------------------------------------------+" NL NL);
+  } else if (measurement_progress_changed) {
+    // write measurement progress to the display without changing the last valid
+    // measurement results
+    measurement_progress_changed = false;
+
+    app_log_info("+-[I#%u - Measurement %04lu in progress ...]------------+" NL,
+                 measurement_progress.connection,
+                 measurement_cnt);
+
+    uint32_t percent_whole = (uint32_t)measurement_progress.progress_percentage;
+    uint32_t percent_frac =
+      (uint32_t)((measurement_progress.progress_percentage - (float)percent_whole) * 100.0f);
+    app_log_append_info(APP_INSTANCE_PREFIX " Estimation in progress %lu.%02lu %%" NL,
+                        measurement_progress.connection,
+                        percent_whole,
+                        percent_frac);
+
+    cs_initiator_display_set_distance_progress(measurement_progress.progress_percentage);
     app_log_info("+-------------------------------------------------------+" NL NL);
   }
   rtl_log_step();
@@ -217,26 +273,114 @@ SL_WEAK void app_process_action(void)
   /////////////////////////////////////////////////////////////////////////////
 }
 
+// -----------------------------------------------------------------------------
+// Static function declarations
+
 /******************************************************************************
- * BLE peer manager event handler
- *
- * @param[in] evt Event coming from the peer manager.
+ * Extract measurement results
  *****************************************************************************/
-void ble_peer_manager_on_event_initiator(ble_peer_manager_evt_type_t *event)
+static void cs_on_result(const cs_result_t *result, const void *user_data)
+{
+  (void) user_data;
+  if (result != NULL) {
+    memcpy(&measurement, result, sizeof(measurement));
+    measurement_arrived = true;
+    measurement_cnt++;
+  }
+}
+
+/******************************************************************************
+ * Extract intermediate results between measurement results
+ * Note: only called when stationary object tracking used
+ *****************************************************************************/
+static void cs_on_intermediate_result(const cs_intermediate_result_t *intermediate_result, const void *user_data)
+{
+  (void) user_data;
+  if (intermediate_result != NULL) {
+    memcpy(&measurement_progress, intermediate_result, sizeof(measurement_progress));
+    measurement_progress_changed = true;
+  }
+}
+
+/******************************************************************************
+ * CS error handler
+ *****************************************************************************/
+static void cs_on_error(uint8_t conn_handle, cs_error_event_t err_evt, sl_status_t sc)
+{
+  switch (err_evt) {
+    // Assert
+    case CS_ERROR_EVENT_CS_PROCEDURE_STOP_TIMER_FAILED:
+    case CS_ERROR_EVENT_CS_PROCEDURE_UNEXPECTED_DATA:
+      app_assert(false,
+                 APP_INSTANCE_PREFIX "Unrecoverable CS procedure error happened!"
+                                     "[E: 0x%x sc: 0x%lx]" APP_LOG_NL,
+                 conn_handle,
+                 err_evt,
+                 sc);
+      break;
+    // Discard
+    case CS_ERROR_EVENT_RTL_PROCESS_ERROR:
+      app_log_error(APP_INSTANCE_PREFIX "RTL processing error happened!"
+                                        "[E: 0x%x sc: 0x%lx]" APP_LOG_NL,
+                    conn_handle,
+                    err_evt,
+                    sc);
+      break;
+    // Close connection
+    default:
+      app_log_error(APP_INSTANCE_PREFIX "Error happened! Closing connection."
+                                        "[E: 0x%x sc: 0x%lx]" APP_LOG_NL,
+                    conn_handle,
+                    err_evt,
+                    sc);
+      // Common errors
+      if (err_evt == CS_ERROR_EVENT_TIMER_ELAPSED) {
+        app_log_error(APP_INSTANCE_PREFIX "Operation timeout." APP_LOG_NL, conn_handle);
+      } else if (err_evt == CS_ERROR_EVENT_INITIATOR_FAILED_TO_INCREASE_SECURITY) {
+        app_log_error(APP_INSTANCE_PREFIX "Security level increase failed." APP_LOG_NL, conn_handle);
+      }
+      // Close the connection
+      (void)ble_peer_manager_central_close_connection(conn_handle);
+      break;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Event / callback definitions
+
+/**************************************************************************//**
+ * Bluetooth stack event handler
+ *
+ * @param[in] evt Event coming from the Bluetooth stack.
+ *****************************************************************************/
+void sl_bt_on_event(sl_bt_msg_t *evt)
 {
   sl_status_t sc;
   const char* device_name = INITIATOR_DEVICE_NAME;
 
-  switch (event->evt_id) {
-    case BLE_PEER_MANAGER_ON_BOOT:
+  switch (SL_BT_MSG_ID(evt->header)) {
+    // -------------------------------
+    // This event indicates the device has started and the radio is ready.
+    // Do not call any stack command before receiving this boot event!
+    case sl_bt_evt_system_boot_id:
     {
-      app_log_info("peer manager: started" NL);
+      // Set TX power
+      int16_t min_tx_power_x10 = CS_INITIATOR_MIN_TX_POWER_DBM * 10;
+      int16_t max_tx_power_x10 = CS_INITIATOR_MAX_TX_POWER_DBM * 10;
+      sc = sl_bt_system_set_tx_power(min_tx_power_x10,
+                                     max_tx_power_x10,
+                                     &min_tx_power_x10,
+                                     &max_tx_power_x10);
+      app_assert_status(sc);
+      app_log_info(APP_PREFIX "Minimum system TX power is set to: %d dBm" APP_LOG_NL, min_tx_power_x10 / 10);
+      app_log_info(APP_PREFIX "Maximum system TX power is set to: %d dBm" APP_LOG_NL, max_tx_power_x10 / 10);
+
       // Print the Bluetooth address
       bd_addr address;
       uint8_t address_type;
       sc = sl_bt_system_get_identity_address(&address, &address_type);
       app_assert_status(sc);
-      app_log_info("Bluetooth %s address: %02X:%02X:%02X:%02X:%02X:%02X\n",
+      app_log_info(APP_PREFIX "Bluetooth %s address: %02X:%02X:%02X:%02X:%02X:%02X\n",
                    address_type ? "static random" : "public device",
                    address.addr[5],
                    address.addr[4],
@@ -249,6 +393,7 @@ void ble_peer_manager_on_event_initiator(ble_peer_manager_evt_type_t *event)
       sc = cs_antenna_configure(CS_INITIATOR_ANTENNA_OFFSET);
       app_assert_status(sc);
 
+      // Filter for advertised name (CS_RFLCT)
       sc = ble_peer_manager_set_filter_device_name(device_name,
                                                    strlen(device_name),
                                                    false);
@@ -257,72 +402,69 @@ void ble_peer_manager_on_event_initiator(ble_peer_manager_evt_type_t *event)
 #ifndef SL_CATALOG_CS_INITIATOR_CLI_PRESENT
       sc = ble_peer_manager_central_create_connection();
       app_assert_status(sc);
+      // Start scanning for reflector connections
+      app_log_info(APP_PREFIX "Scanning started for reflector connections..." NL);
 #else
       app_log_info("CS CLI is active." APP_LOG_NL);
 #endif // SL_CATALOG_CS_INITIATOR_CLI_PRESENT
-      // Start scanning for reflector connections
-      app_log_info("peer manager: scanning for device name \'%s\' ..." NL, device_name);
 
       break;
-
-      case BLE_PEER_MANAGER_ON_CONN_OPENED_CENTRAL:
-        app_log_info("peer manager: connection opened: #%u." NL, event->connection_id);
-#ifdef SL_CATALOG_CS_INITIATOR_CLI_PRESENT
-        initiator_config.cs_mode = cs_initiator_cli_get_mode();
-#endif // SL_CATALOG_CS_INITIATOR_CLI_PRESENT
-        sc = cs_initiator_create(event->connection_id,
-                                 &initiator_config,
-                                 &rtl_config,
-                                 cs_on_result,
-                                 cs_on_error);
-        measurement_cnt = 0u;
     }
-    break;
+    default:
+      break;
+  }
+}
+
+/******************************************************************************
+ * BLE peer manager event handler
+ *
+ * @param[in] evt Event coming from the peer manager.
+ *****************************************************************************/
+void ble_peer_manager_on_event_initiator(ble_peer_manager_evt_type_t *event)
+{
+  sl_status_t sc;
+
+  switch (event->evt_id) {
+    case BLE_PEER_MANAGER_ON_CONN_OPENED_CENTRAL:
+      app_log_info(APP_INSTANCE_PREFIX "Connection opened as central with a CS Reflector" NL, event->connection_id);
+#ifdef SL_CATALOG_CS_INITIATOR_CLI_PRESENT
+      initiator_config.cs_mode = cs_initiator_cli_get_mode();
+
+      rtl_config.algo_mode = cs_initiator_cli_get_algo_mode();
+#endif // SL_CATALOG_CS_INITIATOR_CLI_PRESENT
+      sc = cs_initiator_create(event->connection_id,
+                               &initiator_config,
+                               &rtl_config,
+                               cs_on_result,
+                               cs_on_intermediate_result,
+                               cs_on_error);
+      if (sc != SL_STATUS_OK) {
+        app_log_error(APP_PREFIX "Failed to create initiator instance, error:0x%lx" NL, sc);
+        (void)ble_peer_manager_central_close_connection(event->connection_id);
+      } else {
+        app_log_info(APP_INSTANCE_PREFIX "New initiator instance created" NL, event->connection_id);
+      }
+      measurement_cnt = 0u;
+      break;
 
     case BLE_PEER_MANAGER_ON_CONN_CLOSED:
-      app_log_info("peer manager: connection closed." NL);
+      app_log_info(APP_PREFIX "Connection closed." NL);
       sc = cs_initiator_delete(event->connection_id);
       // Start scanning for reflector connections
       sc = ble_peer_manager_central_create_connection();
       app_assert_status(sc);
-      app_log_info("peer manager: scanning for device name \'%s\' ..." NL, device_name);
+      app_log_info(APP_PREFIX "Scanning started for reflector connections..." NL);
       break;
 
     case BLE_PEER_MANAGER_ERROR:
-      app_log_info("peer manager: error on connection #%u!" NL,
+      app_log_info(APP_PREFIX "Error on connection %u!" NL,
                    event->connection_id);
       break;
 
     default:
-      app_log_info("peer manager: unhandled event on connection #%u! [evt: 0x%x]" NL,
+      app_log_info(APP_PREFIX "Unhandled event on connection %u! [evt: 0x%x]" NL,
                    event->connection_id,
                    event->evt_id);
       break;
-  }
-}
-
-static void cs_on_result(const cs_result_t *result, const void *user_data)
-{
-  (void) user_data;
-  if (result != NULL) {
-    memcpy(&measurement, result, sizeof(measurement));
-    measurement_arrived = true;
-    measurement_cnt++;
-  }
-}
-
-static void cs_on_error(uint8_t conn_handle, cs_error_event_t err_evt, sl_status_t sc)
-{
-  sl_status_t peer_sc = SL_STATUS_OK;
-  app_log_error("!!! Error happened @ initiator #%u!"
-                "[E: 0x%x sc: 0x%lx]" NL,
-                conn_handle,
-                err_evt,
-                sc);
-  peer_sc = ble_peer_manager_central_close_connection(conn_handle);
-  if (sc != SL_STATUS_OK) {
-    app_log_error("peer manager: could not close connection #%u! [sc: 0x%lx]" NL,
-                  conn_handle,
-                  peer_sc);
   }
 }

@@ -28,6 +28,12 @@ config_file:
     directory: rail
     condition:
     - device_sdid_235
+  - path: rail/device_sdid_220/915/radio_settings.radioconf
+    directory: rail
+    condition:
+    - device_sdid_220
+    unless:
+    - hardware_board
 
 template_contribution:
   - name: component_catalog

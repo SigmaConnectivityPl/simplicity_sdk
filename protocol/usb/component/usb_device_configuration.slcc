@@ -7,6 +7,9 @@ description: >
   requires at least one configuration to exist in your project.
 package: usb
 quality: production
+metadata:
+  sbom:
+    license: MSLA
 instantiable:
   prefix: configuration
 component_root_path: protocol/usb

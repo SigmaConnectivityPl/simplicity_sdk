@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS initiator example configuration
+ * @brief CS Initiator example configuration
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -28,35 +28,44 @@
  *
  ******************************************************************************/
 
-#ifndef INITIATOR_CONFIG
-#define INITIATOR_CONFIG
+#ifndef INITIATOR_APP_CONFIG_H
+#define INITIATOR_APP_CONFIG_H
 
 #include "cs_initiator_config.h"
+#include "sl_bt_api.h"
+#include "sl_rtl_clib_api.h"
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
-// <o MEASUREMENT_MODE> Specify measurement mode.
+// <o INITIATOR_APP_CONFIG_MEASUREMENT_MODE> Measurement mode.
 // <i> Specify measurement mode.
-// <CS_INITIATOR_MODE_DYNAMIC=> Button dependent
-// <CS_INITIATOR_MODE_RTT=> Round Trip Time
-// <CS_INITIATOR_MODE_PBR=> Phase Based Ranging
-// <i> Default: CS_INITIATOR_MODE_DYNAMIC
-#define MEASUREMENT_MODE     CS_INITIATOR_MODE_DYNAMIC
-// </o>
+// <sl_bt_cs_mode_rtt=> Round Trip Time
+// <sl_bt_cs_mode_pbr=> Phase Based Ranging
+// <i> Default: sl_bt_cs_mode_pbr
+#define MEASUREMENT_MODE     sl_bt_cs_mode_pbr
 
-// <q CS_RSSI_MEASUREMENT_ENABLED> Specifies whether distance should also be measured based on RSSI
-// <i> Enable/disable RSSI distance measurement
-// <i> 0 - RSSI distance measurement is disabled
-// <i> 1 - RSSI distance measurement is enabled
-// <i> Default: 1
-#define CS_RSSI_MEASUREMENT_ENABLED              (1)
-// </q>
+// <o OBJECT_TRACKING_MODE> Specify object tracking mode.
+// <i> Specify object tracking mode.
+// <SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC=> Moving object tracking (max 5km/h)
+// <SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY=> Stationary object tracking
+// <i> Default: SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC
+#define OBJECT_TRACKING_MODE     SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC
 
-// <o CS_RSSI_TX_POWER> Reference RSSI value of the Tx device at 1.0 m distance in dBm <-100-20>
+// <o INITIATOR_APP_CONFIG_RSSI_TX_POWER> Reference RSSI value of the remote Reflector device at 1.0 m distance in dBm <-100..20>
 // <i> Specifes Tx device RSSI at 1m in dBm
 // <i> Default: -40
-#define CS_RSSI_TX_POWER                         (-40)
+#define INITIATOR_APP_CONFIG_RSSI_REF_TX_POWER               (-40)
+
+// <o CS_INITIATOR_MIN_TX_POWER_DBM> Connection minimum TX Power <-127..20>
+// <i> Connection minimum TX Power in dBm
+// <i> Default: -3
+#define CS_INITIATOR_MIN_TX_POWER_DBM               -3
+
+// <o CS_INITIATOR_MAX_TX_POWER_DBM> Connection maximum TX Power <-127..20>
+// <i> Connection minimum TX Power in dBm. Must be greater than the minimum value.
+// <i> Default: 20
+#define CS_INITIATOR_MAX_TX_POWER_DBM               20
 
 // <<< end of configuration section >>>
 
-#endif // INITIATOR_CONFIG
+#endif // CS_INITIATOR_APP_CONFIG_H

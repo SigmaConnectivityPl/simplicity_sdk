@@ -64,37 +64,32 @@ static const char *sli_get_region_name_as_string(zpal_radio_region_t region);
 // -----------------------------------------------------------------------------
 
 /******************************************************************************
+ * CLI - this function is used to log cli relevant events
+ *****************************************************************************/
+void cli_log_system_events(EVENT_SYSTEM event)
+{
+  switch (event) {
+    case EVENT_SYSTEM_LEARNMODE_START:
+      app_log_info("Start learn mode\r\n");
+      break;
+    case EVENT_SYSTEM_LEARNMODE_FINISHED:
+      app_log_info("Finished learn mode\r\n");
+      break;
+    case EVENT_SYSTEM_LEARNMODE_STOP:
+      app_log_info("Stop learn mode\r\n");
+      break;
+    default:
+      break;
+  }
+}
+
+/******************************************************************************
  * CLI - toggle_learn_mode: Include / exclude the device into / from a z-wave network
  *****************************************************************************/
 void cli_set_learn_mode(sl_cli_command_arg_t *arguments)
 {
-  static bool current_learn_mode_state = false;
-  bool learn_mode_state = false;
-  char* learn_mode_state_arg = sl_cli_get_argument_string(arguments, 0);
-
-  app_log_info("Include/Exclude the device\r\n");
-
-  if (strcmp(learn_mode_state_arg, "start") == 0) {
-    learn_mode_state = true;
-  } else if (strcmp(learn_mode_state_arg, "stop") == 0) {
-    learn_mode_state = false;
-  }
-
-  if (current_learn_mode_state == true && learn_mode_state == true) {
-    app_log_info("Device already started learn mode\r\n");
-  } else if (current_learn_mode_state == false && learn_mode_state == false) {
-    app_log_info("Device already stopped learn mode\r\n");
-  } else {
-    if (learn_mode_state == true) {
-      app_log_info("Start learn mode\r\n");
-      zaf_event_distributor_enqueue_app_event(EVENT_SYSTEM_LEARNMODE_START);
-      current_learn_mode_state = true;
-    } else {
-      app_log_info("Stop learn mode\r\n");
-      zaf_event_distributor_enqueue_app_event(EVENT_SYSTEM_LEARNMODE_STOP);
-      current_learn_mode_state = false;
-    }
-  }
+  (void) arguments;
+  zaf_event_distributor_enqueue_app_event(EVENT_SYSTEM_LEARNMODE_TOGGLE);
 }
 
 /******************************************************************************

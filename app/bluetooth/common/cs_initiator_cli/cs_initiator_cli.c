@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS initiator command line interface
+ * @brief CS Initiator command line interface
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -32,6 +32,7 @@
 #include "sl_status.h"
 #include "sl_cli.h"
 #include "app_log.h"
+#include "sl_rtl_clib_api.h"
 #include "ble_peer_manager_filter.h"
 #include "ble_peer_manager_central.h"
 
@@ -39,13 +40,22 @@
 // Static variables
 static bool start = false;
 static uint8_t mode = sl_bt_cs_mode_pbr;
+static uint8_t algo_mode = SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC;
 
 /*******************************************************************************
  * CLI Getter for CS mode
  ******************************************************************************/
-uint8_t cs_initiator_cli_get_mode()
+uint8_t cs_initiator_cli_get_mode(void)
 {
   return mode;
+}
+
+/*******************************************************************************
+ * CLI Getter for CS algorithm mode
+ ******************************************************************************/
+uint8_t cs_initiator_cli_get_algo_mode(void)
+{
+  return algo_mode;
 }
 
 /*******************************************************************************
@@ -58,10 +68,33 @@ void cs_initiator_cli_initiator_mode(sl_cli_command_arg_t *arguments)
   sl_cli_get_argument_hex(arguments, 0, &arg_data);
   if (arg_data == sl_bt_cs_mode_pbr || arg_data == sl_bt_cs_mode_rtt) {
     mode = arg_data;
-    app_log_info("OK. Initiator mode set to: %d" APP_LOG_NL, arg_data);
+    app_log("OK. Initiator mode set to: %d" APP_LOG_NL, arg_data);
   } else {
-    app_log_warning("ERROR. Mode should be %d or %d" APP_LOG_NL,
-                    sl_bt_cs_mode_pbr, sl_bt_cs_mode_rtt);
+    app_log("ERROR. Mode should be %d or %d" APP_LOG_NL,
+            sl_bt_cs_mode_pbr, sl_bt_cs_mode_rtt);
+  }
+}
+
+/*******************************************************************************
+ * CLI Callback for "algo_mode" command
+ * @param[in] arguments pointer to CLI arguments
+ ******************************************************************************/
+void cs_initiator_cli_initiator_algo_mode(sl_cli_command_arg_t *arguments)
+{
+  size_t arg_data;
+  sl_cli_get_argument_hex(arguments, 0, &arg_data);
+  if (arg_data == SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC) {
+    app_log("OK. Initiator object tracking mode set: real time basic "
+            "(moving object tracking)." APP_LOG_NL);
+    algo_mode = arg_data;
+  } else if (arg_data == SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY) {
+    app_log("OK. Initiator object tracking mode set: static high accuracy "
+            "(stationary object tracking)." APP_LOG_NL);
+    algo_mode = arg_data;
+  } else {
+    app_log("ERROR. Object tracking mode should be %d or %d" APP_LOG_NL,
+            SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC,
+            SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY);
   }
 }
 
@@ -71,23 +104,18 @@ void cs_initiator_cli_initiator_mode(sl_cli_command_arg_t *arguments)
  ******************************************************************************/
 void cs_initiator_cli_initiator_filter_address(sl_cli_command_arg_t *arguments)
 {
-  size_t arg_data;
-  uint8_t *input_arguments;
+  char *address_str;
   bd_addr ble_address;
-  input_arguments = sl_cli_get_argument_hex(arguments, 0, &arg_data);
-  if (arg_data != sizeof(bd_addr)) {
-    app_log_warning("ERROR. Incorrect number of arguments for address filtering.");
+  sl_status_t sc;
+  address_str = sl_cli_get_argument_string(arguments, 0);
+  sc = ble_peer_manager_str_to_address(address_str, &ble_address);
+  if (sc != SL_STATUS_OK) {
+    app_log("ERROR. Failed to parse BLE address." APP_LOG_NL);
     return;
   }
-  ble_address.addr[5] = input_arguments[0];
-  ble_address.addr[4] = input_arguments[1];
-  ble_address.addr[3] = input_arguments[2];
-  ble_address.addr[2] = input_arguments[3];
-  ble_address.addr[1] = input_arguments[4];
-  ble_address.addr[0] = input_arguments[5];
   ble_peer_manager_set_filter_bt_address(true);
   ble_peer_manager_add_allowed_bt_address(&ble_address);
-  app_log_info("OK." APP_LOG_NL);
+  app_log("OK." APP_LOG_NL);
 }
 
 /*******************************************************************************
@@ -102,9 +130,9 @@ void cs_initiator_cli_initiator_log_level(sl_cli_command_arg_t *arguments)
   app_log_filter_threshold_enable(true);
   sc = app_log_filter_threshold_set((uint8_t)arg_data);
   if (sc != SL_STATUS_OK) {
-    app_log_warning("ERROR. Wrong filter." APP_LOG_NL);
+    app_log("ERROR. Wrong filter." APP_LOG_NL);
   } else {
-    app_log_info("OK." APP_LOG_NL);
+    app_log("OK." APP_LOG_NL);
   }
 }
 
@@ -119,12 +147,12 @@ void cs_initiator_cli_initiator_start(sl_cli_command_arg_t *arguments)
   if (start == false) {
     sc = ble_peer_manager_central_create_connection();
     if (sc != SL_STATUS_OK) {
-      app_log_warning("ERROR. Scanning not started." APP_LOG_NL);
+      app_log("ERROR. Scanning not started." APP_LOG_NL);
     } else {
-      app_log_info("OK." APP_LOG_NL);
+      app_log("OK." APP_LOG_NL);
       start = true;
     }
   } else {
-    app_log_info("ERROR. Initiator already started." APP_LOG_NL);
+    app_log("ERROR. Initiator already started." APP_LOG_NL);
   }
 }

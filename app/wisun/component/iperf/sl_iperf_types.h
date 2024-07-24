@@ -296,10 +296,11 @@ typedef struct sl_iperf_test {
 /// iPerf Test callback type definition
 typedef void (* sl_iperf_test_callback_t)     (sl_iperf_test_t *);
 
-// UDP packed structure definitions
+// UDP packed structure definitions START
 SL_PACK_START(4)
 
 /// iPerf UDP datagram structure type definition
+#pragma pack(push, 4)
 typedef struct sl_iperf_udp_datagram {
   /// Packet id
   int32_t id;
@@ -310,8 +311,10 @@ typedef struct sl_iperf_udp_datagram {
   /// Packet id
   int32_t id2;
 } sl_iperf_udp_datagram_t;
+#pragma pack(pop)
 
 /// iPerf server header
+#pragma pack(push, 4)
 typedef struct sl_iperf_udp_srv_hdr {
   /// Udp datagram
   sl_iperf_udp_datagram_t dtg;
@@ -336,8 +339,10 @@ typedef struct sl_iperf_udp_srv_hdr {
   /// Jitter low.
   uint32_t jitter_usec;
 } sl_iperf_udp_srv_hdr_t;
+#pragma pack(pop)
 
 /// iPerf CLient Header v1
+#pragma pack(push, 4)
 typedef struct sl_iperf_udp_clnt_hdr_v1 {
   /// Flags
   int32_t flags;
@@ -352,8 +357,10 @@ typedef struct sl_iperf_udp_clnt_hdr_v1 {
   /// Amount
   int32_t amount;
 } sl_iperf_clnt_hdr_v1_t;
+#pragma pack(pop)
 
 /// iPerf Client Header extended
+#pragma pack(push, 4)
 typedef struct sl_iperf_clnt_hdr_ext {
   /// Type
   int32_t type;
@@ -378,8 +385,10 @@ typedef struct sl_iperf_clnt_hdr_ext {
   /// TCP write prefetch
   uint32_t tcp_write_prefetch;
 } sl_iperf_clnt_hdr_ext_t;
+#pragma pack(pop)
 
 /// iPerf Client Isochronus payload
+#pragma pack(push, 4)
 typedef struct sl_iperf_clnt_hdr_isoch_payload {
   /// period units microseconds
   uint32_t burst_period;
@@ -398,8 +407,10 @@ typedef struct sl_iperf_clnt_hdr_isoch_payload {
   /// Reserved
   uint32_t reserved;
 } sl_iperf_clnt_hdr_isoch_payload_t;
+#pragma pack(pop)
 
 /// iPerf Client header extended FQ start time
+#pragma pack(push, 4)
 typedef struct sl_iperf_clnt_hdr_ext_starttime_fq {
   /// Reserved
   uint32_t reserved;
@@ -412,8 +423,10 @@ typedef struct sl_iperf_clnt_hdr_ext_starttime_fq {
   /// Upper FQ rate
   uint32_t u_fq_rate;
 } sl_iperf_clnt_hdr_ext_starttime_fq_t;
+#pragma pack(pop)
 
 /// iPerf Client Isochronus settings
+#pragma pack(push, 4)
 typedef struct sl_iperf_clnt_hdr_ext_isoch_settings {
   /// Lower FPS
   int32_t l_fps;
@@ -432,8 +445,10 @@ typedef struct sl_iperf_clnt_hdr_ext_isoch_settings {
   /// Upper Burst IPG
   int32_t u_burst_ipg;
 } sl_iperf_clnt_hdr_ext_isoch_settings_t;
+#pragma pack(pop)
 
 /// iPerf Client UDP header
+#pragma pack(push, 4)
 typedef struct sl_iperf_udp_clnt_hdr {
   /// Datagram
   sl_iperf_udp_datagram_t dtg;
@@ -448,6 +463,9 @@ typedef struct sl_iperf_udp_clnt_hdr {
   /// Isochronus settings
   sl_iperf_clnt_hdr_ext_isoch_settings_t isoch_settings;
 } sl_iperf_udp_clnt_hdr_t;
+#pragma pack(pop)
+
+// UDP packed structure definitions END
 SL_PACK_END()
 
 /** @} (end SL_IPERF_TYPES) */

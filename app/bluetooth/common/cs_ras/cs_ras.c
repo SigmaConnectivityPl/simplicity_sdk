@@ -31,6 +31,8 @@
 #include "app_log.h"
 #include "cs_ras.h"
 
+#define RAS_PREFIX                  "[RAS] "
+
 ras_control_point_parse_result cs_ras_parse_control_point_message(uint8_t *message, uint8_t message_len)
 {
   ras_control_point_parse_result result = { .periodic_notification_mode_set_enabled = false };
@@ -44,12 +46,12 @@ ras_control_point_parse_result cs_ras_parse_control_point_message(uint8_t *messa
     case CS_RAS_OPCODE_RANGING_DATA_GET_COMMAND:
     {
       if (message_len != sizeof(ras_ranging_data_get_command_t)) {
-        app_log_warning("Message length mismatch, discarding" APP_LOG_NL);
+        app_log_warning(RAS_PREFIX "Message length mismatch, discarding" APP_LOG_NL);
         result.opcode = CS_RAS_OPCODE_INVALID;
         return result;
       }
       ras_ranging_data_get_command_t cmd = *((ras_ranging_data_get_command_t *)(message));
-      app_log_info("RAS Ranging Data Get message received; index='%u' se_idx='%u'"
+      app_log_info(RAS_PREFIX "RAS Ranging Data Get message received; index='%u' se_idx='%u'"
                    APP_LOG_NL,
                    cmd.procedure_index,
                    cmd.subevent_index);
@@ -66,12 +68,12 @@ ras_control_point_parse_result cs_ras_parse_control_point_message(uint8_t *messa
     case CS_RAS_OPCODE_RANGING_DATA_READY_INDICATION:
     {
       if (message_len != sizeof(ras_ranging_data_ready_indication_t)) {
-        app_log_warning("Message length mismatch, discarding" APP_LOG_NL);
+        app_log_warning(RAS_PREFIX "Message length mismatch, discarding" APP_LOG_NL);
         result.opcode = CS_RAS_OPCODE_INVALID;
         return result;
       }
       ras_ranging_data_ready_indication_t cmd = *((ras_ranging_data_ready_indication_t *)(message));
-      app_log_info("RAS Ranging Data Ready message received; index='%u' num_se='%u' se_idx='%u' size='%u'" APP_LOG_NL,
+      app_log_info(RAS_PREFIX "RAS Ranging Data Ready message received; index='%u' num_se='%u' se_idx='%u' size='%u'" APP_LOG_NL,
                    cmd.procedure_index, cmd.number_of_subevents, cmd.subevent_index, cmd.subevent_index_data_size);
       result.opcode = CS_RAS_OPCODE_RANGING_DATA_READY_INDICATION;
       return result;
@@ -79,7 +81,7 @@ ras_control_point_parse_result cs_ras_parse_control_point_message(uint8_t *messa
     break;
 
     default:
-      app_log_warning("Unknown RAS Control Point message received" APP_LOG_NL);
+      app_log_warning(RAS_PREFIX "Unknown RAS Control Point message received" APP_LOG_NL);
       break;
   }
 
@@ -102,7 +104,7 @@ sl_status_t cs_ras_create_control_point_response(uint8_t *data,
   if (ras_opcode == CS_RAS_OPCODE_RANGING_DATA_READY_INDICATION) {
     // Enable RAS Periodic Notification mode
     if (enable_periodic_notification_mode) {
-      app_log_info("Requesting RAS Periodic Notification mode" APP_LOG_NL);
+      app_log_info(RAS_PREFIX "Requesting RAS Periodic Notification mode" APP_LOG_NL);
       cmd->opcode = CS_RAS_OPCODE_RANGING_DATA_GET_COMMAND;
       cmd->antenna_path_index_filter = 0;
       cmd->keep_notification = 0;
@@ -112,7 +114,7 @@ sl_status_t cs_ras_create_control_point_response(uint8_t *data,
       cmd->subevent_ranging_data_offset = 0;
     } else {
       // Request the new data manually
-      app_log_info("Requesting Ranging Data" APP_LOG_NL);
+      app_log_info(RAS_PREFIX "Requesting Ranging Data" APP_LOG_NL);
       ras_ranging_data_ready_indication_t rx_cmd = *((ras_ranging_data_ready_indication_t*)(data));
       cmd->opcode = CS_RAS_OPCODE_RANGING_DATA_GET_COMMAND;
       cmd->antenna_path_index_filter = 0;

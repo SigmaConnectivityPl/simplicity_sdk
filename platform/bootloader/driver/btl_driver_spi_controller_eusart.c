@@ -236,12 +236,22 @@ void spi_deinit(void)
 void spi_writeByte(uint8_t data)
 {
   clk_enable();
+
+  //Ensure TXEN and RXEN are set to ensure correct operation after waking up from EM2/3
+  eusart_sync(BTL_DRIVER_SPI_EUSART, _EUSART_SYNCBUSY_RXEN_MASK | _EUSART_SYNCBUSY_TXEN_MASK);
+  BTL_DRIVER_SPI_EUSART->CMD |= (EUSART_CMD_RXEN | EUSART_CMD_TXEN);
+
   EUSART_Spi_TxRx(BTL_DRIVER_SPI_EUSART, data);
 }
 
 void spi_writeHalfword(uint16_t data)
 {
   clk_enable();
+
+  //Ensure TXEN and RXEN are set to ensure correct operation after waking up from EM2/3
+  eusart_sync(BTL_DRIVER_SPI_EUSART, _EUSART_SYNCBUSY_RXEN_MASK | _EUSART_SYNCBUSY_TXEN_MASK);
+  BTL_DRIVER_SPI_EUSART->CMD |= (EUSART_CMD_RXEN | EUSART_CMD_TXEN);
+
   EUSART_Tx(BTL_DRIVER_SPI_EUSART, (data >> 8) & 0xFF);
   EUSART_Tx(BTL_DRIVER_SPI_EUSART, data & 0xFF);
   EUSART_Rx(BTL_DRIVER_SPI_EUSART);
@@ -251,6 +261,11 @@ void spi_writeHalfword(uint16_t data)
 void spi_write3Byte(uint32_t data)
 {
   clk_enable();
+
+  //Ensure TXEN and RXEN are set to ensure correct operation after waking up from EM2/3
+  eusart_sync(BTL_DRIVER_SPI_EUSART, _EUSART_SYNCBUSY_RXEN_MASK | _EUSART_SYNCBUSY_TXEN_MASK);
+  BTL_DRIVER_SPI_EUSART->CMD |= (EUSART_CMD_RXEN | EUSART_CMD_TXEN);
+
   EUSART_Tx(BTL_DRIVER_SPI_EUSART, (data >> 16) & 0xFF);
   EUSART_Tx(BTL_DRIVER_SPI_EUSART, (data >> 8) & 0xFF);
   EUSART_Tx(BTL_DRIVER_SPI_EUSART, data & 0xFF);
@@ -262,12 +277,22 @@ void spi_write3Byte(uint32_t data)
 uint8_t spi_readByte(void)
 {
   clk_enable();
+
+  //Ensure TXEN and RXEN are set to ensure correct operation after waking up from EM2/3
+  eusart_sync(BTL_DRIVER_SPI_EUSART, _EUSART_SYNCBUSY_RXEN_MASK | _EUSART_SYNCBUSY_TXEN_MASK);
+  BTL_DRIVER_SPI_EUSART->CMD |= (EUSART_CMD_RXEN | EUSART_CMD_TXEN);
+
   return EUSART_Spi_TxRx(BTL_DRIVER_SPI_EUSART, 0xFF);
 }
 
 uint16_t spi_readHalfword(void)
 {
   clk_enable();
+
+  //Ensure TXEN and RXEN are set to ensure correct operation after waking up from EM2/3
+  eusart_sync(BTL_DRIVER_SPI_EUSART, _EUSART_SYNCBUSY_RXEN_MASK | _EUSART_SYNCBUSY_TXEN_MASK);
+  BTL_DRIVER_SPI_EUSART->CMD |= (EUSART_CMD_RXEN | EUSART_CMD_TXEN);
+
   uint16_t retval = 0;
   EUSART_Tx(BTL_DRIVER_SPI_EUSART, 0xFF);
   EUSART_Tx(BTL_DRIVER_SPI_EUSART, 0xFF);

@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Application Scheduler interface
+ * @brief Scheduler interface
  *******************************************************************************
  * # License
- * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -94,12 +94,13 @@ sl_status_t app_scheduler_remove(app_scheduler_task_handle_t handle);
 /***************************************************************************//**
  * Reschedule a previously scheduled task
  *
- * @note: The scheduling starts over with the new value. If recheduling has to
- * take the remaining time into account then the necessary calculation shall
- * take place by the application itself. This procedure may affect the accuracy
+ * The scheduling starts over with the new value. If rescheduling has to take
+ * the remaining time into account then the necessary calculation shall take
+ * place by the application itself. This procedure may affect the accuracy
  * depending on the actual implementation. The @ref `app_scheduler_get_timeout`
- * API is provided for getting know the remaining time for an already scheduled
+ * API is provided for getting the remaining time for an already scheduled
  * task.
+ *
  * @param[in] handle   Handle of the task to be rescheduled
  * @param[in] delay_ms New delay or period
  *
@@ -111,7 +112,7 @@ sl_status_t app_scheduler_reschedule(app_scheduler_task_handle_t handle,
                                      uint32_t delay_ms);
 
 /***************************************************************************//**
- * Get the reamining time in ms for a given, scheduled task
+ * Get the remaining time in ms for a given, scheduled task
  *
  * @param[in] handle            Handle of the task.
  * @param[in] time_ms           Remaining time in ms
@@ -207,6 +208,13 @@ void app_scheduler_init(void);
 
 /***************************************************************************//**
  * Pause the scheduler
+ *
+ * Disables task function execution until @ref `app_scheduler_resume` is called.
+ *
+ * @note The timeouts for tasks created with @ref `app_scheduler_add_delayed`
+ * or @ref `app_scheduler_add_periodic` are not affected. If a task expires
+ * while paused, it will be scheduled right after calling
+ * @ref `app_scheduler_resume`.
  ******************************************************************************/
 void app_scheduler_pause(void);
 
@@ -238,7 +246,6 @@ uint32_t app_scheduler_foreach_task(app_scheduler_operation_t operation);
 
 /***************************************************************************//**
  * Execute timer callback functions.
- *
  ******************************************************************************/
 void app_scheduler_step(void);
 

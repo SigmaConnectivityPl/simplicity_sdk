@@ -160,7 +160,7 @@ template_contribution:
     value:
       name: motion_detected
       handler: cli_motion_detected
-      help: Emulate - motion detected - and wake up the device from EM4
+      help: Emulate - motion detected
 post_build:
   profile: zwave_soc_sensor_pir
 

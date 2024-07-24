@@ -5,6 +5,9 @@ description: >
   Pressure sensor driver for BMP3XX
 category: Platform|Board Drivers
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: hardware/driver/pressure
 provides:
   - name: pressure_device_driver

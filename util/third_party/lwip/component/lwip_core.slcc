@@ -41,6 +41,14 @@ source:
   - path: util/third_party/lwip/lwip/src/core/ipv4/ip4.c
   - path: util/third_party/lwip/lwip/src/core/ipv4/ip4_addr.c
   - path: util/third_party/lwip/lwip/src/core/ipv4/ip4_frag.c
+  - path: util/third_party/lwip/lwip/src/core/ipv6/ethip6.c
+  - path: util/third_party/lwip/lwip/src/core/ipv6/icmp6.c
+  - path: util/third_party/lwip/lwip/src/core/ipv6/inet6.c
+  - path: util/third_party/lwip/lwip/src/core/ipv6/ip6.c
+  - path: util/third_party/lwip/lwip/src/core/ipv6/ip6_addr.c
+  - path: util/third_party/lwip/lwip/src/core/ipv6/ip6_frag.c
+  - path: util/third_party/lwip/lwip/src/core/ipv6/mld6.c
+  - path: util/third_party/lwip/lwip/src/core/ipv6/nd6.c
   - path: util/third_party/lwip/lwip/src/core/mem.c
   - path: util/third_party/lwip/lwip/src/core/memp.c
   - path: util/third_party/lwip/lwip/src/core/netif.c

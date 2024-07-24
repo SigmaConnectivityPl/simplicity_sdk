@@ -284,9 +284,9 @@ module :
   symbol    : "SILABS_CORE"
 
 -
-  name      : "silabs aox"
-  path      : "util/silicon_labs/aox"
-  symbol    : "SILABS_AOX"
+  name      : "silabs rtl"
+  path      : "util/silicon_labs/rtl"
+  symbol    : "SILABS_RTL"
 
 -
   name      : "studio"

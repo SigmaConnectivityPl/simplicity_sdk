@@ -29,9 +29,6 @@
 #define DIRECTION_UP false
 #define DIRECTION_DOWN true
 
-#define CC_MULTILEVEL_SWITCH_ACTUATOR_MIN_VALUE 0
-#define CC_MULTILEVEL_SWITCH_ACTUATOR_MAX_VALUE 99
-
 /****************************************************************************/
 /*                              PRIVATE DATA                                */
 /****************************************************************************/

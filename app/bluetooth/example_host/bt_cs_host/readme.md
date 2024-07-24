@@ -71,9 +71,9 @@ in the project's root directory. This will build your executable, and place it i
 * -r  Enable RSSI distance measurement
 * -w  Use wired antenna offset
 * -o
-  Object tracking setting, default: 1
-  1: Use moving object tracking (up to 5 km/h) setting
-  2: Use stationary object tracking settings
+  Object tracking setting, default: 0
+  0: Use moving object tracking (up to 5 km/h) setting
+  1: Use stationary object tracking settings
 * -h  Print help message.
 
 ### Running the application

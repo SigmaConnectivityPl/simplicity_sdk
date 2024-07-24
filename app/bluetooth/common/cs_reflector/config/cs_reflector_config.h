@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS reflector configuration
+ * @brief CS Reflector configuration
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -31,13 +31,18 @@
 #ifndef CS_REFLECTOR_CONFIG_H
 #define CS_REFLECTOR_CONFIG_H
 
+/***********************************************************************************************//**
+ * @addtogroup cs_reflector
+ * @{
+ **************************************************************************************************/
+
 #include "sl_bluetooth_connection_config.h"
 
 #define CS_REFLECTOR_MAX_CONNECTIONS SL_BT_CONFIG_MAX_CONNECTIONS
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
-// <h> CS reflector configuration
+// <h> CS Reflector configuration
 
 // <o CS_REFLECTOR_CS_EVENT_BUF_SIZE> Size of the Channel Sounding event buffer [elements] <1..255>
 // <i> Default: 16
@@ -60,12 +65,21 @@
 // <i> Default: 0
 #define CS_REFLECTOR_ANTENNA_OFFSET         0
 
-// <q CS_REFLECTOR_LOG> Reflector logging
+// <e CS_REFLECTOR_LOG> Reflector logging
 // <i> Default: 1
 // <i> Enable reflector component logging
 #define CS_REFLECTOR_LOG                    1
 
+// <s CS_REFLECTOR_LOG_PREFIX> Log prefix
+// <i> Default: "[Reflector]"
+#ifndef CS_REFLECTOR_LOG_PREFIX
+#define CS_REFLECTOR_LOG_PREFIX                       "[Reflector]"
+#endif
+
+// </e>
+
 // </h>
 
 // <<< end of configuration section >>>
+/** @} (end addtogroup cs_reflector) */
 #endif // CS_REFLECTOR_CONFIG_H

@@ -32,7 +32,7 @@
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
-// <h> Peek Delay Configuration
+// <h> Peek Configuration
 
 // <q PEEK_US_SLEEP> 1
 // <i> Microsec delay used between peek function calls.
@@ -40,17 +40,36 @@
 #define PEEK_US_SLEEP            1
 #endif
 
-// </h> End Peek Delay Configuration
-
-// <h> Peek Timeout Configuration
-
 // <q MSG_RECV_TIMEOUT_MS> 1
 // <i> Millisec timeout for peek function calls.
 #ifndef MSG_RECV_TIMEOUT_MS
 #define MSG_RECV_TIMEOUT_MS      10
 #endif
 
-// </h> End Peek Delay Configuration
+// </h> End Peek Configuration
+
+// <h> Reboot Configuration
+
+// During init, system reboot command is not sent because it can break e.g. the
+// multi-protocol use case when used with CPC. Therefore, we just wait for the
+// boot event without sending the first system reboot command.
+#ifndef NCP_REBOOT_TIMEOUT_INIT_MS
+#define NCP_REBOOT_TIMEOUT_INIT_MS 1000
+#endif
+
+// If no boot event is received after the initial timeout, a system reboot
+// command is sent to the target. After the system reboot, we should let enough
+// time for the target to boot up and for the CPC to initialize.
+#ifndef NCP_REBOOT_TIMEOUT_RETRY_MS
+#define NCP_REBOOT_TIMEOUT_RETRY_MS 10000
+#endif
+
+// System reboot is repeated NCP_REBOOT_RETRY_COUNT times.
+#ifndef NCP_REBOOT_RETRY_COUNT
+#define NCP_REBOOT_RETRY_COUNT 3
+#endif
+
+// </h> End Reboot Configuration
 
 // <<< end of configuration section >>>
 

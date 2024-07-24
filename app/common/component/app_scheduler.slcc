@@ -1,16 +1,18 @@
 id: app_scheduler
 category: Application|Utility
-label:       Simple Application Scheduler
+label: Scheduler
 description: >
-  The Simple Application Scheduler component helps with handling events and scheduling tasks for execution.
+  The Scheduler component helps with handling events and scheduling tasks for execution.
   It can be used to enqueue task functions with specified data from interrupt and other contexts and
   then to run them strictly from the main loop - when running on bare metal.
   Data is stored in the memory management implementation component that can be static or dynamic.
   The component enables pausing and resuming the execution. It also uses Power Manager to prevent
   sleep when there is a triggered task to be executed.
 package: platform
-quality: evaluation
-
+quality: production
+metadata:
+  sbom:
+    license: Zlib
 provides:
   - name: app_scheduler
 
@@ -27,7 +29,7 @@ root_path: app/common/util/app_scheduler
 
 include:
   - path: .
-    file_list: 
+    file_list:
       - path: app_scheduler.h
       - path: app_scheduler_internal.h
 

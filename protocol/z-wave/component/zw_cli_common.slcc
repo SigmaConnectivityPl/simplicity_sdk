@@ -11,6 +11,10 @@ metadata:
     reference: zw_sbom_license
 source:
   - path: "protocol/z-wave/platform/SiliconLabs/components/zw_cli_common/zw_cli_common.c"
+include:
+  - path: "protocol/z-wave/platform/SiliconLabs/components/zw_cli_common/"
+    file_list:
+      - path: "zw_cli_common.h"
 provides:
   - name: zw_cli_common
 
@@ -28,9 +32,6 @@ template_contribution:
       name: set_learn_mode
       handler: cli_set_learn_mode 
       help: Include / exclude the device into / from a z-wave network
-      argument:
-      - type: string
-        help: "Learn mode state. It can be start or stop."
   - name: cli_command
     value:
       name: factory_reset

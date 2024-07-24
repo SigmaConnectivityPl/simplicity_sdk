@@ -318,6 +318,7 @@ static inline psa_status_t psa_driver_wrapper_sign_message(
 #if defined(SLI_ECDSA_DEVICE_SI91X)
 #if defined(SLI_SECURE_KEY_STORAGE_DEVICE_SI91X)
         case PSA_KEY_VOLATILE_PERSISTENT_WRAPPED:
+        case PSA_KEY_VOLATILE_PERSISTENT_WRAP_IMPORT:
             status = sli_si91x_crypto_sign_message( attributes,
                                                     key_buffer,
                                                     key_buffer_size,
@@ -1016,6 +1017,7 @@ static inline psa_status_t psa_driver_wrapper_get_key_buffer_size_from_key_data(
 #endif
 #if defined(SLI_SECURE_KEY_STORAGE_DEVICE_SI91X)
         case PSA_KEY_VOLATILE_PERSISTENT_WRAPPED:
+        case PSA_KEY_VOLATILE_PERSISTENT_WRAP_IMPORT:
           *key_buffer_size = data_length;
           return( ( *key_buffer_size != 0 ) ?
                   PSA_SUCCESS : PSA_ERROR_NOT_SUPPORTED );
@@ -1312,7 +1314,7 @@ static inline psa_status_t psa_driver_wrapper_import_key(
                          key_buffer_length, bits ) );
 #endif
 #if defined(SLI_SECURE_KEY_STORAGE_DEVICE_SI91X)
-        case PSA_KEY_VOLATILE_PERSISTENT_WRAPPED:
+        case PSA_KEY_VOLATILE_PERSISTENT_WRAP_IMPORT:
           status = psa_import_key_into_slot( attributes,
                                             data, data_length,
                                             key_buffer, key_buffer_size,
@@ -1324,6 +1326,14 @@ static inline psa_status_t psa_driver_wrapper_import_key(
                                                  WRAP_IV);
           }
           return( status );
+          break;
+
+        case PSA_KEY_VOLATILE_PERSISTENT_WRAPPED:
+          status = psa_import_key_into_slot( attributes,
+                                             data, data_length,
+                                             key_buffer, key_buffer_size,
+                                             key_buffer_length, bits );
+          return ( status );
           break;
 #endif
 #endif /* PSA_CRYPTO_ACCELERATOR_DRIVER_PRESENT */
@@ -1404,6 +1414,7 @@ static inline psa_status_t psa_driver_wrapper_export_key(
 #endif
 #if defined(SLI_SECURE_KEY_STORAGE_DEVICE_SI91X)
         case PSA_KEY_VOLATILE_PERSISTENT_WRAPPED:
+        case PSA_KEY_VOLATILE_PERSISTENT_WRAP_IMPORT:
           return( psa_export_key_internal( attributes,
                                            key_buffer,
                                            key_buffer_size,
@@ -2725,6 +2736,7 @@ static inline psa_status_t psa_driver_wrapper_aead_encrypt(
 #if defined(SLI_AEAD_DEVICE_SI91X)
 #if defined(SLI_SECURE_KEY_STORAGE_DEVICE_SI91X)
 		case PSA_KEY_VOLATILE_PERSISTENT_WRAPPED:
+    case PSA_KEY_VOLATILE_PERSISTENT_WRAP_IMPORT:
             status = sli_si91x_crypto_aead_encrypt(
                       attributes,
                       key_buffer,
@@ -2858,6 +2870,7 @@ static inline psa_status_t psa_driver_wrapper_aead_decrypt(
 #if defined(SLI_AEAD_DEVICE_SI91X)
 #if defined(SLI_SECURE_KEY_STORAGE_DEVICE_SI91X)
     case PSA_KEY_VOLATILE_PERSISTENT_WRAPPED:
+    case PSA_KEY_VOLATILE_PERSISTENT_WRAP_IMPORT:
             status = sli_si91x_crypto_aead_decrypt(
                                   attributes,
                                   key_buffer,

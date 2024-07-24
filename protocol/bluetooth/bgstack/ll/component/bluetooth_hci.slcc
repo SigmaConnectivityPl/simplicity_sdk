@@ -31,7 +31,7 @@ template_contribution:
     value:
       event: internal_app_init
       include: sl_btctrl_hci.h
-      handler: sl_bthci_init_upper     
+      handler: sl_bthci_init_upper
     priority: 3
   - name: event_handler
     value:
@@ -108,3 +108,6 @@ template_contribution:
       handler: sl_btctrl_hci_parser_init_cs
     priority: 14
     condition: [bluetooth_feature_cs_test]
+metadata:
+  sbom:
+    license: MSLA

@@ -5,6 +5,9 @@ description: >
   Intertial Measurement Unit driver core
 category: Platform|Board Drivers
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 ui_hints:
   visibility: never
 root_path: hardware/driver/imu

@@ -1257,7 +1257,7 @@ class AccessPoint():
                     if tag.blocked:
                         self.key_db.delete_ltk(tag.ble_address) # remove key of ESLs which are violating the spec (that is, which are lack of any mandatory GATT entries)
                         self.log.debug("Bonding for ESL at address %s deleted due to ESL Profile/Service violation.", tag.ble_address)
-            elif evt.sl_status in [elw.SL_STATUS_NO_MORE_RESOURCE, elw.SL_STATUS_BT_CTRL_CONNECTION_LIMIT_EXCEEDED] and not self.max_conn_count_reached:
+            if evt.sl_status in [elw.SL_STATUS_NO_MORE_RESOURCE, elw.SL_STATUS_BT_CTRL_CONNECTION_LIMIT_EXCEEDED] and not self.max_conn_count_reached:
                 self.max_conn_count_reached = True
                 self.log.warning("Access point connection limit reached - suspend connect requests until a connection is closed.")
         elif evt.lib_status == elw.ESL_LIB_STATUS_CONN_TIMEOUT:
@@ -1362,7 +1362,7 @@ class AccessPoint():
         """ ESL event handler in auto mode """
         tag = self.tag_db.find(evt.node_id)
         if evt.lib_status in [elw.ESL_LIB_STATUS_OTS_ERROR, elw.ESL_LIB_STATUS_OTS_TRANSFER_FAILED, elw.ESL_LIB_STATUS_OTS_GOTO_FAILED, elw.ESL_LIB_STATUS_OTS_UNEXPECTED_OFFSET, elw.ESL_LIB_STATUS_OTS_WRITE_RESP_FAILED]:
-            if evt.sl_status != elw.SL_STATUS_TIMEOUT:
+            if evt.sl_status not in [elw.SL_STATUS_TIMEOUT, elw.SL_STATUS_BT_CTRL_CONNECTION_REJECTED_DUE_TO_NO_SUITABLE_CHANNEL_FOUND]:
                 try:
                     self.upload_next_image(tag)
                     return
@@ -1604,7 +1604,7 @@ class AccessPoint():
                     self.connect(tag)
                     if self.auto_config_start_time is None:
                         self.auto_config_start_time = dt.now()
-                else:
+                elif not num_connecting:
                     self.log.info("Access point connection limit reached - auto provisioning suspended!")
             else:
                 if len(self.tag_db.list_state((TagState.CONNECTING, TagState.CONNECTED))) == 0:

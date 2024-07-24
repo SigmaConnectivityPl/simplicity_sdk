@@ -1,5 +1,5 @@
 id: bluetooth_hci_cpc
-label: HCI CPC component 
+label: HCI CPC component
 package: Bluetooth
 description: CPC component for HCI
 
@@ -50,3 +50,6 @@ template_contribution:
     priority: -1000
     condition:
       - "kernel"
+metadata:
+  sbom:
+    license: MSLA

@@ -84,33 +84,14 @@ void ble_peer_manager_central_init()
 void ble_peer_manager_central_on_bt_event(sl_bt_msg_t *evt)
 {
   sl_status_t sc;
-  bd_addr address;
-  uint8_t address_type;
   ble_peer_manager_evt_type_t peer_evt;
 
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_bt_evt_system_boot_id:
-      // Get identity address.
-      sc = sl_bt_system_get_identity_address(&address, &address_type);
-      if (sc != SL_STATUS_OK) {
-        peer_evt.evt_id = BLE_PEER_MANAGER_ERROR;
-        peer_evt.connection_id = SL_BT_INVALID_CONNECTION_HANDLE;
-        ble_peer_manager_on_event(&peer_evt);
-      } else {
-        ble_peer_manager_log_info("Bluetooth %s address: %02X:%02X:%02X:%02X:%02X:%02X" APP_LOG_NL,
-                                  address_type ? "static random" : "public device",
-                                  address.addr[5],
-                                  address.addr[4],
-                                  address.addr[3],
-                                  address.addr[2],
-                                  address.addr[1],
-                                  address.addr[0]);
-        peer_evt.evt_id = BLE_PEER_MANAGER_ON_BOOT;
-        peer_evt.connection_id = SL_BT_INVALID_CONNECTION_HANDLE;
-        ble_peer_manager_on_event(&peer_evt);
-      }
+    {
+      ble_peer_manager_central_init();
       break;
-
+    }
     case sl_bt_evt_connection_opened_id:
       if (evt->data.evt_connection_opened.connection == central_active_conn_handle
           && evt->data.evt_connection_opened.role == sl_bt_connection_role_central) {
@@ -130,7 +111,8 @@ void ble_peer_manager_central_on_bt_event(sl_bt_msg_t *evt)
     case sl_bt_evt_connection_closed_id:
       if (ble_peer_manager_is_conn_handle_in_array(evt->data.evt_connection_closed.connection)
           && ble_peer_manager_is_conn_handle_central(evt->data.evt_connection_closed.connection)) {
-        ble_peer_manager_log_info("Central device connection closed." APP_LOG_NL);
+        ble_peer_manager_log_info("Central device connection closed, reason 0x%x." APP_LOG_NL,
+                                  evt->data.evt_connection_closed.reason);
 
         sc = ble_peer_manager_delete_connection(evt->data.evt_connection_closed.connection);
         if (sc != SL_STATUS_OK) {

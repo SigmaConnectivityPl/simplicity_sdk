@@ -1,13 +1,13 @@
 id: cs_initiator
 package: Bluetooth
-label: CS initiator 
+label: CS Initiator
 description: >
-  CS initiator  provides an instantiable initiator (central) logic that produce its own CS results
-  and also collects CS results from CS reflector (peripheral) devices.
+  Channel Sounding (CS) Initiator provides an instantiable initiator (central) logic that produce its own CS results
+  and also collects CS results from CS Reflector (peripheral) devices.
   Once all initiator and reflector results collected correctly it is forwarded to the RTL lib that shall
   produce the high-level measurement values e.g. distance, likeliness of the current distance, etc.
 category: Bluetooth|Application|Miscellaneous
-quality: experimental
+quality: evaluation
 root_path: app/bluetooth/common/cs_initiator
 
 include:
@@ -30,11 +30,9 @@ requires:
   - name: bluetooth_stack
   - name: bluetooth_feature_connection
   - name: bluetooth_feature_cs
-  - name: bluetooth_feature_cs_test
   - name: bluetooth_feature_extended_scanner
   - name: bluetooth_feature_gatt
   - name: bluetooth_feature_legacy_scanner
-  - name: bluetooth_feature_power_control
   - name: cs_ras
   - name: cs_acp
   - name: component_catalog
@@ -61,8 +59,6 @@ template_contribution:
       function: cs_initiator_on_event
     unless:
       - ncp
-  - name: event_handler
-    value:
-      event: internal_app_process_action
-      include: cs_initiator.h
-      handler: cs_initiator_step
+documentation:
+  docset: bluetooth
+  document: bluetooth-service-api/cs-initiator

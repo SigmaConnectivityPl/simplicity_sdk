@@ -31,6 +31,9 @@
 #include "em_device.h"
 #if defined(_SILICON_LABS_32B_SERIES_2) || defined(_SILICON_LABS_32B_SERIES_3)
 
+// Define module name for Power Manager debug feature
+#define CURRENT_MODULE_NAME    "SLEEPTIMER_BURTC"
+
 #include "sl_sleeptimer.h"
 #include "sli_sleeptimer_hal.h"
 

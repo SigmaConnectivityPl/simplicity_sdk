@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS reflector connection manager
+ * @brief CS Reflector connection manager
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -67,7 +67,7 @@ connection_ctx_t *cs_rcm_get_connection_ctx(const uint8_t conn_handle)
   return &connections[idx];
 }
 
-bool cs_rcm_add_new_initiator_connection(const uint8_t conn_handle)
+sl_status_t cs_rcm_add_new_initiator_connection(const uint8_t conn_handle)
 {
   // Find the first empty spot
   bool found = false;
@@ -80,7 +80,7 @@ bool cs_rcm_add_new_initiator_connection(const uint8_t conn_handle)
   }
   // No free spots available
   if (!found) {
-    return false;
+    return SL_STATUS_FULL;
   }
   // Add the new connection and initialize the context
   connections[i].conn_handle = conn_handle;
@@ -90,7 +90,7 @@ bool cs_rcm_add_new_initiator_connection(const uint8_t conn_handle)
   connections[i].indication_in_progress = false;
   connections[i].current_cs_subevent_index = 0u;
   connections[i].current_procedure_index = 0u;
-  return true;
+  return SL_STATUS_OK;
 }
 
 void cs_rcm_remove_initiator_connection(const uint8_t conn_handle)
@@ -122,9 +122,9 @@ bool cs_rcm_can_accept_new_connection(void)
   return false;
 }
 
-uint32_t cs_rcm_get_number_of_connections(void)
+uint8_t cs_rcm_get_number_of_connections(void)
 {
-  uint32_t num_of_connections = 0u;
+  uint8_t num_of_connections = 0u;
   for (uint8_t i = 0; i < CS_REFLECTOR_MAX_CONNECTIONS; i++) {
     if (connections[i].in_use) {
       num_of_connections++;

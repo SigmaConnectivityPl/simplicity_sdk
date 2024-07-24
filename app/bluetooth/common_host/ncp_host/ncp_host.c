@@ -31,8 +31,10 @@
 #include "app_log.h"
 #include "app_assert.h"
 #include "sl_bt_ncp_host.h"
+#include "sl_bgapi.h"
 #include "ncp_host.h"
 #include "app_sleep.h"
+#include "app_timer.h"
 #include "ncp_host_config.h"
 #include "host_comm_config.h"
 #if defined(HOST_COMM_ROBUST) && HOST_COMM_ROBUST == 1
@@ -71,11 +73,18 @@
 // RX/TX buffer
 typedef struct {
   uint16_t len;
-  uint8_t buf[DEFAULT_HOST_BUFLEN];
+  union {
+    uint8_t buf[DEFAULT_HOST_BUFLEN];
+    uint32_t header;
+  };
 } buf_ncp_host_t;
 
 static buf_ncp_host_t buf_ncp_raw = { 0 };
 static buf_ncp_host_t buf_ncp_in = { 0 };
+
+static bool booted;
+static uint8_t boot_retry_count;
+static app_timer_t boot_timer;
 
 #if defined(SECURITY) && SECURITY == 1
 static buf_ncp_host_t buf_ncp_out = { 0 };
@@ -88,6 +97,8 @@ static void ncp_sec_host_command_handler(buf_ncp_host_t *buf);
 #endif // defined(SECURITY) && SECURITY == 1
 static int32_t ncp_host_lazy_peek(void);
 static int32_t ncp_host_get_msg(void);
+static int32_t ncp_host_get_boot_event(void);
+static void on_boot_timer_expire(app_timer_t *timer, void *data);
 
 /**************************************************************************//**
  * Initialize NCP connection.
@@ -107,6 +118,14 @@ sl_status_t ncp_host_init(void)
     sc = security_init();
   }
 #endif // defined(SECURITY) && SECURITY == 1
+
+  booted = false;
+  boot_retry_count = 0;
+  sc = app_timer_start(&boot_timer,
+                       NCP_REBOOT_TIMEOUT_INIT_MS,
+                       on_boot_timer_expire,
+                       NULL,
+                       false);
 
   return sc;
 }
@@ -169,12 +188,16 @@ int32_t ncp_host_rx(uint32_t len, uint8_t* data)
   int32_t ret;
   static uint16_t read_offset = 0;
 
-  if (buf_ncp_in.len == 0) {
+  if (!booted) {
+    // Wait for the boot event if the target haven't booted yet.
+    ret = ncp_host_get_boot_event();
+    read_offset = 0;
+  } else if (buf_ncp_in.len == 0) {
     ret = ncp_host_get_msg();
     // Finished receiving a brand new, complete NCP message
     read_offset = 0;
   } else {
-    // NCP host code is still processing the previosuly received message
+    // Protocol parser is still processing the previously received message
     ret = buf_ncp_in.len - read_offset;
   }
   if (ret > 0) {
@@ -192,6 +215,16 @@ int32_t ncp_host_rx(uint32_t len, uint8_t* data)
     ret = -1;
   }
   return ret;
+}
+
+/******************************************************************************
+ * Send system reboot command to the NCP target.
+ *****************************************************************************/
+void ncp_host_reboot(void)
+{
+  booted = false;
+  boot_retry_count = 0;
+  on_boot_timer_expire(&boot_timer, NULL);
 }
 
 /******************************************************************************
@@ -233,60 +266,141 @@ static int32_t ncp_host_peek_timeout(uint32_t len, uint32_t timeout)
 static int32_t ncp_host_get_msg(void)
 {
   int32_t msg_len;
+  int32_t ret;
+  uint8_t msg_header;
 
   msg_len = ncp_host_lazy_peek();
-  if (msg_len > 0) {
-    int32_t ret;
-    uint8_t msg_header = 0;
+  if (msg_len <= 0) {
+    return msg_len;
+  }
 
-    // Read first byte
-    ret = HOST_COMM_RX(1, &buf_ncp_raw.buf[0]);
-    msg_header = (uint8_t)(buf_ncp_raw.buf[0] & 0xf8);
-    msg_len = 256 * (buf_ncp_raw.buf[0] & 0x07); // Get the high bits of the message length
-    // Check if proper ncp header arrived
-    if ((msg_header & (uint32_t)(~MSG_HEADER_MASK)) == sl_bgapi_dev_type_bt) {
-      // If header seems to be ok, read length
-      ret = ncp_host_peek_timeout(1, MSG_RECV_TIMEOUT_COUNT);
-      if (ret < 0) {
-        return -1;
-      }
-      ret = HOST_COMM_RX(1, (void *)&buf_ncp_raw.buf[1]);
-      msg_len |= buf_ncp_raw.buf[1];
-      msg_len += 2;
-      // Check if length will fit to buffer
-      if (msg_len >= DEFAULT_HOST_BUFLEN - 2) {
-        return -1;
-      }
-      ret = ncp_host_peek_timeout(msg_len, MSG_RECV_TIMEOUT_COUNT * msg_len);
-      if (ret < 0) {
-        return -1;
-      }
-      // Read the rest of the message
-      ret = HOST_COMM_RX(msg_len, (void *)&buf_ncp_raw.buf[2]);
-      if (ret < 0) {
-        return -1;
-      }
-      msg_len += 2;
-      buf_ncp_raw.len = msg_len;
+  // Read first byte
+  ret = HOST_COMM_RX(1, &buf_ncp_raw.buf[0]);
+  msg_header = (uint8_t)(buf_ncp_raw.buf[0] & 0xf8);
+  msg_len = 256 * (buf_ncp_raw.buf[0] & 0x07); // Get the high bits of the message length
+  // Check if proper ncp header arrived
+  if ((msg_header & (uint32_t)(~MSG_HEADER_MASK)) != sl_bgapi_dev_type_bt) {
+    // Unexpected device ID
+    return -1;
+  }
+  // If header seems to be ok, read length
+  ret = ncp_host_peek_timeout(1, MSG_RECV_TIMEOUT_COUNT);
+  if (ret < 0) {
+    return -1;
+  }
+  ret = HOST_COMM_RX(1, (void *)&buf_ncp_raw.buf[1]);
+  msg_len |= buf_ncp_raw.buf[1];
+  msg_len += 2;
+  // Check if length will fit to buffer
+  if (msg_len >= DEFAULT_HOST_BUFLEN - 2) {
+    return -1;
+  }
+  ret = ncp_host_peek_timeout(msg_len, MSG_RECV_TIMEOUT_COUNT * msg_len);
+  if (ret < 0) {
+    return -1;
+  }
+  // Read the rest of the message
+  ret = HOST_COMM_RX(msg_len, (void *)&buf_ncp_raw.buf[2]);
+  if (ret < 0) {
+    return -1;
+  }
+  msg_len += 2;
+  buf_ncp_raw.len = msg_len;
 #if defined(SECURITY) && SECURITY == 1
-      if (SL_BT_MSG_ENCRYPTED((uint8_t)msg_header) !=  0) {
-        security_decrypt((char *)&buf_ncp_raw.buf[0], (char *)&buf_ncp_in.buf[0], (unsigned *)&msg_len);
-      } else
+  if (SL_BT_MSG_ENCRYPTED((uint8_t)msg_header) !=  0) {
+    security_decrypt((char *)&buf_ncp_raw.buf[0], (char *)&buf_ncp_in.buf[0], (unsigned *)&msg_len);
+  } else
 #endif // defined(SECURITY) && SECURITY == 1
-      {
-        memcpy(buf_ncp_in.buf, buf_ncp_raw.buf, msg_len);
-      }
-      buf_ncp_in.len = msg_len;
+  {
+    memcpy(buf_ncp_in.buf, buf_ncp_raw.buf, msg_len);
+  }
+  buf_ncp_in.len = msg_len;
 #if defined(SECURITY) && SECURITY == 1
-      if (enable_security) {
-        ncp_sec_host_command_handler(&buf_ncp_in);
-      }
+  if (enable_security) {
+    ncp_sec_host_command_handler(&buf_ncp_in);
+  }
 #endif // defined(SECURITY) && SECURITY == 1
-    } else {
+  return msg_len;
+}
+
+/******************************************************************************
+ * Receive until boot event arrives
+ *
+ * buf_ncp_in can be used directly because the boot event is always unencrypted
+ * even if the security is enabled.
+ *****************************************************************************/
+static int32_t ncp_host_get_boot_event(void)
+{
+  // This event header is equivalent with sl_bt_evt_system_boot
+  static const uint32_t boot_event_header = 0x000112a0;
+  uint32_t shift_counter = 0;
+  int32_t ret, msg_len;
+
+  ret = ncp_host_lazy_peek();
+  if (ret < SL_BGAPI_MSG_HEADER_LEN) {
+    return -1;
+  }
+  // Read header
+  ret = HOST_COMM_RX(SL_BGAPI_MSG_HEADER_LEN, &buf_ncp_in.buf[0]);
+  if (ret < 0) {
+    return -1;
+  }
+  // Read bytes one by one until a valid boot event header is received.
+  while (buf_ncp_in.header != boot_event_header) {
+    if (shift_counter > SL_BGAPI_MAX_PAYLOAD_SIZE) {
+      // Abort reception if the target sends data continuously.
+      return -1;
+    }
+    shift_counter++;
+    buf_ncp_in.header >>= 8;
+    ret = ncp_host_peek_timeout(1, MSG_RECV_TIMEOUT_COUNT);
+    if (ret < 0) {
+      return -1;
+    }
+    ret = HOST_COMM_RX(1, (void *)&buf_ncp_in.buf[3]);
+    if (ret < 0) {
       return -1;
     }
   }
-  return msg_len;
+  // Get boot event payload
+  msg_len = SL_BGAPI_MSG_LEN(buf_ncp_in.header);
+  ret = ncp_host_peek_timeout(msg_len, MSG_RECV_TIMEOUT_COUNT * msg_len);
+  if (ret < 0) {
+    return -1;
+  }
+  ret = HOST_COMM_RX(msg_len, (void *)&buf_ncp_in.buf[SL_BGAPI_MSG_HEADER_LEN]);
+  if (ret < 0) {
+    return -1;
+  }
+  buf_ncp_in.len = SL_BGAPI_MSG_HEADER_LEN + msg_len;
+  booted = true;
+  (void)app_timer_stop(&boot_timer);
+
+  return buf_ncp_in.len;
+}
+
+/******************************************************************************
+ * Boot event timeout callback
+ *****************************************************************************/
+static void on_boot_timer_expire(app_timer_t *timer, void *data)
+{
+  (void)data;
+  // This command is equivalent with sl_bt_system_reboot
+  uint8_t reboot_command[] = { 0x20, 0x00, 0x01, 0x1f };
+
+  if (boot_retry_count < NCP_REBOOT_RETRY_COUNT) {
+    app_log_info("Rebooting NCP target (%d)..." APP_LOG_NL, boot_retry_count);
+    boot_retry_count++;
+    (void)HOST_COMM_TX(sizeof(reboot_command), reboot_command);
+    sl_status_t sc = app_timer_start(timer,
+                                     NCP_REBOOT_TIMEOUT_RETRY_MS,
+                                     on_boot_timer_expire,
+                                     NULL,
+                                     false);
+    app_assert_status(sc);
+  } else {
+    app_assert(false, "NCP target unreachable.");
+  }
 }
 
 #if defined(SECURITY) && SECURITY == 1

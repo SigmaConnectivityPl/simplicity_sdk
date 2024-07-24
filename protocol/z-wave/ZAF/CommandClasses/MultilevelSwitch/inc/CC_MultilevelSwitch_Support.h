@@ -21,6 +21,12 @@
 #include <ZAF_Actuator.h>
 #include "ZAF_CC_Invoker.h"
 
+/****************************************************************************/
+/*                      TYPES and DEFINITIONS                               */
+/****************************************************************************/
+#define CC_MULTILEVEL_SWITCH_ACTUATOR_MIN_VALUE 0
+#define CC_MULTILEVEL_SWITCH_ACTUATOR_MAX_VALUE 99
+
 /**
  * @addtogroup CC
  * @{

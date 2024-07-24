@@ -1,6 +1,6 @@
-# SoC - CS reflector
+# SoC - CS Reflector
 
-The Bluetooth SoC-CS reflector is a project that can be used to test the Channel Sounding (CS) feature. In the provided CS setup, the reflector measures the phase (in PBR mode) or flying time (RTT) of the received signal and sends this information back to the initiator using RAS. The initiator will estimate the distance, the measured values are not available on the reflector side.
+The Bluetooth SoC-CS Reflector is a project that can be used to test the Channel Sounding (CS) feature. In the provided CS setup, the reflector measures the phase (in PBR mode) or flying time (RTT) of the received signal and sends this information back to the initiator using RAS. The initiator will estimate the distance, the measured values are not available on the reflector side.
 
 ## Getting Started
 Build and flash the sample application.

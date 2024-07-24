@@ -9,3 +9,5 @@ Communication between the NCP and the host processor is managed by wpantund thro
 The benefit of this design is that the higher-power host can sleep while the lower-power OpenThread device remains active to maintain its place in the Thread network. Since the SoC is not tied to the application layer, development and testing of applications is independent of the OpenThread build.
 
 This design is useful for gateway devices or devices that have other processing demands, like IP cameras and speakers.
+
+Note that the NCP design model is not supported or tested, although experimental support is available with the OpenThread stack.

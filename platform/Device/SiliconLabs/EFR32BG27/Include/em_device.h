@@ -56,6 +56,9 @@
 #elif defined(EFR32BG27C320F768GJ39)
 #include "efr32bg27c320f768gj39.h"
 
+#elif defined(EFR32BG27C320F768IJ39)
+#include "efr32bg27c320f768ij39.h"
+
 #else
 #error "em_device.h: PART NUMBER undefined"
 #endif

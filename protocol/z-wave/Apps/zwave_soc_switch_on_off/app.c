@@ -30,6 +30,10 @@
 #include "ZAF_PrintAppInfo.h"
 #endif
 
+#ifdef SL_CATALOG_ZW_CLI_COMMON_PRESENT
+#include "zw_cli_common.h"
+#endif
+
 #ifdef DEBUGPRINT
 static uint8_t m_aDebugPrintBuffer[96];
 #endif
@@ -161,4 +165,8 @@ zaf_event_distributor_app_event_manager(uint8_t event)
       // Unknow event - do nothing.
       break;
   }
+
+#ifdef SL_CATALOG_ZW_CLI_COMMON_PRESENT
+  cli_log_system_events(event);
+#endif
 }

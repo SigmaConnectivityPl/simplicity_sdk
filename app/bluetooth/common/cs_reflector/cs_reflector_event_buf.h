@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS reflector CS event buffer manager
+ * @brief CS Reflector CS event buffer manager
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -30,6 +30,11 @@
 
 #ifndef CS_REFLECTOR_EVENT_BUF_H
 #define CS_REFLECTOR_EVENT_BUF_H
+
+/***********************************************************************************************//**
+ * @addtogroup cs_reflector
+ * @{
+ **************************************************************************************************/
 
 #include <stddef.h>
 #include <stdint.h>
@@ -109,4 +114,5 @@ cs_event_data_t *cs_reflector_event_buf_find(const uint8_t conn_handle,
  *****************************************************************************/
 cs_event_data_t *cs_reflector_event_buf_get_next_unindicated(const uint8_t conn_handle);
 
+/** @} (end addtogroup cs_reflector) */
 #endif // CS_REFLECTOR_EVENT_BUF_H

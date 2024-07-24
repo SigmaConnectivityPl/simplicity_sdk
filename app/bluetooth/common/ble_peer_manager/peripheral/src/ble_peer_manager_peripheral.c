@@ -70,6 +70,11 @@ void ble_peer_manager_peripheral_on_bt_event(sl_bt_msg_t *evt)
   ble_peer_manager_evt_type_t peer_evt;
 
   switch (SL_BT_MSG_ID(evt->header)) {
+    case sl_bt_evt_system_boot_id:
+    {
+      ble_peer_manager_peripheral_init();
+      break;
+    }
     case sl_bt_evt_advertiser_timeout_id:
       // Received when the number of advertising events command is done
       if (evt->data.evt_advertiser_timeout.handle == advertiser.advertising_handle) {
@@ -103,7 +108,8 @@ void ble_peer_manager_peripheral_on_bt_event(sl_bt_msg_t *evt)
     case sl_bt_evt_connection_closed_id:
       if (ble_peer_manager_is_conn_handle_in_array(evt->data.evt_connection_closed.connection)
           && !(ble_peer_manager_is_conn_handle_central(evt->data.evt_connection_closed.connection))) {
-        ble_peer_manager_log_info("Peripheral device connection closed." APP_LOG_NL);
+        ble_peer_manager_log_info("Peripheral device connection closed, reason 0x%x" APP_LOG_NL,
+                                  evt->data.evt_connection_closed.reason);
         sc = ble_peer_manager_delete_connection(evt->data.evt_connection_closed.connection);
         if (sc != SL_STATUS_OK) {
           peer_evt.evt_id = BLE_PEER_MANAGER_ERROR;

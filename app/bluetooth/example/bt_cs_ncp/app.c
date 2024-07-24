@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief Core application logic.
+ * @brief CS NCP target core application logic.
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -39,14 +39,16 @@
 #include "cs_antenna.h"
 
 #define RESULT_MSG_LEN (sizeof(uint8_t) + sizeof(cs_acp_event_id_t) + sizeof(cs_acp_result_evt_t))
+#define INTERMEDIATE_RESULT_MSG_LEN (sizeof(uint8_t) + sizeof(cs_acp_event_id_t) + sizeof(cs_acp_intermediate_result_evt_t))
 #define ERROR_MSG_LEN (sizeof(uint8_t) + sizeof(cs_acp_event_id_t) + sizeof(cs_acp_status_t))
 
 static void cs_on_result(const cs_result_t *result, const void *user_data);
+static void cs_on_intermediate_result(const cs_intermediate_result_t *intermediate_result, const void *user_data);
 static void cs_on_error(uint8_t conn_handle, cs_error_event_t err_evt, sl_status_t sc);
 static sl_status_t handle_initiator_action(const cs_acp_initiator_action_cmd_data_t *initiator_action_data);
 
-/***************************************************************************//**
- * Application Init.
+/*******************************************************************************
+ * Application Init
  ******************************************************************************/
 SL_WEAK void app_init(void)
 {
@@ -58,8 +60,8 @@ SL_WEAK void app_init(void)
   /////////////////////////////////////////////////////////////////////////////
 }
 
-/**************************************************************************//**
- * Application Process Action.
+/******************************************************************************
+ * Application Process Action
  *****************************************************************************/
 SL_WEAK void app_process_action(void)
 {
@@ -71,6 +73,15 @@ SL_WEAK void app_process_action(void)
   /////////////////////////////////////////////////////////////////////////////
 }
 
+/******************************************************************************
+ * NCP Callback function with CS user message interpreter
+ *
+ * Handles the CS user messages:
+ * - activate/deactivate CS initiator device instance on the NCP-target
+ * - activate/deactivate CS reflector device instance on the NCP-target
+ * - configure antenna on the NCP-target
+ * and send response back accordingly.
+ *****************************************************************************/
 void sl_ncp_user_cs_cmd_message_to_target_cb(void *data)
 {
   cs_acp_cmd_t *cs_cmd;
@@ -86,7 +97,13 @@ void sl_ncp_user_cs_cmd_message_to_target_cb(void *data)
                                &cs_cmd->data.initiator_cmd_data.initiator_config,
                                &cs_cmd->data.initiator_cmd_data.rtl_config,
                                cs_on_result,
+                               cs_on_intermediate_result,
                                cs_on_error);
+      if (sc != SL_STATUS_OK) {
+        cs_on_error(cs_cmd->data.initiator_cmd_data.connection_id,
+                    CS_ERROR_EVENT_INIT_FAILED,
+                    sc);
+      }
       break;
     case CS_ACP_CMD_INITIATOR_ACTION:
       sc = handle_initiator_action(&cs_cmd->data.initiator_action_data);
@@ -106,6 +123,7 @@ void sl_ncp_user_cs_cmd_message_to_target_cb(void *data)
 #endif // SL_CATALOG_CS_INITIATOR_PRESENT
     case CS_ACP_CMD_ANTENNA_CONFIGURE:
       sc = cs_antenna_configure((bool)cs_cmd->data.antenna_config_wired);
+      break;
     default:
       // Unknown command, leave the default value of sc unchanged.
       break;
@@ -113,6 +131,10 @@ void sl_ncp_user_cs_cmd_message_to_target_cb(void *data)
   sl_bt_send_rsp_user_cs_service_message_to_target((uint16_t)sc, 0, NULL);
 }
 
+/******************************************************************************
+ * Realize on_result callback function for CS initiator device role in order
+ * to send back the measurement results in a response to the host.
+ *****************************************************************************/
 static void cs_on_result(const cs_result_t *result, const void *user_data)
 {
   (void)user_data;
@@ -126,9 +148,35 @@ static void cs_on_result(const cs_result_t *result, const void *user_data)
   cs_user_event.data.result.rssi_distance_mm = result->rssi_distance;
   cs_user_event.data.result.likeliness = result->likeliness;
 
-  sl_bt_send_evt_user_cs_service_message_to_host(RESULT_MSG_LEN, (uint8_t *)&cs_user_event);
+  sl_bt_send_evt_user_cs_service_message_to_host(RESULT_MSG_LEN,
+                                                 (uint8_t *)&cs_user_event);
 }
 
+/******************************************************************************
+ * Realize on_intermediate_result callback function for CS initiator device role
+ * in order to send back the intermediate results in a response to the host.
+ *****************************************************************************/
+static void cs_on_intermediate_result(const cs_intermediate_result_t *intermediate_result,
+                                      const void *user_data)
+{
+  (void)user_data;
+
+  cs_acp_event_t cs_user_event;
+
+  cs_user_event.acp_evt_id = CS_ACP_EVT_INTERMEDIATE_RESULT_ID;
+  cs_user_event.connection_id = intermediate_result->connection;
+
+  cs_user_event.data.intermediate_result.progress_percentage =
+    intermediate_result->progress_percentage;
+
+  sl_bt_send_evt_user_cs_service_message_to_host(INTERMEDIATE_RESULT_MSG_LEN,
+                                                 (uint8_t *)&cs_user_event);
+}
+
+/******************************************************************************
+ * Realize on_error callback function for CS initiator device role
+ * in order to send back the error status in a response to the host.
+ *****************************************************************************/
 static void cs_on_error(uint8_t conn_handle, cs_error_event_t err_evt, sl_status_t sc)
 {
   cs_acp_event_t cs_user_event;
@@ -142,6 +190,10 @@ static void cs_on_error(uint8_t conn_handle, cs_error_event_t err_evt, sl_status
   sl_bt_send_evt_user_cs_service_message_to_host(ERROR_MSG_LEN, (uint8_t *)&cs_user_event);
 }
 
+/******************************************************************************
+ * Function to realize CS initiator actions according to the incoming user
+ * command data from host.
+ *****************************************************************************/
 static sl_status_t handle_initiator_action(const cs_acp_initiator_action_cmd_data_t *action)
 {
   sl_status_t sc = SL_STATUS_FAIL;

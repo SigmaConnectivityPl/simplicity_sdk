@@ -33,10 +33,11 @@
 #include "sl_fem_util.h"
 #include "rail.h"
 
-#define SL_FEM_UTIL_GLOBAL_ENABLE (SL_FEM_UTIL_RX_ENABLE        \
-                                   || SL_FEM_UTIL_TX_ENABLE     \
-                                   || SL_FEM_UTIL_BYPASS_ENABLE \
-                                   || SL_FEM_UTIL_TX_HIGH_POWER_ENABLE)
+#define SL_FEM_UTIL_GLOBAL_ENABLE (SL_FEM_UTIL_RX_ENABLE               \
+                                   || SL_FEM_UTIL_TX_ENABLE            \
+                                   || SL_FEM_UTIL_BYPASS_ENABLE        \
+                                   || SL_FEM_UTIL_TX_HIGH_POWER_ENABLE \
+                                   || SL_FEM_UTIL_AUTO_LNA_BYPASS_ENABLE)
 
 #if SL_FEM_UTIL_GLOBAL_ENABLE == 1
   #include "em_device.h"
@@ -250,6 +251,20 @@ void sl_fem_util_init(void)
   #else
   sl_gpio_set_pin_mode(&(sl_gpio_t){SL_FEM_UTIL_BYPASS_PORT, SL_FEM_UTIL_BYPASS_PIN }, SL_GPIO_MODE_PUSH_PULL, false);
   #endif
+#endif
+
+#ifdef SL_FEM_UTIL_BYPASS_PORT
+  RAIL_AutoLnaBypassConfig_t autoLnaBypassConfig = {
+    .timeoutUs = SL_FEM_UTIL_AUTO_LNA_BYPASS_TIMEOUT_US,
+    .threshold = SL_FEM_UTIL_AUTO_LNA_BYPASS_THRESHOLD,
+    .deltaRssiDbm = SL_FEM_UTIL_AUTO_LNA_BYPASS_DELTA_RSSI_DBM,
+    .port = SL_FEM_UTIL_BYPASS_PORT,
+    .pin = SL_FEM_UTIL_BYPASS_PIN,
+    .polarity = SL_FEM_UTIL_AUTO_LNA_BYPASS_POLARITY
+  };
+  (void) RAIL_EnableAutoLnaBypass(RAIL_EFR32_HANDLE,
+                                  (bool) SL_FEM_UTIL_AUTO_LNA_BYPASS_ENABLE,
+                                  &autoLnaBypassConfig);
 #endif
 
 // if fem has a tx power pin (FEM pin CHL)

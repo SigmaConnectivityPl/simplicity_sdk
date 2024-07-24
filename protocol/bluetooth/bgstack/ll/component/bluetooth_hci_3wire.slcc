@@ -54,3 +54,6 @@ template_contribution:
     priority: -1000
     condition:
       - "kernel"
+metadata:
+  sbom:
+    license: MSLA

@@ -10,8 +10,14 @@ metadata:
 root_path: platform/driver/coulomb
 source:
   - path: src/sl_coulomb_counter_hal_efp.c
+  - path: src/sli_coulomb_counter_hal.h
+include:
+  - path: inc
+    file_list:
+      - path: sl_coulomb_counter.h
 requires:
   - name: efp_driver
+  - name: slist
 provides:
   - name: coulomb_counter_driver_implementation
   - name: coulomb_counter_efp

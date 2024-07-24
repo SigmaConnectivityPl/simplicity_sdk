@@ -30,6 +30,11 @@
 #ifndef SL_BT_APP_OTA_DFU_CONFIG_H
 #define SL_BT_APP_OTA_DFU_CONFIG_H
 
+/***********************************************************************************************//**
+ * @addtogroup app_ota_dfu
+ * @{
+ **************************************************************************************************/
+
 #include "app_rta.h"
 
 // <<< Use Configuration Wizard in Context Menu >>>
@@ -53,4 +58,5 @@
 
 // <<< end of configuration section >>>
 
+/** @} (end addtogroup app_ota_dfu) */
 #endif // SL_BT_APP_OTA_DFU_CONFIG_H

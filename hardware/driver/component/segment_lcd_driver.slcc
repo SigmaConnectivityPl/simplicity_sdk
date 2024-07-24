@@ -5,6 +5,9 @@ description: >
   Driver for the segment LCD
 category: Platform|Board Drivers
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 root_path: hardware/driver/segment_lcd
 provides:
   - name: segment_lcd_driver

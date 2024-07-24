@@ -28,6 +28,9 @@
  *
  ******************************************************************************/
 
+// Define module name for Power Manager debug feature
+#define CURRENT_MODULE_NAME    "SLEEPTIMER_RTCC"
+
 #include "em_rtcc.h"
 #include "sl_sleeptimer.h"
 #include "sli_sleeptimer_hal.h"

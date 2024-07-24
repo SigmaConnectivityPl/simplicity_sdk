@@ -77,7 +77,7 @@ void sl_ot_rtos_set_pending_event(sl_ot_rtos_event_t event);
 void sl_ot_rtos_application_tick(void);
 
 /**
- * Mutex handler, API to request access for stack. 
+ * Mutex handler, API to obtain access to the stack. 
  * 
  * A weak implementation is provided, user can implement their own mutex handlers.
  * 
@@ -85,12 +85,22 @@ void sl_ot_rtos_application_tick(void);
 void sl_ot_rtos_acquire_stack_mutex(void);
 
 /**
- * Mutex handler, API to relinquish access to stack. 
+ * Mutex handler, API to relinquish access to the stack. 
  * 
  * A weak implementation is provided, user can implement their own mutex handlers.
  * 
  */
 void sl_ot_rtos_release_stack_mutex(void);
+
+/**
+ * Mutex handler, API to try to obtain access to the stack. 
+ * 
+ * Return true if access granted, false otherwise.
+ * 
+ * A weak implementation is provided, user can implement their own mutex handlers.
+ * 
+ */
+bool sl_ot_rtos_try_acquire_stack_mutex(void);
 
 /**
  * Return if the current thread can access the PAL APIs. 

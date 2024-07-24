@@ -1,6 +1,6 @@
 /***************************************************************************/ /**
  * @file
- * @brief CS initiator display configuration.
+ * @brief CS Initiator display configuration.
  *******************************************************************************
  * # License
  * <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
@@ -30,7 +30,19 @@
 #ifndef CS_INITIATOR_DISPLAY_CONFIG_H
 #define CS_INITIATOR_DISPLAY_CONFIG_H
 
+/***********************************************************************************************//**
+ * @addtogroup cs_initiator_display
+ * @{
+ **************************************************************************************************/
+
 // <<< Use Configuration Wizard in Context Menu >>>
+
+// <q CS_INITIATOR_DISPLAY_LOG> Enable initiator display log
+// <i> Default: 1
+// <i> Enable Initiator event buffer managers own log
+#ifndef CS_INITIATOR_DISPLAY_LOG
+#define CS_INITIATOR_DISPLAY_LOG              (1)
+#endif
 
 // <o CS_INITIATOR_DISPLAY_GLOBAL_ALIGNMENT> Global display alignment
 // <CS_INITIATOR_DISPLAY_ALIGNMENT_LEFT=> Left
@@ -38,9 +50,10 @@
 // <CS_INITIATOR_DISPLAY_ALIGNMENT_RIGHT=> Right
 // <i> Default: CS_INITIATOR_DISPLAY_ALIGNMENT_CENTER
 #ifndef CS_INITIATOR_DISPLAY_GLOBAL_ALIGNMENT
-#define CS_INITIATOR_DISPLAY_GLOBAL_ALIGNMENT CS_INITIATOR_DISPLAY_ALIGNMENT_CENTER
+#define CS_INITIATOR_DISPLAY_GLOBAL_ALIGNMENT CS_INITIATOR_DISPLAY_ALIGNMENT_LEFT
 #endif
 
 // <<< end of configuration section >>>
 
+/** @} (end addtogroup cs_initiator_display) */
 #endif // CS_INITIATOR_DISPLAY_CONFIG_H

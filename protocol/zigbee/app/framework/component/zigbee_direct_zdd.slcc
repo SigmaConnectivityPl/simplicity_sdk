@@ -56,6 +56,17 @@ include:
       - path: zigbee-direct-zdd-tokens.h
       - path: zigbee_direct_session_key_negotiation.h
       - path: zigbee_direct_common.h
+  - path: protocol/zigbee/stack/include
+    file_list:
+      - path: zigbee_direct_stack_interface.h
+  - path: protocol/zigbee/stack/internal/inc
+    file_list:
+      - path: zigbee_direct_stack_interface_internal_def.h
+  - path: protocol/zigbee/stack/internal/src/ipc
+    file_list:
+      - path: zigbee_direct_stack_interface_ipc_command_messages.h
+        condition:
+          - zigbee_use_ipc
 
 template_contribution:
   - name: component_catalog

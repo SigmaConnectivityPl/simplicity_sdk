@@ -36,3 +36,6 @@ template_contribution:
       event: is_ok_to_sleep
       include: sl_btctrl_hci_sleep.h
       handler: sl_btctrl_hci_sleep_is_ok_to_sleep
+metadata:
+  sbom:
+    license: MSLA

@@ -33,6 +33,11 @@
 #define EVENT_NAME(x) x
 #endif
 
+//For conditionalizing header includes
+#ifdef SL_COMPONENT_CATALOG_PRESENT
+#include "sl_component_catalog.h"
+#endif
+
 #include "stack/include/sl_zigbee_types.h"
 #include "stack-info-internal-def.h"
 #include "network-formation-internal-def.h"
@@ -44,28 +49,42 @@
 #include "bootload_internal_def.h"
 #include "zigbee-device-stack-internal-def.h"
 #include "library_internal_def.h"
+#if !defined(SL_COMPONENT_CATALOG_PRESENT) || defined(SL_CATALOG_ZIGBEE_LIGHT_LINK_PRESENT)
 #include "zll-api-internal-def.h"
+#endif
 #include "multi-phy-internal-def.h"
 #include "sl_zigbee_duty_cycle_internal_def.h"
 #include "mac-layer-internal-def.h"
 #include "sl_zigbee_random_api_internal_def.h"
+#if !defined(SL_COMPONENT_CATALOG_PRESENT) || defined(SL_CATALOG_ZIGBEE_PRO_STACK_ALT_MAC_PRESENT)
 #include "sl_zigbee_alternate_mac_internal_def.h"
+#endif
 #include "raw-message-internal-def.h"
 #include "multi-network-internal-def.h"
 //#include "sl_zigbee_zdo_dlk_negotiation_internal_def.h"
+#if !defined(SL_COMPONENT_CATALOG_PRESENT) || defined(SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT)
 #include "sl_zigbee_stack_specific_tlv_internal_def.h"
+#endif
 #include "sl_zigbee_address_info_internal_def.h"
 //#include "sl_zigbee_security_manager_dlk_ecc_internal_def.h"
 //#include "sl_zigbee_dlk_negotiation_internal_def.h"
+#if !defined(SL_COMPONENT_CATALOG_PRESENT) || defined(SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT)
 #include "sl_zigbee_zdo_security_internal_def.h"
+#endif
 #include "zigbee-security-manager-internal-def.h"
 //#include "sl_zigbee_tlv_core_internal_def.h"
+#if !defined (SL_COMPONENT_CATALOG_PRESENT) || defined(SL_CATALOG_ZIGBEE_SOURCE_ROUTE_PRESENT)
 #include "source-route-internal-def.h"
+#endif
 #include "trust-center-internal-def.h"
+#if !defined (SL_COMPONENT_CATALOG_PRESENT) || defined(SL_CATALOG_ZIGBEE_CBKE_CORE_PRESENT)
 #include "cbke-crypto-engine-internal-def.h"
+#endif
+#if !defined (SL_COMPONENT_CATALOG_PRESENT) || defined(SL_CATALOG_ZIGBEE_GREEN_POWER_PRESENT)
 #include "gp-types-internal-def.h"
 #include "gp-sink-table-internal-def.h"
 #include "gp-proxy-table-internal-def.h"
+#endif
 #include "internal-callbacks-patch.h"
 
 #define sli_zigbee_stack_is_node_id_valid(nodeId) ((nodeId) < SL_ZIGBEE_DISCOVERY_ACTIVE_NODE_ID)

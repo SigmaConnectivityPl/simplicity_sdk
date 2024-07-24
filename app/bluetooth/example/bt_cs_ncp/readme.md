@@ -1,10 +1,8 @@
 # NCP - CS
 
-This is a Network Co-Processor (NCP) based target application. It serves as a target application for Channel Sounding (CS) applications. The corresponding host sample applications can be found in the following folder: app/bluetooth/example_host/. This application is suitable for the bt_cs_host and the bt_cs_host_initiator_legacy host applications. The NCP integrates the initiator and reflector components, as well as a full-featured NCP. The application can be used as an NCP with the CS component.
+This is a Network Co-Processor (NCP) based target application. It serves as a target application for Channel Sounding (CS) applications. The corresponding host sample application can be found in the following folder: app/bluetooth/example_host/. This application is suitable for the bt_cs_host host application. The NCP - CS integrates the initiator and reflector components, as well as a full-featured NCP. The application can be used as an NCP with the CS component.
 
-In legacy mode, the host application operates as a CS initiator. In this mode, the RTL is active on the host side, and this application acts as a traditional NCP with the CS component active. CS procedure data is transferred via BGAPI.
-
-In normal mode, the distance estimation is performed at the NCP side, and only the measurement results are sent to the host using special CS-specific BGAPI commands. In this mode, the host and the NCP can also act as a reflector.
+The distance estimation is performed at the NCP side, and only the measurement results are sent to the host using special CS-specific BGAPI commands. In this mode, the host and the NCP can also act as a reflector.
 
 ## Getting Started with NCP
 
@@ -28,7 +26,7 @@ All interface related data types are defined in cs_acp.h.
 
 ## Usage
 
-Build and flash the application. Use the "bt_cs_host_initiator_legacy" or the "bt_cs_host" Host sample application to connect to it. In legacy mode, the Host application will scan for a device running the "CS RFLCT" sample application. When found, the initiator will create a connection between them and will start the distance measurement process. The initiator estimates the distance, and display them in the command line terminal.
+Build and flash the application. Use the "bt_cs_host" host sample application to connect to it. The host application will scan for a reflector advertising with the "CS RFLCT" device name. When found, the initiator will create a connection between them and will start the distance measurement process. The initiator estimates the distance, and displays them in the command line terminal.
 
 ## Troubleshooting
 

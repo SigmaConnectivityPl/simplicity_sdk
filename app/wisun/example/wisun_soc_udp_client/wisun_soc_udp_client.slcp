@@ -1,11 +1,14 @@
 project_name: "wisun_soc_udp_client"
-label: "Wi-SUN - SoC UDP Client"
-description: "The Wi-SUN UDP Client sample application provides a simple client implementation based on the UDP protocol.
-The sample application operates with a command-line interface to create, close, read or write sockets.
-The UDP Client leverages the POSIX-like socket component on top of the Wi-SUN stack."
+label: "Wi-SUN - SoC UDP Client - DEPRECATED"
+description: >
+  THIS SAMPLE APPLICATION IS DEPRECATED.
+
+  The Wi-SUN UDP Client sample application provides a simple client implementation based on the UDP protocol.
+  The sample application operates with a command-line interface to create, close, read or write sockets.
+  The UDP Client leverages the POSIX-like socket component on top of the Wi-SUN stack.
 package: "wisun"
 category: "Wi-SUN Examples"
-quality: "production"
+quality: "deprecated"
 
 component:
 # for wisun stack and default components

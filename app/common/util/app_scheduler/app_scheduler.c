@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Application Scheduler source
+ * @brief Scheduler source
  *******************************************************************************
  * # License
- * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -43,13 +43,13 @@
 // -----------------------------------------------------------------------------
 // Definitions
 
-#if APP_SCHEDULER_EAGER_MODE
-#define APP_SCHEDULER_RUN()  while (handle != NULL)
-#define APP_SCHEDULER_NEXT() handle = next_active_task()
-#else // APP_SCHEDULER_EAGER_MODE
+#if APP_SCHEDULER_SINGLE_MODE
 #define APP_SCHEDULER_RUN()  if (handle != NULL)
 #define APP_SCHEDULER_NEXT()
-#endif // APP_SCHEDULER_EAGER_MODE
+#else // APP_SCHEDULER_SINGLE_MODE
+#define APP_SCHEDULER_RUN()  while (handle != NULL)
+#define APP_SCHEDULER_NEXT() handle = next_active_task()
+#endif // APP_SCHEDULER_SINGLE_MODE
 
 // -----------------------------------------------------------------------------
 // Local variables
@@ -61,51 +61,17 @@ static bool run;
 static sl_slist_node_t *queue = NULL;
 
 // -----------------------------------------------------------------------------
-// Function declarations
+// Private function declarations
 
 static app_scheduler_entry_t *next_active_task(void);
 static void timer_callback(app_timer_t *handle,
                            void *data);
-
-// -----------------------------------------------------------------------------
-// Private functions
-
-/***************************************************************************//**
- * Check if the queue is empty
- ******************************************************************************/
-static app_scheduler_entry_t *next_active_task(void)
-{
-  app_scheduler_entry_t *task = NULL;
-  app_scheduler_entry_t *handle;
-
-  // Linear search in the queue for the next triggered task
-  SL_SLIST_FOR_EACH_ENTRY(queue, handle, app_scheduler_entry_t, node) {
-    if (handle->triggered) {
-      // Save the handle
-      task = handle;
-      // Quit the loop
-      break;
-    }
-  }
-
-  return task;
-}
-
-/***************************************************************************//**
- * Timer callback for the scheduler
- ******************************************************************************/
-static void timer_callback(app_timer_t *handle,
-                           void *data)
-{
-  (void)handle;
-  CORE_DECLARE_IRQ_STATE;
-
-  CORE_ENTER_CRITICAL();
-  if (((app_scheduler_entry_t*)data)->triggered == false) {
-    ((app_scheduler_entry_t*)data)->triggered = true;
-  }
-  CORE_EXIT_CRITICAL();
-}
+static sl_status_t add_new_task(app_scheduler_task_t task,
+                                uint32_t timeout_ms,
+                                bool is_periodic,
+                                void *data,
+                                size_t size,
+                                app_scheduler_task_handle_t *handle);
 
 // -----------------------------------------------------------------------------
 // Public functions
@@ -175,7 +141,7 @@ sl_status_t app_scheduler_reschedule(app_scheduler_task_handle_t handle,
 }
 
 /***************************************************************************//**
- * Get the reamining time in ms for a given, scheduled task
+ * Get the remaining time in ms for a given, scheduled task
  ******************************************************************************/
 sl_status_t app_scheduler_get_remaining_time_ms(app_scheduler_task_handle_t handle,
                                                 uint32_t *time_ms)
@@ -240,52 +206,8 @@ sl_status_t app_scheduler_add_periodic(app_scheduler_task_t task,
                                        size_t size,
                                        app_scheduler_task_handle_t *handle)
 {
-  app_scheduler_entry_t *entry = NULL;
-  sl_status_t sc = SL_STATUS_OK;
-
-  CORE_DECLARE_IRQ_STATE;
-
-  // Check queue
-  if (app_scheduler_task_count_get(APP_SCHEDULER_TASK_ALL)
-      >= APP_SCHEDULER_MAX_QUEUE_SIZE) {
-    sc = SL_STATUS_NO_MORE_RESOURCE;
-  }
-
-  // Check parameters - size and period_ms
-  if ( (size > APP_SCHEDULER_MAX_DATA_SIZE) || (period_ms == 0) ) {
-    sc = SL_STATUS_INVALID_PARAMETER;
-  }
-  if (task == NULL) {
-    sc = SL_STATUS_NULL_POINTER;
-  }
-
-  if (sc == SL_STATUS_OK) {
-    CORE_ENTER_CRITICAL();
-    sc = app_scheduler_memory_alloc((app_scheduler_task_handle_t *)&entry);
-    if (sc == SL_STATUS_OK) {
-      entry->task = task;
-      entry->periodic = true;
-      // Copy data
-      memcpy(entry->data, data, size);
-      entry->data_size = size;
-
-      sl_slist_push_back(&queue, &entry->node);
-
-      // Make untriggered
-      entry->triggered = false;
-      // Start periodic timer
-      sc = app_timer_start(&entry->timer_handle,
-                           period_ms,
-                           timer_callback,
-                           (void*)entry,
-                           true);
-      if (handle != NULL) {
-        *handle = (app_scheduler_task_handle_t)entry;
-      }
-    }
-    CORE_EXIT_CRITICAL();
-  }
-
+  sl_status_t sc;
+  sc = add_new_task(task, period_ms, true, data, size, handle);
   return sc;
 }
 
@@ -298,57 +220,8 @@ sl_status_t app_scheduler_add_delayed(app_scheduler_task_t task,
                                       size_t size,
                                       app_scheduler_task_handle_t *handle)
 {
-  app_scheduler_entry_t *entry = NULL;
-  sl_status_t sc = SL_STATUS_OK;
-
-  CORE_DECLARE_IRQ_STATE;
-
-  // Check queue
-  if (app_scheduler_task_count_get(APP_SCHEDULER_TASK_ALL)
-      >= APP_SCHEDULER_MAX_QUEUE_SIZE) {
-    sc = SL_STATUS_NO_MORE_RESOURCE;
-  }
-
-  // Check parameters
-  if (size > APP_SCHEDULER_MAX_DATA_SIZE) {
-    sc = SL_STATUS_INVALID_PARAMETER;
-  }
-  if (task == NULL) {
-    sc = SL_STATUS_NULL_POINTER;
-  }
-
-  if (sc == SL_STATUS_OK) {
-    CORE_ENTER_CRITICAL();
-    sc = app_scheduler_memory_alloc((app_scheduler_task_handle_t *)&entry);
-    if (sc == SL_STATUS_OK) {
-      entry->task = task;
-      entry->periodic = false;
-      // Copy data
-      memcpy(entry->data, data, size);
-      entry->data_size = size;
-
-      sl_slist_push_back(&queue, &entry->node);
-
-      if (delay_ms == 0) {
-        // Make triggered
-        entry->triggered = true;
-      } else {
-        // Make untriggered
-        entry->triggered = false;
-        // Start timer
-        sc = app_timer_start(&entry->timer_handle,
-                             delay_ms,
-                             timer_callback,
-                             (void*)entry,
-                             false);
-        if (handle != NULL) {
-          *handle = (app_scheduler_task_handle_t)entry;
-        }
-      }
-    }
-    CORE_EXIT_CRITICAL();
-  }
-
+  sl_status_t sc;
+  sc = add_new_task(task, delay_ms, false, data, size, handle);
   return sc;
 }
 
@@ -361,11 +234,7 @@ sl_status_t app_scheduler_add(app_scheduler_task_t task,
                               app_scheduler_task_handle_t *handle)
 {
   sl_status_t sc;
-  sc = app_scheduler_add_delayed(task,
-                                 0,
-                                 data,
-                                 size,
-                                 handle);
+  sc = add_new_task(task, 0, false, data, size, handle);
   return sc;
 }
 
@@ -426,7 +295,7 @@ uint32_t app_scheduler_foreach_task(app_scheduler_operation_t operation)
 }
 
 /******************************************************************************
-* Application Scheduler init
+* Scheduler init
 ******************************************************************************/
 void app_scheduler_init(void)
 {
@@ -435,23 +304,19 @@ void app_scheduler_init(void)
 }
 
 /******************************************************************************
-* Application Scheduler pause
+* Scheduler pause
 ******************************************************************************/
 void app_scheduler_pause(void)
 {
-  CORE_CRITICAL_SECTION(
-    run = false;
-    );
+  run = false;
 }
 
 /******************************************************************************
-* Application Scheduler resume
+* Scheduler resume
 ******************************************************************************/
 void app_scheduler_resume(void)
 {
-  CORE_CRITICAL_SECTION(
-    run = true;
-    );
+  run = true;
 }
 
 /***************************************************************************//**
@@ -510,4 +375,119 @@ bool app_scheduler_is_ok_to_sleep(void)
     ret = false;
   }
   return ret;
+}
+
+// -----------------------------------------------------------------------------
+// Private function definitions
+
+/***************************************************************************//**
+ * Check if the queue is empty
+ ******************************************************************************/
+static app_scheduler_entry_t *next_active_task(void)
+{
+  app_scheduler_entry_t *task = NULL;
+  app_scheduler_entry_t *handle;
+
+  // Linear search in the queue for the next triggered task
+  SL_SLIST_FOR_EACH_ENTRY(queue, handle, app_scheduler_entry_t, node) {
+    if (handle->triggered) {
+      // Save the handle
+      task = handle;
+      // Quit the loop
+      break;
+    }
+  }
+
+  return task;
+}
+
+/***************************************************************************//**
+ * Timer callback for the scheduler
+ ******************************************************************************/
+static void timer_callback(app_timer_t *handle,
+                           void *data)
+{
+  (void)handle;
+  CORE_DECLARE_IRQ_STATE;
+
+  CORE_ENTER_CRITICAL();
+  if (((app_scheduler_entry_t*)data)->triggered == false) {
+    ((app_scheduler_entry_t*)data)->triggered = true;
+  }
+  CORE_EXIT_CRITICAL();
+}
+
+/***************************************************************************//**
+ * Add a task to be scheduled with optional data parameter
+ ******************************************************************************/
+static sl_status_t add_new_task(app_scheduler_task_t task,
+                                uint32_t timeout_ms,
+                                bool is_periodic,
+                                void *data,
+                                size_t size,
+                                app_scheduler_task_handle_t *handle)
+{
+  app_scheduler_entry_t *entry = NULL;
+  sl_status_t sc = SL_STATUS_OK;
+
+  CORE_DECLARE_IRQ_STATE;
+
+  // Check queue
+  if (app_scheduler_task_count_get(APP_SCHEDULER_TASK_ALL)
+      >= APP_SCHEDULER_MAX_QUEUE_SIZE) {
+    sc = SL_STATUS_NO_MORE_RESOURCE;
+  }
+
+  // Check parameters
+  if (size > APP_SCHEDULER_MAX_DATA_SIZE) {
+    sc = SL_STATUS_INVALID_PARAMETER;
+  }
+  if (is_periodic && timeout_ms == 0) {
+    sc = SL_STATUS_INVALID_PARAMETER;
+  }
+  if (task == NULL) {
+    sc = SL_STATUS_NULL_POINTER;
+  }
+
+  if (sc == SL_STATUS_OK) {
+    CORE_ENTER_CRITICAL();
+    sc = app_scheduler_memory_alloc((app_scheduler_task_handle_t *)&entry);
+    if (sc == SL_STATUS_OK) {
+      entry->task = task;
+      entry->periodic = is_periodic;
+      // Copy data
+      memcpy(entry->data, data, size);
+      entry->data_size = size;
+
+      sl_slist_push_back(&queue, &entry->node);
+
+      if (timeout_ms == 0) {
+        // Make triggered
+        entry->triggered = true;
+        entry->timer_handle.timeout_ms = 0;
+      } else {
+        // Make untriggered
+        entry->triggered = false;
+        // Start timer
+        sc = app_timer_start(&entry->timer_handle,
+                             timeout_ms,
+                             timer_callback,
+                             (void*)entry,
+                             is_periodic);
+        if (sc != SL_STATUS_OK) {
+          // Remove from list
+          sl_slist_remove(&queue, &entry->node);
+          // Free up memory
+          (void)app_scheduler_memory_free((app_scheduler_task_handle_t)entry);
+        }
+      }
+
+      if (sc == SL_STATUS_OK && handle != NULL) {
+        *handle = (app_scheduler_task_handle_t)entry;
+      }
+    }
+    CORE_EXIT_CRITICAL();
+  }
+
+  return sc;
 }

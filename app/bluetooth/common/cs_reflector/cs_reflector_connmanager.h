@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS reflector connection manager (RCM)
+ * @brief CS Reflector connection manager (RCM)
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -31,8 +31,14 @@
 #ifndef CS_REFLECTOR_CONNMANAGER_H
 #define CS_REFLECTOR_CONNMANAGER_H
 
+/***********************************************************************************************//**
+ * @addtogroup cs_reflector
+ * @{
+ **************************************************************************************************/
+
 #include <stdint.h>
 #include <stdbool.h>
+#include "sl_status.h"
 
 // Connection context
 typedef struct {
@@ -61,16 +67,14 @@ connection_ctx_t *cs_rcm_get_connection_ctx(const uint8_t conn_handle);
  *
  * @param[in] conn_handle the connection handle to register
  *
- * @return true if registration was successful, false otherwise
+ * @return status of the operation
  *****************************************************************************/
-bool cs_rcm_add_new_initiator_connection(const uint8_t conn_handle);
+sl_status_t cs_rcm_add_new_initiator_connection(const uint8_t conn_handle);
 
 /**************************************************************************//**
  * Remove an initiator connection with the provided handle.
  *
  * @param[in] conn_handle the connection handle to remove
- *
- * @return true if removal was successful, false otherwise
  *****************************************************************************/
 void cs_rcm_remove_initiator_connection(const uint8_t conn_handle);
 
@@ -86,6 +90,7 @@ bool cs_rcm_can_accept_new_connection(void);
  *
  * @return the number of active connections
  *****************************************************************************/
-uint32_t cs_rcm_get_number_of_connections(void);
+uint8_t cs_rcm_get_number_of_connections(void);
 
+/** @} (end addtogroup cs_reflector) */
 #endif // CS_REFLECTOR_CONNMANAGER_H

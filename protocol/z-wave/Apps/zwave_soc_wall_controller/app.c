@@ -30,6 +30,10 @@
 #include "ZAF_PrintAppInfo.h"
 #endif
 
+#ifdef SL_CATALOG_ZW_CLI_COMMON_PRESENT
+#include "zw_cli_common.h"
+#endif
+
 typedef enum {
   KEY01,
   KEY02,
@@ -357,4 +361,8 @@ zaf_event_distributor_app_event_manager(const uint8_t event)
       // Do nothing.
       break;
   }
+
+#ifdef SL_CATALOG_ZW_CLI_COMMON_PRESENT
+  cli_log_system_events(event);
+#endif
 }

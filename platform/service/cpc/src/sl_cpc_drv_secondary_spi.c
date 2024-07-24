@@ -1992,7 +1992,7 @@ static void end_of_header_xfer(void)
     } else {
       SL_CPC_JOURNAL_RECORD_DEBUG("[DRV] Invalid header checksum, discarding payload.", __LINE__);
       SL_CPC_JOURNAL_RECORD_DEBUG("[DRV] Invalid header[63:32]", (uint32_t)(header_buffer >> 32));
-      SL_CPC_JOURNAL_RECORD_DEBUG("[DRV] Invalid header[31:0]", (uint32_t)(header_buffer & 0xFFFF));
+      SL_CPC_JOURNAL_RECORD_DEBUG("[DRV] Invalid header[31:0]", (uint32_t)(header_buffer & 0xFFFFFFFF));
     }
   }
 
@@ -2067,6 +2067,19 @@ static bool end_of_payload_xfer(void)
     // from the interrupt, the next header interrupt would be lost. Return true so that the higher callback can
     // call directly the header interrupt routine.
     SL_CPC_JOURNAL_RECORD_DEBUG("[DRV] Received header before previous RX'd frame was processed (could indicate high IRQ latency, or a quick primary).", __LINE__);
+
+    // Make sure to clear the DMA IRQ flag here. If the header arrived during the
+    // execution of the handler, the IRQ flag will be set from the RX header descriptor
+    // completing. If this happens, the handler will execute once more as though
+    // a payload was received, when in fact it was the header that caused the flag
+    // to be set. In other words, in order to avoid IRQ handler re-entry and an
+    // eventual de-sync, make sure we clear the IRQ flag, because the header
+    // reception has already been handled.
+    #if defined (LDMA_HAS_SET_CLEAR)
+    LDMA->IF_CLR = (1 << rx_dma_channel);
+    #else
+    LDMA->IFC = (1 << rx_dma_channel);
+    #endif
     return true;
   } else {
     return false;

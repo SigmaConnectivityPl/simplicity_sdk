@@ -5,6 +5,9 @@ description: >
   This module allows you to create instances of the USB Vendor class.
 package: usb
 quality: production
+metadata:
+  sbom:
+    license: MSLA
 instantiable:
   prefix: vendor
 component_root_path: protocol/usb

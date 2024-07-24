@@ -16,6 +16,9 @@ description: >
   should be included in the project.
 category: Services|NVM3
 quality: "production"
+metadata:
+  sbom:
+    license: Zlib
 source:
   - path: "platform/emdrv/nvm3/src/nvm3_hal_flash.c"
     condition: [device_series_2]

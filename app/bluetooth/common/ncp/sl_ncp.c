@@ -48,6 +48,7 @@
 #if defined(SL_CATALOG_GECKO_BOOTLOADER_INTERFACE_PRESENT)
 #include "btl_interface.h"
 #endif // SL_CATALOG_GECKO_BOOTLOADER_INTERFACE_PRESENT
+extern void sli_simple_com_cancel_receive(void);
 
 // Command buffer
 typedef struct {
@@ -103,7 +104,8 @@ static inline void evt_clr_available(void);
 
 // Timer handle and callback for command timeout.
 static app_timer_t cmd_timer;
-static void cmd_timer_cb(app_timer_t *timer, void *data);
+static void cmd_timer_cb1(app_timer_t *timer, void *data);
+static void cmd_timer_cb2(app_timer_t *timer, void *data);
 
 #if defined(SL_CATALOG_WAKE_LOCK_PRESENT)
 static inline bool sleep_signal_mask_is_set(void);
@@ -596,8 +598,8 @@ static void cmd_enqueue(uint16_t len, uint8_t *data)
     // Start timer used for max waiting time of fragmented packets.
     sc = app_timer_start(&cmd_timer,
                          SL_NCP_CMD_TIMEOUT_MS,
-                         cmd_timer_cb,
-                         NULL,
+                         cmd_timer_cb1, // first timeout will try finish the command from buffer
+                         (void *)cmd_timer_cb2, // pass the emergency cb as parameter that will respond SL_STATUS_INCOMPLETE, otherwise
                          false);
     app_assert_status(sc);
   }
@@ -649,15 +651,50 @@ static void evt_dequeue(void)
 // -----------------------------------------------------------------------------
 // Timer callback function
 
-static void cmd_timer_cb(app_timer_t *timer, void *data)
+static void cmd_timer_cb1(app_timer_t *timer, void *data)
+{
+  // Try cancel receive first...
+  sli_simple_com_cancel_receive();
+  // Restart timer once more to wait for the packet to be finished from buffer
+  (void)app_timer_start(timer,
+                        SL_NCP_CMD_TIMEOUT_MS,
+                        (app_timer_callback_t)data,
+                        NULL,
+                        false);
+}
+
+static void cmd_timer_cb2(app_timer_t *timer, void *data)
 {
   (void)data;
   (void)timer;
+  uint8_t rsp_buf[SL_BGAPI_MSG_HEADER_LEN + SL_BGAPI_MSG_ERROR_PAYLOAD_LEN] = { 0 };
+  sl_bt_msg_t *response = (sl_bt_msg_t *)rsp_buf;
+  uint32_t cmd_hdr;
 
   // Signal the other end that the command was received only partially
+  while (cmd.len < sizeof(cmd_hdr)) {
+    cmd.buf[cmd.len++] = 0;
+  }
   // then clean buffer. The timer is already stopped.
-  sl_bt_send_system_error(SL_STATUS_COMMAND_INCOMPLETE, 0, NULL);
+  memcpy(&cmd_hdr, cmd.buf, sizeof(cmd_hdr));
+  // Prepare the response for the other end that the command was received
+  // only partially then send the response. The timer is already stopped.
+  sl_bgapi_set_error_response(cmd_hdr,
+                              (uint16_t) SL_STATUS_COMMAND_INCOMPLETE,
+                              &rsp_buf,
+                              sizeof(rsp_buf));
+
   cmd_dequeue();
+#if defined(SL_CATALOG_NCP_SEC_PRESENT)
+  response = sl_ncp_sec_process_response(response, SL_BT_MSG_ENCRYPTED(cmd_hdr));
+#endif
+  busy = true;
+#if defined(SL_CATALOG_WAKE_LOCK_PRESENT)
+  // Wake up other controller
+  sl_wake_lock_set_remote_req();
+#endif // SL_CATALOG_WAKE_LOCK_PRESENT
+  // Transmit command error response
+  sl_simple_com_transmit((uint32_t)(MSG_GET_LEN(response)), rsp_buf);
 }
 
 // -----------------------------------------------------------------------------

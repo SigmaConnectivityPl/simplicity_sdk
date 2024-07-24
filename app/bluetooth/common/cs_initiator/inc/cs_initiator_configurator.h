@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS initiator configurator API
+ * @brief CS Initiator configurator API
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -37,6 +37,7 @@
 #include <stdbool.h>
 #include "sl_bt_api.h"
 #include "sl_rtl_clib_api.h"
+#include "sl_enum.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -76,13 +77,6 @@ typedef int8_t cs_tx_power_t;
 // PHY type
 typedef sl_bt_gap_phy_coding_t cs_phy_t;
 
-// UI modes enumerator
-typedef enum {
-  CS_INITIATOR_MODE_DYNAMIC = 0,
-  CS_INITIATOR_MODE_RTT = sl_bt_cs_mode_rtt,
-  CS_INITIATOR_MODE_PBR = sl_bt_cs_mode_pbr
-} cs_initiator_mode_t;
-
 // Discovery state enumerator
 typedef enum {
   CS_DISCOVERY_STATE_IDLE,
@@ -100,7 +94,13 @@ typedef struct {
   uint8_t cs_bit_error_rate;            ///< CS bit error rate
 } cs_result_t;
 
-typedef enum {
+// RTL library intermediate result type
+typedef struct {
+  uint8_t connection;                   ///< Connection handle
+  float progress_percentage;            ///< Progress in percentages
+} cs_intermediate_result_t;
+
+SL_ENUM(cs_error_event_t) {
   CS_ERROR_EVENT_UNHANDLED,
   CS_ERROR_EVENT_TIMER_HANDLE_NULL_REFERENCE,
   CS_ERROR_EVENT_TIMER_START_ERROR,
@@ -118,9 +118,13 @@ typedef enum {
   CS_ERROR_EVENT_CS_PROCEDURE_SET_STARTTIME_FAILED,
   CS_ERROR_EVENT_CS_PROCEDURE_ENABLE_FAILED,
   CS_ERROR_EVENT_CS_PROCEDURE_START_FAILED,
-  CS_ERROR_EVENT_CS_PROCEDURE_RESTART_FAILED,
+  CS_ERROR_EVENT_CS_PROCEDURE_START_TIMER_FAILED,
+  CS_ERROR_EVENT_CS_PROCEDURE_STOP_TIMER_FAILED,
   CS_ERROR_EVENT_CS_PROCEDURE_STOP_FAILED,
+  CS_ERROR_EVENT_CS_PROCEDURE_UNEXPECTED_DATA,
   CS_ERROR_EVENT_CS_PROCEDURE_COMPLETE_FAILED,
+  CS_ERROR_EVENT_CS_PROCEDURE_COMPLETE_MISSING_INITIATOR_COMPLETE,
+  CS_ERROR_EVENT_CS_PROCEDURE_COUNTER_MISMATCH,
   CS_ERROR_EVENT_INITIATOR_INSTANCE_NULL,
   CS_ERROR_EVENT_INITIATOR_INSTANCE_SLOTS_FULL,
   CS_ERROR_EVENT_INITIATOR_FAILED_TO_SET_DEFAULT_CS_SETTINGS,
@@ -131,8 +135,16 @@ typedef enum {
   CS_ERROR_EVENT_INITIATOR_CHANNEL_MAP_TOO_FEW_CHANNELS,
   CS_ERROR_EVENT_INITIATOR_CHANNEL_MAP_TOO_MANY_CHANNELS,
   CS_ERROR_EVENT_INITIATOR_FAILED_TO_SET_CONNECTION_PARAMETERS,
-  CS_ERROR_EVENT_FILE_LOGGER_INIT_FAILED
-} cs_error_event_t;
+  CS_ERROR_EVENT_FILE_LOGGER_INIT_FAILED,
+  CS_ERROR_EVENT_STATE_MACHINE_FAILED,
+  CS_ERROR_EVENT_INIT_FAILED,
+  CS_ERROR_EVENT_INITIATOR_FAILED_TO_DELETE_INSTANCE,
+  CS_ERROR_EVENT_INITIATOR_FAILED_TO_FINALIZE_CLEANUP,
+  CS_ERROR_EVENT_STEP_DATA_EXCEEDS_MAX,
+  CS_ERROR_EVENT_SUBEVENT_INDEX_EXCEEDS_MAX,
+  CS_ERROR_EVENT_RTL_ERROR,
+  CS_ERROR_EVENT_RTL_PROCESS_ERROR
+};
 
 typedef PACKSTRUCT (struct {
   uint8_t phy;
@@ -153,14 +165,9 @@ typedef PACKSTRUCT (struct {
   uint8_t config_id;
   uint8_t preferred_peer_antenna;
   uint8_t create_context;
-  bool rssi_measurement_enabled;
   int8_t tx_pwr_delta;
   int8_t max_tx_power_dbm;
-  cs_tx_power_t tx_power_max_dbm;
-  cs_tx_power_t tx_power_min_dbm;
-  cs_tx_power_t tx_power_requested_max_dbm;
-  cs_tx_power_t tx_power_requested_min_dbm;
-  float rssi_tx_power;
+  float rssi_ref_tx_power;
   uint32_t min_subevent_len;
   uint32_t max_subevent_len;
   uint16_t min_connection_interval;
@@ -177,12 +184,11 @@ typedef PACKSTRUCT (struct {
   uint32_t channel_map_len;
   uint8_t snr_control_initiator;
   uint8_t snr_control_reflector;
-  bool use_moving_object_tracking;
 }) cs_initiator_config_t;
 
 typedef PACKSTRUCT (struct {
   uint8_t algo_mode;
-  struct sl_rtl_cs_parameters cs_parameters;
+  sl_rtl_cs_params cs_parameters;
   bool rtl_logging_enabled;
 }) rtl_config_t;
 

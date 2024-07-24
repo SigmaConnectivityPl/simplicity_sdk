@@ -110,14 +110,18 @@ u3c_db_operation_result CC_UserCredential_get_credential(
   );
 
 /**
- * Finds the first or next available Credential entry for a given User.
- * Set both credential_type and credential_slot to 0 to get the first available
- * Credential for a User.
+ * Finds the first or next available Credential entry for a given User or
+ * Credential Type (set either one of these parameters to 0 to disable
+ * filtering by that property).
+ * Set credential_slot to 0 to get the first available Credential matching the
+ * filter criteria.
  *
  * @param[in] user_unique_identifier Unique Identifier of the Credential's
  *                                   associated User (0 matches any UUID)
- * @param[in] credential_type Type of the current Credential
- * @param[in] credential_slot Slot of the current Credential
+ * @param[in] credential_type Type of the current Credential (0 matches any
+ *                            Credential Type)
+ * @param[in] credential_slot Slot of the current Credential (0 to get the first
+ *                            available Credential)
  * @param[out] next_credential_type Type of the next available Credential, if
  *                                  available
  * @param[out] next_credential_slot Slot of the next available Credential, if

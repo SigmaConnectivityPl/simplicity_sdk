@@ -1,10 +1,10 @@
 id: cs_reflector
 package: Bluetooth
-label: CS reflector component
+label: CS Reflector
 description: >
-  CS reflector role implementation for all BLE Channel Sounding apps
+  Channel Sounding (CS) Reflector role implementation for all BLE Channel Sounding apps.
 category: Bluetooth|Application|Miscellaneous
-quality: experimental
+quality: evaluation
 root_path: app/bluetooth/common/cs_reflector
 include:
   - path: .
@@ -26,7 +26,6 @@ requires:
   - name: app_log
   - name: app_assert
   - name: bluetooth_stack
-  - name: bluetooth_feature_power_control
   - name: bluetooth_feature_connection
   - name: bluetooth_feature_legacy_advertiser
   - name: bluetooth_feature_extended_advertiser
@@ -34,7 +33,6 @@ requires:
   - name: bluetooth_feature_gatt
   - name: power_manager
   - name: bluetooth_feature_cs
-  - name: bluetooth_feature_cs_test
   - name: cs_ras
 provides:
   - name: cs_reflector
@@ -53,3 +51,6 @@ template_contribution:
       function: cs_reflector_on_bt_event
     unless:
       - ncp
+documentation:
+  docset: bluetooth
+  document: bluetooth-service-api/cs-reflector

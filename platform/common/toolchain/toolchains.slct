@@ -91,6 +91,14 @@ schema:
     enum:
       - enabled
       - disabled
+  compiler_option:
+    type: str
+  c_compiler_option:
+    type: str
+  c++_compiler_option:
+    type: str
+  linker_option:
+    type: str
 exporter:
   - exporter_id: simplicity_studio
     setting:
@@ -478,3 +486,23 @@ exporter:
             action: append
             value: "-flto"
         disabled: []
+      compiler_option:
+        - tool: compiler
+          option: misc
+          action: append
+          value: "{{value}}"
+      c_compiler_option:
+        - tool: compiler.c
+          option: misc
+          action: append
+          value: "{{value}}"
+      c++_compiler_option:
+        - tool: compiler.cpp
+          option: misc
+          action: append
+          value: "{{value}}"
+      linker_option:
+        - tool: linker
+          option: misc
+          action: append
+          value: "{{value}}"

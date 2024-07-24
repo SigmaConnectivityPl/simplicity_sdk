@@ -40,6 +40,7 @@ extern "C" {
 #include "sl_component_catalog.h"
 
 #ifdef SL_CATALOG_ZW_CLI_COMMON_PRESENT
+#include "zw_cli_common.h"
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------

@@ -536,6 +536,7 @@ sl_status_t sl_memory_free(void *block)
   sli_block_metadata_t *current_metadata = (sli_block_metadata_t *)((uint8_t *)block - SLI_BLOCK_METADATA_SIZE_BYTE);
   // Ensure the block being freed was in use with a valid length.
   if (current_metadata->block_in_use == 0 || current_metadata->length == 0) {
+    CORE_EXIT_ATOMIC();
     return SL_STATUS_FAIL;
   }
 
@@ -1087,10 +1088,12 @@ size_t sl_memory_get_used_heap_size(void)
 size_t sl_memory_get_heap_high_watermark(void)
 {
   size_t heap_high_watermark_value = 0;
+
   CORE_DECLARE_IRQ_STATE;
   CORE_ENTER_ATOMIC();
   heap_high_watermark_value = heap_high_watermark;
   CORE_EXIT_ATOMIC();
+
   return heap_high_watermark_value;
 }
 

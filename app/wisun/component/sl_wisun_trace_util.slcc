@@ -6,7 +6,13 @@ category: "Wi-SUN|Application"
 quality: "production"
 metadata:
   sbom:
-    license: Zlib
+    license: Zlib AND Apache-2.0
+    upstream:
+      name: Nanostack
+      version: 14.0.0
+      supplier: Pelion and affiliates
+      url: https://github.com/ARMmbed/mbed-os/tree/9957e7b4ae4315e6d1d2bc064c469e69fb34ff78/features/nanostack
+
 root_path: "app/wisun/component/trace_util"
 provides:
   - name: sl_wisun_trace_util

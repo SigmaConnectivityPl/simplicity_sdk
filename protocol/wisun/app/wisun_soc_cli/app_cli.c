@@ -928,7 +928,7 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
     }
   }
 
-  ret = sl_wisun_set_tx_power(app_settings_wisun.tx_power);
+  ret = sl_wisun_set_tx_power_ddbm((int16_t)app_settings_wisun.tx_power * 10);
   if (ret != SL_STATUS_OK) {
     printf("[Failed: unable to set TX power: %lu]\r\n", ret);
     goto cleanup;

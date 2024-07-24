@@ -4,12 +4,7 @@ The sample application OpenThread BLE DMP – SoC Free RTOS is a test applicatio
 
 The term 'dynamic' in DMP refers to the fact that both protocols are operating simultaneously. The radio scheduler takes care of multiplexing the transmitted and received packets over the radio. For more information on how the radio scheduler works, see *UG305: Dynamic Multiprotocol User’s Guide*.
 
-This document assumes that you have installed Simplicity Studio 5 (SSv5) and Gecko SDK Suite (GSDK) containing the OpenThread and Bluetooth SDKs, and that you are familiar with SSv5 and configuring, building, and flashing applications. If not, see *QSG170: Silicon Labs OpenThread Quick Start Guide*.
-
-Pre-compiled demo application images are provided with the Gecko SDK Suite, compatible with:
-
-- brd4180a
-- brd2703a
+This document assumes that you have installed Simplicity Studio 5 (SSv5) and the Simplicity SDK Suite (SiSDK) containing the OpenThread and Bluetooth SDKs, and that you are familiar with SSv5 and configuring, building, and flashing applications. If not, see *QSG170: Silicon Labs OpenThread Quick Start Guide*.
 
 To get started quickly, in the SSv5 Launcher Perspective go to the DEMOS tab. Find the **OpenThread BLE DMP - SoC FreeRTOS** demo and click RUN. This uploads the application image to your board.
 
@@ -20,7 +15,7 @@ To get started quickly, in the SSv5 Launcher Perspective go to the DEMOS tab. Fi
 
 ## Building the Sample App
 
-To build the ot-ble-dmp sample app from source you must have installed SSv5 and the GSDK. The GNU ARM toolchain is installed with SSv5. The IAR-EWARM toolchain is not compatible with OpenThread.
+To build the ot-ble-dmp sample app from source you must have installed SSv5 and the SiSDK. The GNU ARM toolchain is installed with SSv5. The IAR-EWARM toolchain is not compatible with OpenThread.
 
 1. With your target development hardware connected, open SSv5’s File menu and select New > Silicon Labs Project Wizard. The Target, SDK, and Toolchain Selection dialog opens. Your target hardware should be populated. Click NEXT.
 
@@ -158,8 +153,8 @@ You must include these components in any project to add OpenThread and Bluetooth
 When the FreeRTOS component is added to a project, the underlying software automatically adds adaptation layers necessary to run the OpenThread and Bluetooth stacks over FreeRTOS. The adaptation files for OpenThread and Bluetooth are located in the following Simplicity Studio 5 locations:
 
 ```
-developer/sdks/gecko_sdk_suite/<version>/protocol/openthread/platform-abstraction/rtos/sl_ot_rtos_adaptation.c
-developer/sdks/gecko_sdk_suite/<version>/protocol/bluetooth/src/sl_bt_rtos_adaptation.c
+<sisdk install dir>/protocol/openthread/platform-abstraction/rtos/sl_ot_rtos_adaptation.c
+<sisdk install dir>/protocol/bluetooth/src/sl_bt_rtos_adaptation.c
 ```
 
 The three application source files for this project (the only source files that

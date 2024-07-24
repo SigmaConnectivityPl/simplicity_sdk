@@ -1,15 +1,16 @@
 project_name: bt_cs_ncp
 package: Bluetooth
-label: Bluetooth - NCP for Channel Sounding
+label: Bluetooth - NCP CS
 description: >
-  Network Co-Processor (NCP) target application for Channel Sounding.
+  Network Co-Processor (NCP) target application for Channel Sounding (CS).
   Runs the Bluetooth stack and provides access to it by exposing the
-  Bluetooth API (BGAPI) via UART connection. Addition to the standard
-  NCP features, it listens to HADM specific user messages, and executes
-  them. This application also features a CS Initiator with RTL and reflector.
-  In case of brd4406a it uses custom BGAPI message for antenna switching.
+  Bluetooth API (BGAPI) via UART connection. In addition to the standard
+  NCP features, it listens to Channel Sounding specific user messages,
+  and executes them. This application also features a CS Initiator with
+  Real Time Locating (RTL) library and a CS Reflector device role that can
+  be instantiated or deleted with the CS specific user messages.
 category: Bluetooth Examples
-quality: experimental
+quality: evaluation
 
 filter:
   - name: "Wireless Technology"
@@ -38,7 +39,6 @@ component:
   - id: bluetooth_feature_dynamic_gattdb
   - id: bluetooth_feature_test
   - id: bluetooth_feature_cs
-  - id: bluetooth_feature_cs_test
   - id: ncp
   - id: uartdrv_usart
     instance:
@@ -85,6 +85,12 @@ configuration:
   - name: SL_BT_CONFIG_BUFFER_SIZE
     value: 10000
   - name: SL_BT_CONFIG_USER_ADVERTISERS
+    value: 4
+  - name: SL_BT_CONFIG_MAX_CONNECTIONS
+    value: 4
+  - name: CS_INITIATOR_MAX_CONNECTIONS
+    value: 4
+  - name: SL_BT_CONFIG_MAX_CS_PROCEDURES
     value: 4
   - name: SL_BOARD_ENABLE_VCOM
     value: 1

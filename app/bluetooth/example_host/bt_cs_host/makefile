@@ -22,7 +22,6 @@ include $(SDK_DIR)/app/bluetooth/component_host/app_timer.mk
 include $(SDK_DIR)/app/bluetooth/component_host/memory_manager.mk
 include $(SDK_DIR)/app/bluetooth/component_host/ncp_gatt.mk
 include $(SDK_DIR)/app/bluetooth/component_host/ncp_host_bt.mk
-include $(SDK_DIR)/app/bluetooth/component_host/ncp_reset.mk
 include $(SDK_DIR)/app/bluetooth/component_host/ncp_version.mk
 include $(SDK_DIR)/app/bluetooth/component_host/ble_peer_manager_common.mk
 include $(SDK_DIR)/app/bluetooth/component_host/ble_peer_manager_central.mk
@@ -40,7 +39,7 @@ include $(SDK_DIR)/app/bluetooth/component_host/cs_log.mk
 override INCLUDEPATHS += . \
 $(SDK_DIR)/app/bluetooth/common_host/system \
 $(SDK_DIR)/app/bluetooth/common/cs_acp \
-$(SDK_DIR)/util/silicon_labs/aox/inc \
+$(SDK_DIR)/util/silicon_labs/rtl/inc \
 $(SDK_DIR)/platform/common/inc \
 $(SDK_DIR)/protocol/bluetooth/inc \
 $(SDK_DIR)/protocol/bluetooth/bglib \

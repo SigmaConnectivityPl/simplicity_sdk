@@ -30,22 +30,42 @@
 #ifndef BLE_PEER_MANAGER_COMMON_CONFIG_H
 #define BLE_PEER_MANAGER_COMMON_CONFIG_H
 
+/***********************************************************************************************//**
+ * @addtogroup ble_peer_manager_common
+ * @{
+ **************************************************************************************************/
+
 // <<< Use Configuration Wizard in Context Menu >>>
 
-// <q BLE_PEER_MANAGER_COMMON_LOG> Log
+// <e BLE_PEER_MANAGER_COMMON_LOG> Log
 // <i> Should the module log or not.
 // <i> Default: 0
+#ifndef BLE_PEER_MANAGER_COMMON_LOG
 #define BLE_PEER_MANAGER_COMMON_LOG                          0
+#endif
+
+// <s BLE_PEER_MANAGER_COMMON_LOG_PREFIX> Log prefix
+// <i> Default: "[PM] "
+#ifndef BLE_PEER_MANAGER_COMMON_LOG_PREFIX
+#define BLE_PEER_MANAGER_COMMON_LOG_PREFIX                   "[PM]"
+#endif
+
+// </e>
 
 // <o BLE_PEER_MANAGER_COMMON_MAX_ALLOWED_CONN_COUNT> Max connections <0..32>
 // <i> This value should be less than or equal to SL_BT_CONFIG_MAX_CONNECTIONS
 // <i> Default: 4
+#ifndef BLE_PEER_MANAGER_COMMON_MAX_ALLOWED_CONN_COUNT
 #define BLE_PEER_MANAGER_COMMON_MAX_ALLOWED_CONN_COUNT       4
+#endif
 
 // <o BLE_PEER_MANAGER_COMMON_TIMEOUT_GATT_MS> GATT timeout <0..10000>
 // <i> Default: 10000
+#ifndef BLE_PEER_MANAGER_COMMON_TIMEOUT_GATT_MS
 #define BLE_PEER_MANAGER_COMMON_TIMEOUT_GATT_MS              10000
+#endif
 
 // <<< end of configuration section >>>
 
+/** @} (end addtogroup ble_peer_manager_common) */
 #endif // BLE_PEER_MANAGER_COMMON_CONFIG_H

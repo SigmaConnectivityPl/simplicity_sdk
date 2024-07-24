@@ -77,7 +77,7 @@ void cli_send_central_scene_key(sl_cli_command_arg_t *arguments)
   app_log_info("Send Central Scene Command: Key %d %s\r\n", key, key_action);
   enum EVENT_APP_WALL_CONTROLLER event = EVENT_EMPTY;
 
-  if ((key > 3)) {
+  if ((key > 3) || (key < 1)) {
     app_log_error("Invalid key number\r\n");
   }
   if (!isKeyPressed(key_action) && !isKeyReleased(key_action) && !isKeyHold(key_action)) {

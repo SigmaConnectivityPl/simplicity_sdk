@@ -22,7 +22,7 @@
     <properties key="solutionReferenceId" value="protocol.z-wave.workspaces.series2.zwave_ncp_serial_api_end_device_otw.slcw"/>
     <properties key="projectFilePaths" value="workspaces/series2/zwave_ncp_serial_api_end_device_otw.slcw"/>
     <properties key="readmeFiles" value=""/>
-    <properties key="boardCompatibility" value="brd4204a brd4204b brd4204c brd4204d brd4205a brd4205b brd4210a brd4400b brd4400c brd4401b brd4401c com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2603a brd2705a brd4204a brd4204b brd4204c brd4204d brd4205a brd4205b brd4210a brd4400b brd4400c brd4401b brd4401c com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32zg23.* .*efr32zg28.* .*zgm23.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
@@ -197,7 +197,7 @@
     <properties key="solutionReferenceId" value="protocol.z-wave.Apps.zwave_ncp_serial_api.zwave_ncp_serial_api_end_device.slcp"/>
     <properties key="projectFilePaths" value="Apps/zwave_ncp_serial_api/zwave_ncp_serial_api_end_device.slcp"/>
     <properties key="readmeFiles" value=""/>
-    <properties key="boardCompatibility" value="brd4204a brd4204b brd4204c brd4204d brd4205a brd4205b brd4210a brd4400b brd4400c brd4401b brd4401c com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2603a brd2705a brd4204a brd4204b brd4204c brd4204d brd4205a brd4205b brd4210a brd4400b brd4400c brd4401b brd4401c com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32zg23.* .*efr32zg28.* .*zgm23.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake generic-template"/>
     <properties key="toolchainCompatibility" value="gcc"/>

@@ -91,7 +91,7 @@ RAIL_Status_t RAIL_GetVersion(RAIL_Version_t *version, bool verbose);
  * RAIL internally provides one statically-allocated RAM state buffer
  * for a single protocol and two for dynamic multiprotocol. If your
  * application needs more, they can be provided via \ref
- * RAIL_AddStateBuffer3() or RAIL_AddStateBuffer4(), which use
+ * RAIL_AddStateBuffer3() or \ref RAIL_AddStateBuffer4(), which use
  * internal buffers, or the more general \ref RAIL_AddStateBuffer().
  *
  * This symbol is WEAK in the RAIL library in case an application wants
@@ -3700,6 +3700,29 @@ RAIL_Status_t RAIL_ScheduleRx(RAIL_Handle_t railHandle,
                               uint16_t channel,
                               const RAIL_ScheduleRxConfig_t *cfg,
                               const RAIL_SchedulerInfo_t *schedulerInfo);
+
+/**
+ * Enable automatic LNA bypass for external FEM.
+ *
+ * @param[in] railHandle A radio-generic or real RAIL instance handle.
+ * @param[in] enable Enable/Disable automatic LNA bypass.
+ * @param[in] pAutoLnaBypassConfig A pointer to an automatic LNA bypass
+ *   configuration structure. It must be non-NULL to enable the feature.
+ * @return Status code indicating success of the function call.
+ *
+ * If automatic LNA bypass is enabled on chip that supports the feature
+ * (\ref RAIL_SUPPORTS_AUTO_LNA_BYPASS), GPIO is used to bypass external
+ * FEM LNA when the received power exceed a threshold. The bypass is turned off
+ * after frame reception or after timeout if no frame has been detected.
+ *
+ * @note As this automatic LNA bypass relies on GPIO and RAIL is meant to run
+ *   in TrustZone non-secure world, the feature is not supported if GPIO is
+ *   configured as secure peripheral.
+ *
+ */
+RAIL_Status_t RAIL_EnableAutoLnaBypass(RAIL_Handle_t railHandle,
+                                       bool enable,
+                                       const RAIL_AutoLnaBypassConfig_t *pAutoLnaBypassConfig);
 
 /******************************************************************************
  * Packet Information (RX)
@@ -7405,6 +7428,16 @@ bool RAIL_SupportsCollisionDetection(RAIL_Handle_t railHandle);
  * Runtime refinement of compile-time \ref RAIL_SUPPORTS_PROTOCOL_SIDEWALK.
  */
 bool RAIL_SupportsProtocolSidewalk(RAIL_Handle_t railHandle);
+
+/**
+ * Indicate whether this chip supports automatic LNA bypass for external FEM.
+ *
+ * @param[in] railHandle A radio-generic or real RAIL instance handle.
+ * @return true if automatic LNA bypass is supported; false otherwise.
+ *
+ * Runtime refinement of compile-time \ref RAIL_SUPPORTS_AUTO_LNA_BYPASS.
+ */
+bool RAIL_SupportsAutoLnaBypass(RAIL_Handle_t railHandle);
 
 /** @} */ // end of group Features
 

@@ -42,6 +42,7 @@ void ble_peer_manager_clear_all_connections(void)
   for (uint8_t i = 0; i < BLE_PEER_MANAGER_COMMON_MAX_ALLOWED_CONN_COUNT; i++) {
     pm_connections[i].conn_handle = SL_BT_INVALID_CONNECTION_HANDLE;
   }
+  active_conn_num = 0;
 }
 
 sl_status_t ble_peer_manager_add_connection(uint8_t conn_handle,

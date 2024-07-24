@@ -249,9 +249,9 @@ typedef enum
                                                      without OOB is supported */
   sl_btmesh_node_auth_method_flag_static = 0x2, /**< (0x2) Static OOB data
                                                      authentication is supported */
-  sl_btmesh_node_auth_method_flag_input  = 0x4, /**< (0x4) Input OOB
+  sl_btmesh_node_auth_method_flag_output = 0x4, /**< (0x4) Output OOB
                                                      authentication is supported */
-  sl_btmesh_node_auth_method_flag_output = 0x8  /**< (0x8) Output OOB
+  sl_btmesh_node_auth_method_flag_input  = 0x8  /**< (0x8) Input OOB
                                                      authentication is supported */
 } sl_btmesh_node_auth_method_flag_t;
 
@@ -16850,7 +16850,7 @@ sl_status_t sl_btmesh_time_client_get_time_role(uint16_t server_address,
 
 /***************************************************************************//**
  *
- * Send Time Role Get message to Time Server, which responds with a Time Role
+ * Send Time Role Set message to Time Server, which responds with a Time Role
  * Status message.
  *
  * @param[in] server_address Destination server model address

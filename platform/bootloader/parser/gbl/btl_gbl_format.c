@@ -125,6 +125,37 @@ const GblTagParsingInfo_t gblTagParsingInfoStructs[] = {
     .flags       = 0U
   },
 
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+  // GBL Delta DFU Tag
+  {
+    .tagId       = GBL_TAG_ID_DELTA,
+    .parserState = GblParserStateDelta,
+    .tagOrder    = GBL_TAG_ORDER_PROG_AND_METADATA, //Delta tag has the same tag order as program tag
+    .reserved    = 0U,
+    .flags       = 0U
+  },
+#if defined(BTL_PARSER_SUPPORT_LZ4)
+  // GBL Delta DFU Tag (LZ4)
+  {
+    .tagId       = GBL_TAG_ID_DELTA_LZ4,
+    .parserState = GblParserStateCustomTag,
+    .tagOrder    = GBL_TAG_ORDER_PROG_AND_METADATA,
+    .reserved    = 0U,
+    .flags       = 0U
+  },
+#endif
+#if defined(BTL_PARSER_SUPPORT_LZMA)
+  // GBL Delta DFU Tag (LZMA)
+  {
+    .tagId       = GBL_TAG_ID_DELTA_LZMA,
+    .parserState = GblParserStateCustomTag,
+    .tagOrder    = GBL_TAG_ORDER_PROG_AND_METADATA,
+    .reserved    = 0U,
+    .flags       = 0U
+  },
+#endif
+#endif
+
 #if defined(BTL_PARSER_SUPPORT_LZ4)
   // GBL Prog Tag (LZ4)
   {

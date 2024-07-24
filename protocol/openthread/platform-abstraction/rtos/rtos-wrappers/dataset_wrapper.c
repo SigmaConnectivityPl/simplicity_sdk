@@ -47,7 +47,6 @@
 #endif
 
 extern bool OT_API_REAL_NAME(otDatasetIsCommissioned)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otDatasetConvertToTlvs)(const otOperationalDataset * aDataset,otOperationalDatasetTlvs * aDatasetTlvs);
 extern otError OT_API_REAL_NAME(otDatasetGeneratePskc)(const char * aPassPhrase,const otNetworkName * aNetworkName,const otExtendedPanId * aExtPanId,otPskc * aPskc);
 extern otError OT_API_REAL_NAME(otDatasetGetActive)(otInstance * aInstance,otOperationalDataset * aDataset);
 extern otError OT_API_REAL_NAME(otDatasetGetActiveTlvs)(otInstance * aInstance,otOperationalDatasetTlvs * aDataset);
@@ -64,19 +63,12 @@ extern otError OT_API_REAL_NAME(otDatasetSetPending)(otInstance * aInstance,cons
 extern otError OT_API_REAL_NAME(otDatasetSetPendingTlvs)(otInstance * aInstance,const otOperationalDatasetTlvs * aDataset);
 extern otError OT_API_REAL_NAME(otDatasetUpdateTlvs)(const otOperationalDataset * aDataset,otOperationalDatasetTlvs * aDatasetTlvs);
 extern otError OT_API_REAL_NAME(otNetworkNameFromString)(otNetworkName * aNetworkName,const char * aNameString);
+extern void OT_API_REAL_NAME(otDatasetConvertToTlvs)(const otOperationalDataset * aDataset,otOperationalDatasetTlvs * aDatasetTlvs);
 
 bool OT_API_WRAPPER_NAME(otDatasetIsCommissioned)(otInstance * aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otDatasetIsCommissioned)(aInstance);
-    sl_ot_rtos_release_stack_mutex();
-    return ret;
-}
-
-otError OT_API_WRAPPER_NAME(otDatasetConvertToTlvs)(const otOperationalDataset * aDataset,otOperationalDatasetTlvs * aDatasetTlvs)
-{
-    sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otDatasetConvertToTlvs)(aDataset, aDatasetTlvs);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
@@ -207,5 +199,12 @@ otError OT_API_WRAPPER_NAME(otNetworkNameFromString)(otNetworkName * aNetworkNam
     otError ret = OT_API_REAL_NAME(otNetworkNameFromString)(aNetworkName, aNameString);
     sl_ot_rtos_release_stack_mutex();
     return ret;
+}
+
+void OT_API_WRAPPER_NAME(otDatasetConvertToTlvs)(const otOperationalDataset * aDataset,otOperationalDatasetTlvs * aDatasetTlvs)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    OT_API_REAL_NAME(otDatasetConvertToTlvs)(aDataset, aDatasetTlvs);
+    sl_ot_rtos_release_stack_mutex();
 }
 

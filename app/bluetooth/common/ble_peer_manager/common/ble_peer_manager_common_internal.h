@@ -39,10 +39,15 @@
 // -----------------------------------------------------------------------------
 // Defines
 #if defined(SL_CATALOG_APP_LOG_PRESENT) && BLE_PEER_MANAGER_COMMON_LOG
-#define ble_peer_manager_log_debug(...)           app_log_debug(__VA_ARGS__)
-#define ble_peer_manager_log_info(...)            app_log_info(__VA_ARGS__)
-#define ble_peer_manager_log_error(...)           app_log_error(__VA_ARGS__)
-#define ble_peer_manager_log_hexdump(p_data, len) app_log_hexdump_debug(p_data, len)
+#define PM_PREFIX                                 BLE_PEER_MANAGER_COMMON_LOG_PREFIX " "
+#define ble_peer_manager_log_debug(...)           app_log_debug(PM_PREFIX __VA_ARGS__)
+#define ble_peer_manager_log_info(...)            app_log_info(PM_PREFIX __VA_ARGS__)
+#define ble_peer_manager_log_error(...)           app_log_error(PM_PREFIX __VA_ARGS__)
+#define ble_peer_manager_log_hexdump(p_data, len) \
+  do {                                            \
+    app_log_append(PM_PREFIX);                    \
+    app_log_hexdump_debug(p_data, len);           \
+  } while (0);
 #else
 #define ble_peer_manager_log_debug(...)
 #define ble_peer_manager_log_info(...)

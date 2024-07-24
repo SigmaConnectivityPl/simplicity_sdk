@@ -58,3 +58,6 @@ template_contribution:
       - rail_util_coex
   - name: application_type
     value: APPLICATION_TYPE_BLUETOOTH_APP
+metadata:
+  sbom:
+    license: MSLA

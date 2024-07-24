@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Application Scheduler Static Memory Management Implementation
+ * @brief Scheduler Static Memory Management Implementation
  *******************************************************************************
  * # License
- * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -41,7 +41,7 @@
 static app_scheduler_entry_t memory_slots[APP_SCHEDULER_MAX_QUEUE_SIZE];
 
 // Usage of memory slots
-static bool memory_map[APP_SCHEDULER_MAX_QUEUE_SIZE];
+static bool memory_map[APP_SCHEDULER_MAX_QUEUE_SIZE] = { false };
 
 // -----------------------------------------------------------------------------
 // Public functions

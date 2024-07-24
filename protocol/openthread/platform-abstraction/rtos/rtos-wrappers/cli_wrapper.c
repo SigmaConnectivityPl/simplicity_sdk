@@ -49,7 +49,7 @@
 extern otError OT_API_REAL_NAME(otCliSetUserCommands)(const otCliCommand * aUserCommands,uint8_t aLength,void * aContext);
 extern void OT_API_REAL_NAME(otCliInit)(otInstance * aInstance,otCliOutputCallback aCallback,void * aContext);
 extern void OT_API_REAL_NAME(otCliInputLine)(char * aBuf);
-extern int OT_API_REAL_NAME(CliUartOutput)(void *aContext, const char *aFormat, va_list aArguments);
+extern int OT_API_REAL_NAME(CliUartOutput)(void * aContext,const char * aFormat,va_list aArguments);
 
 otError OT_API_WRAPPER_NAME(otCliSetUserCommands)(const otCliCommand * aUserCommands,uint8_t aLength,void * aContext)
 {
@@ -73,10 +73,11 @@ void OT_API_WRAPPER_NAME(otCliInputLine)(char * aBuf)
     sl_ot_rtos_release_stack_mutex();
 }
 
-int OT_API_WRAPPER_NAME(CliUartOutput)(void *aContext, const char *aFormat, va_list aArguments)
+int OT_API_WRAPPER_NAME(CliUartOutput)(void * aContext,const char * aFormat,va_list aArguments)
 {
     sl_ot_rtos_acquire_stack_mutex();
     int ret = OT_API_REAL_NAME(CliUartOutput)(aContext, aFormat, aArguments);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
+

@@ -22,7 +22,6 @@ include $(SDK_DIR)/app/bluetooth/component_host/memory_manager.mk
 include $(SDK_DIR)/app/bluetooth/component_host/cjson.mk
 include $(SDK_DIR)/app/bluetooth/component_host/throughput_central.mk
 include $(SDK_DIR)/app/bluetooth/component_host/ncp_host_bt.mk
-include $(SDK_DIR)/app/bluetooth/component_host/ncp_reset.mk
 include $(SDK_DIR)/app/bluetooth/component_host/ncp_version.mk
 
 
