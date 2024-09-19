@@ -44,9 +44,9 @@
 #if OPENTHREAD_CONFIG_MULTIPAN_RCP_ENABLE
 #include <openthread/platform/multipan.h>
 #endif
+#include "sl_multipan.h"
 #include "common/debug.hpp"
 #include "utils/code_utils.h"
-#include "sl_multipan.h"
 
 // Print entire source match tables when
 #define PRINT_MULTIPAN_SOURCE_MATCH_TABLES 0
@@ -339,7 +339,7 @@ otError otPlatRadioAddSrcMatchExtEntry(otInstance *aInstance, const otExtAddress
     OT_UNUSED_VARIABLE(aInstance);
 
     otError error = OT_ERROR_NONE;
-    uint8_t iid = efr32GetIidFromInstance(aInstance);
+    uint8_t iid   = efr32GetIidFromInstance(aInstance);
     int16_t entry = -1;
 
 #if OPENTHREAD_CONFIG_MULTIPAN_RCP_ENABLE

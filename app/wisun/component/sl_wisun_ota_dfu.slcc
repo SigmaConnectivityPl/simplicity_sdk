@@ -19,7 +19,7 @@ description: >
   the appropriate bootloader, consider factors such as flash location
   (internal or external) and size. If necessary, apply compression.
 category: "Wi-SUN|Wi-SUN Services"
-quality: "production"
+quality: "evaluation"
 metadata:
   sbom:
     license: Zlib

@@ -146,6 +146,8 @@ configuration:
     value: "0"
   - name: NVM3_DEFAULT_NVM_SIZE
     value: "32768"
+  - name: SL_NCP_EMIT_SYSTEM_ERROR_EVT
+    value: "1"
 
 tag:
   - prebuilt_demo

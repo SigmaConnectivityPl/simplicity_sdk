@@ -60,7 +60,7 @@
 
 /// Prepend a function definition with this macro to place it in RAM.
 #define SL_CODE_RAM \
-  __ramfunc
+  _Pragma("location =\"text_application_ram\"")
 
 #elif defined(__llvm__)
 

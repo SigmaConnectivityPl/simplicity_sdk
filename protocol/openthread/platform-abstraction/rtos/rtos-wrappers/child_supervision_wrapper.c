@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Child Supervision APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,31 +29,31 @@
  *
  ******************************************************************************/
 
-#include <openthread/child_supervision.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/child_supervision.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern uint16_t OT_API_REAL_NAME(otChildSupervisionGetCheckFailureCounter)(otInstance * aInstance);
-extern uint16_t OT_API_REAL_NAME(otChildSupervisionGetCheckTimeout)(otInstance * aInstance);
-extern uint16_t OT_API_REAL_NAME(otChildSupervisionGetInterval)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otChildSupervisionResetCheckFailureCounter)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otChildSupervisionSetCheckTimeout)(otInstance * aInstance,uint16_t aTimeout);
-extern void OT_API_REAL_NAME(otChildSupervisionSetInterval)(otInstance * aInstance,uint16_t aInterval);
+extern uint16_t OT_API_REAL_NAME(otChildSupervisionGetCheckFailureCounter)(otInstance *aInstance);
+extern uint16_t OT_API_REAL_NAME(otChildSupervisionGetCheckTimeout)(otInstance *aInstance);
+extern uint16_t OT_API_REAL_NAME(otChildSupervisionGetInterval)(otInstance *aInstance);
+extern void     OT_API_REAL_NAME(otChildSupervisionResetCheckFailureCounter)(otInstance *aInstance);
+extern void     OT_API_REAL_NAME(otChildSupervisionSetCheckTimeout)(otInstance *aInstance, uint16_t aTimeout);
+extern void     OT_API_REAL_NAME(otChildSupervisionSetInterval)(otInstance *aInstance, uint16_t aInterval);
 
-uint16_t OT_API_WRAPPER_NAME(otChildSupervisionGetCheckFailureCounter)(otInstance * aInstance)
+uint16_t OT_API_WRAPPER_NAME(otChildSupervisionGetCheckFailureCounter)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otChildSupervisionGetCheckFailureCounter)(aInstance);
@@ -61,7 +61,7 @@ uint16_t OT_API_WRAPPER_NAME(otChildSupervisionGetCheckFailureCounter)(otInstanc
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otChildSupervisionGetCheckTimeout)(otInstance * aInstance)
+uint16_t OT_API_WRAPPER_NAME(otChildSupervisionGetCheckTimeout)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otChildSupervisionGetCheckTimeout)(aInstance);
@@ -69,7 +69,7 @@ uint16_t OT_API_WRAPPER_NAME(otChildSupervisionGetCheckTimeout)(otInstance * aIn
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otChildSupervisionGetInterval)(otInstance * aInstance)
+uint16_t OT_API_WRAPPER_NAME(otChildSupervisionGetInterval)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otChildSupervisionGetInterval)(aInstance);
@@ -77,24 +77,23 @@ uint16_t OT_API_WRAPPER_NAME(otChildSupervisionGetInterval)(otInstance * aInstan
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otChildSupervisionResetCheckFailureCounter)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otChildSupervisionResetCheckFailureCounter)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otChildSupervisionResetCheckFailureCounter)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otChildSupervisionSetCheckTimeout)(otInstance * aInstance,uint16_t aTimeout)
+void OT_API_WRAPPER_NAME(otChildSupervisionSetCheckTimeout)(otInstance *aInstance, uint16_t aTimeout)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otChildSupervisionSetCheckTimeout)(aInstance, aTimeout);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otChildSupervisionSetInterval)(otInstance * aInstance,uint16_t aInterval)
+void OT_API_WRAPPER_NAME(otChildSupervisionSetInterval)(otInstance *aInstance, uint16_t aInterval)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otChildSupervisionSetInterval)(aInstance, aInterval);
     sl_ot_rtos_release_stack_mutex();
 }
-

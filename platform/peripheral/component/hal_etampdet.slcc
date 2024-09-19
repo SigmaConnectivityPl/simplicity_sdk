@@ -16,6 +16,8 @@ include:
     file_list:
     - path: "sl_hal_etampdet.h"
     - path: "sl_hal_etampdet_compat.h"
+    - path: "peripheral_etampdet.h"
+    - path: "peripheral_etampdet_compat.h"
 provides:
   - name: hal_etampdet
 requires:

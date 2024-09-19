@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Dataset APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,43 +29,69 @@
  *
  ******************************************************************************/
 
-#include <openthread/dataset.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/dataset.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern bool OT_API_REAL_NAME(otDatasetIsCommissioned)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otDatasetGeneratePskc)(const char * aPassPhrase,const otNetworkName * aNetworkName,const otExtendedPanId * aExtPanId,otPskc * aPskc);
-extern otError OT_API_REAL_NAME(otDatasetGetActive)(otInstance * aInstance,otOperationalDataset * aDataset);
-extern otError OT_API_REAL_NAME(otDatasetGetActiveTlvs)(otInstance * aInstance,otOperationalDatasetTlvs * aDataset);
-extern otError OT_API_REAL_NAME(otDatasetGetPending)(otInstance * aInstance,otOperationalDataset * aDataset);
-extern otError OT_API_REAL_NAME(otDatasetGetPendingTlvs)(otInstance * aInstance,otOperationalDatasetTlvs * aDataset);
-extern otError OT_API_REAL_NAME(otDatasetParseTlvs)(const otOperationalDatasetTlvs * aDatasetTlvs,otOperationalDataset * aDataset);
-extern otError OT_API_REAL_NAME(otDatasetSendMgmtActiveGet)(otInstance * aInstance,const otOperationalDatasetComponents * aDatasetComponents,const uint8_t * aTlvTypes,uint8_t aLength,const otIp6Address * aAddress);
-extern otError OT_API_REAL_NAME(otDatasetSendMgmtActiveSet)(otInstance * aInstance,const otOperationalDataset * aDataset,const uint8_t * aTlvs,uint8_t aLength,otDatasetMgmtSetCallback aCallback,void * aContext);
-extern otError OT_API_REAL_NAME(otDatasetSendMgmtPendingGet)(otInstance * aInstance,const otOperationalDatasetComponents * aDatasetComponents,const uint8_t * aTlvTypes,uint8_t aLength,const otIp6Address * aAddress);
-extern otError OT_API_REAL_NAME(otDatasetSendMgmtPendingSet)(otInstance * aInstance,const otOperationalDataset * aDataset,const uint8_t * aTlvs,uint8_t aLength,otDatasetMgmtSetCallback aCallback,void * aContext);
-extern otError OT_API_REAL_NAME(otDatasetSetActive)(otInstance * aInstance,const otOperationalDataset * aDataset);
-extern otError OT_API_REAL_NAME(otDatasetSetActiveTlvs)(otInstance * aInstance,const otOperationalDatasetTlvs * aDataset);
-extern otError OT_API_REAL_NAME(otDatasetSetPending)(otInstance * aInstance,const otOperationalDataset * aDataset);
-extern otError OT_API_REAL_NAME(otDatasetSetPendingTlvs)(otInstance * aInstance,const otOperationalDatasetTlvs * aDataset);
-extern otError OT_API_REAL_NAME(otDatasetUpdateTlvs)(const otOperationalDataset * aDataset,otOperationalDatasetTlvs * aDatasetTlvs);
-extern otError OT_API_REAL_NAME(otNetworkNameFromString)(otNetworkName * aNetworkName,const char * aNameString);
-extern void OT_API_REAL_NAME(otDatasetConvertToTlvs)(const otOperationalDataset * aDataset,otOperationalDatasetTlvs * aDatasetTlvs);
+extern bool    OT_API_REAL_NAME(otDatasetIsCommissioned)(otInstance *aInstance);
+extern otError OT_API_REAL_NAME(otDatasetGeneratePskc)(const char            *aPassPhrase,
+                                                       const otNetworkName   *aNetworkName,
+                                                       const otExtendedPanId *aExtPanId,
+                                                       otPskc                *aPskc);
+extern otError OT_API_REAL_NAME(otDatasetGetActive)(otInstance *aInstance, otOperationalDataset *aDataset);
+extern otError OT_API_REAL_NAME(otDatasetGetActiveTlvs)(otInstance *aInstance, otOperationalDatasetTlvs *aDataset);
+extern otError OT_API_REAL_NAME(otDatasetGetPending)(otInstance *aInstance, otOperationalDataset *aDataset);
+extern otError OT_API_REAL_NAME(otDatasetGetPendingTlvs)(otInstance *aInstance, otOperationalDatasetTlvs *aDataset);
+extern otError OT_API_REAL_NAME(otDatasetParseTlvs)(const otOperationalDatasetTlvs *aDatasetTlvs,
+                                                    otOperationalDataset           *aDataset);
+extern otError OT_API_REAL_NAME(otDatasetSendMgmtActiveGet)(otInstance                           *aInstance,
+                                                            const otOperationalDatasetComponents *aDatasetComponents,
+                                                            const uint8_t                        *aTlvTypes,
+                                                            uint8_t                               aLength,
+                                                            const otIp6Address                   *aAddress);
+extern otError OT_API_REAL_NAME(otDatasetSendMgmtActiveSet)(otInstance                 *aInstance,
+                                                            const otOperationalDataset *aDataset,
+                                                            const uint8_t              *aTlvs,
+                                                            uint8_t                     aLength,
+                                                            otDatasetMgmtSetCallback    aCallback,
+                                                            void                       *aContext);
+extern otError OT_API_REAL_NAME(otDatasetSendMgmtPendingGet)(otInstance                           *aInstance,
+                                                             const otOperationalDatasetComponents *aDatasetComponents,
+                                                             const uint8_t                        *aTlvTypes,
+                                                             uint8_t                               aLength,
+                                                             const otIp6Address                   *aAddress);
+extern otError OT_API_REAL_NAME(otDatasetSendMgmtPendingSet)(otInstance                 *aInstance,
+                                                             const otOperationalDataset *aDataset,
+                                                             const uint8_t              *aTlvs,
+                                                             uint8_t                     aLength,
+                                                             otDatasetMgmtSetCallback    aCallback,
+                                                             void                       *aContext);
+extern otError OT_API_REAL_NAME(otDatasetSetActive)(otInstance *aInstance, const otOperationalDataset *aDataset);
+extern otError OT_API_REAL_NAME(otDatasetSetActiveTlvs)(otInstance                     *aInstance,
+                                                        const otOperationalDatasetTlvs *aDataset);
+extern otError OT_API_REAL_NAME(otDatasetSetPending)(otInstance *aInstance, const otOperationalDataset *aDataset);
+extern otError OT_API_REAL_NAME(otDatasetSetPendingTlvs)(otInstance                     *aInstance,
+                                                         const otOperationalDatasetTlvs *aDataset);
+extern otError OT_API_REAL_NAME(otDatasetUpdateTlvs)(const otOperationalDataset *aDataset,
+                                                     otOperationalDatasetTlvs   *aDatasetTlvs);
+extern otError OT_API_REAL_NAME(otNetworkNameFromString)(otNetworkName *aNetworkName, const char *aNameString);
+extern void    OT_API_REAL_NAME(otDatasetConvertToTlvs)(const otOperationalDataset *aDataset,
+                                                     otOperationalDatasetTlvs   *aDatasetTlvs);
 
-bool OT_API_WRAPPER_NAME(otDatasetIsCommissioned)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otDatasetIsCommissioned)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otDatasetIsCommissioned)(aInstance);
@@ -73,7 +99,10 @@ bool OT_API_WRAPPER_NAME(otDatasetIsCommissioned)(otInstance * aInstance)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetGeneratePskc)(const char * aPassPhrase,const otNetworkName * aNetworkName,const otExtendedPanId * aExtPanId,otPskc * aPskc)
+otError OT_API_WRAPPER_NAME(otDatasetGeneratePskc)(const char            *aPassPhrase,
+                                                   const otNetworkName   *aNetworkName,
+                                                   const otExtendedPanId *aExtPanId,
+                                                   otPskc                *aPskc)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDatasetGeneratePskc)(aPassPhrase, aNetworkName, aExtPanId, aPskc);
@@ -81,7 +110,7 @@ otError OT_API_WRAPPER_NAME(otDatasetGeneratePskc)(const char * aPassPhrase,cons
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetGetActive)(otInstance * aInstance,otOperationalDataset * aDataset)
+otError OT_API_WRAPPER_NAME(otDatasetGetActive)(otInstance *aInstance, otOperationalDataset *aDataset)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDatasetGetActive)(aInstance, aDataset);
@@ -89,7 +118,7 @@ otError OT_API_WRAPPER_NAME(otDatasetGetActive)(otInstance * aInstance,otOperati
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetGetActiveTlvs)(otInstance * aInstance,otOperationalDatasetTlvs * aDataset)
+otError OT_API_WRAPPER_NAME(otDatasetGetActiveTlvs)(otInstance *aInstance, otOperationalDatasetTlvs *aDataset)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDatasetGetActiveTlvs)(aInstance, aDataset);
@@ -97,7 +126,7 @@ otError OT_API_WRAPPER_NAME(otDatasetGetActiveTlvs)(otInstance * aInstance,otOpe
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetGetPending)(otInstance * aInstance,otOperationalDataset * aDataset)
+otError OT_API_WRAPPER_NAME(otDatasetGetPending)(otInstance *aInstance, otOperationalDataset *aDataset)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDatasetGetPending)(aInstance, aDataset);
@@ -105,7 +134,7 @@ otError OT_API_WRAPPER_NAME(otDatasetGetPending)(otInstance * aInstance,otOperat
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetGetPendingTlvs)(otInstance * aInstance,otOperationalDatasetTlvs * aDataset)
+otError OT_API_WRAPPER_NAME(otDatasetGetPendingTlvs)(otInstance *aInstance, otOperationalDatasetTlvs *aDataset)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDatasetGetPendingTlvs)(aInstance, aDataset);
@@ -113,7 +142,8 @@ otError OT_API_WRAPPER_NAME(otDatasetGetPendingTlvs)(otInstance * aInstance,otOp
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetParseTlvs)(const otOperationalDatasetTlvs * aDatasetTlvs,otOperationalDataset * aDataset)
+otError OT_API_WRAPPER_NAME(otDatasetParseTlvs)(const otOperationalDatasetTlvs *aDatasetTlvs,
+                                                otOperationalDataset           *aDataset)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDatasetParseTlvs)(aDatasetTlvs, aDataset);
@@ -121,39 +151,61 @@ otError OT_API_WRAPPER_NAME(otDatasetParseTlvs)(const otOperationalDatasetTlvs *
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetSendMgmtActiveGet)(otInstance * aInstance,const otOperationalDatasetComponents * aDatasetComponents,const uint8_t * aTlvTypes,uint8_t aLength,const otIp6Address * aAddress)
+otError OT_API_WRAPPER_NAME(otDatasetSendMgmtActiveGet)(otInstance                           *aInstance,
+                                                        const otOperationalDatasetComponents *aDatasetComponents,
+                                                        const uint8_t                        *aTlvTypes,
+                                                        uint8_t                               aLength,
+                                                        const otIp6Address                   *aAddress)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otDatasetSendMgmtActiveGet)(aInstance, aDatasetComponents, aTlvTypes, aLength, aAddress);
+    otError ret =
+        OT_API_REAL_NAME(otDatasetSendMgmtActiveGet)(aInstance, aDatasetComponents, aTlvTypes, aLength, aAddress);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetSendMgmtActiveSet)(otInstance * aInstance,const otOperationalDataset * aDataset,const uint8_t * aTlvs,uint8_t aLength,otDatasetMgmtSetCallback aCallback,void * aContext)
+otError OT_API_WRAPPER_NAME(otDatasetSendMgmtActiveSet)(otInstance                 *aInstance,
+                                                        const otOperationalDataset *aDataset,
+                                                        const uint8_t              *aTlvs,
+                                                        uint8_t                     aLength,
+                                                        otDatasetMgmtSetCallback    aCallback,
+                                                        void                       *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otDatasetSendMgmtActiveSet)(aInstance, aDataset, aTlvs, aLength, aCallback, aContext);
+    otError ret =
+        OT_API_REAL_NAME(otDatasetSendMgmtActiveSet)(aInstance, aDataset, aTlvs, aLength, aCallback, aContext);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetSendMgmtPendingGet)(otInstance * aInstance,const otOperationalDatasetComponents * aDatasetComponents,const uint8_t * aTlvTypes,uint8_t aLength,const otIp6Address * aAddress)
+otError OT_API_WRAPPER_NAME(otDatasetSendMgmtPendingGet)(otInstance                           *aInstance,
+                                                         const otOperationalDatasetComponents *aDatasetComponents,
+                                                         const uint8_t                        *aTlvTypes,
+                                                         uint8_t                               aLength,
+                                                         const otIp6Address                   *aAddress)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otDatasetSendMgmtPendingGet)(aInstance, aDatasetComponents, aTlvTypes, aLength, aAddress);
+    otError ret =
+        OT_API_REAL_NAME(otDatasetSendMgmtPendingGet)(aInstance, aDatasetComponents, aTlvTypes, aLength, aAddress);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetSendMgmtPendingSet)(otInstance * aInstance,const otOperationalDataset * aDataset,const uint8_t * aTlvs,uint8_t aLength,otDatasetMgmtSetCallback aCallback,void * aContext)
+otError OT_API_WRAPPER_NAME(otDatasetSendMgmtPendingSet)(otInstance                 *aInstance,
+                                                         const otOperationalDataset *aDataset,
+                                                         const uint8_t              *aTlvs,
+                                                         uint8_t                     aLength,
+                                                         otDatasetMgmtSetCallback    aCallback,
+                                                         void                       *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otDatasetSendMgmtPendingSet)(aInstance, aDataset, aTlvs, aLength, aCallback, aContext);
+    otError ret =
+        OT_API_REAL_NAME(otDatasetSendMgmtPendingSet)(aInstance, aDataset, aTlvs, aLength, aCallback, aContext);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetSetActive)(otInstance * aInstance,const otOperationalDataset * aDataset)
+otError OT_API_WRAPPER_NAME(otDatasetSetActive)(otInstance *aInstance, const otOperationalDataset *aDataset)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDatasetSetActive)(aInstance, aDataset);
@@ -161,7 +213,7 @@ otError OT_API_WRAPPER_NAME(otDatasetSetActive)(otInstance * aInstance,const otO
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetSetActiveTlvs)(otInstance * aInstance,const otOperationalDatasetTlvs * aDataset)
+otError OT_API_WRAPPER_NAME(otDatasetSetActiveTlvs)(otInstance *aInstance, const otOperationalDatasetTlvs *aDataset)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDatasetSetActiveTlvs)(aInstance, aDataset);
@@ -169,7 +221,7 @@ otError OT_API_WRAPPER_NAME(otDatasetSetActiveTlvs)(otInstance * aInstance,const
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetSetPending)(otInstance * aInstance,const otOperationalDataset * aDataset)
+otError OT_API_WRAPPER_NAME(otDatasetSetPending)(otInstance *aInstance, const otOperationalDataset *aDataset)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDatasetSetPending)(aInstance, aDataset);
@@ -177,7 +229,7 @@ otError OT_API_WRAPPER_NAME(otDatasetSetPending)(otInstance * aInstance,const ot
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetSetPendingTlvs)(otInstance * aInstance,const otOperationalDatasetTlvs * aDataset)
+otError OT_API_WRAPPER_NAME(otDatasetSetPendingTlvs)(otInstance *aInstance, const otOperationalDatasetTlvs *aDataset)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDatasetSetPendingTlvs)(aInstance, aDataset);
@@ -185,7 +237,8 @@ otError OT_API_WRAPPER_NAME(otDatasetSetPendingTlvs)(otInstance * aInstance,cons
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetUpdateTlvs)(const otOperationalDataset * aDataset,otOperationalDatasetTlvs * aDatasetTlvs)
+otError OT_API_WRAPPER_NAME(otDatasetUpdateTlvs)(const otOperationalDataset *aDataset,
+                                                 otOperationalDatasetTlvs   *aDatasetTlvs)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDatasetUpdateTlvs)(aDataset, aDatasetTlvs);
@@ -193,7 +246,7 @@ otError OT_API_WRAPPER_NAME(otDatasetUpdateTlvs)(const otOperationalDataset * aD
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otNetworkNameFromString)(otNetworkName * aNetworkName,const char * aNameString)
+otError OT_API_WRAPPER_NAME(otNetworkNameFromString)(otNetworkName *aNetworkName, const char *aNameString)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otNetworkNameFromString)(aNetworkName, aNameString);
@@ -201,10 +254,10 @@ otError OT_API_WRAPPER_NAME(otNetworkNameFromString)(otNetworkName * aNetworkNam
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otDatasetConvertToTlvs)(const otOperationalDataset * aDataset,otOperationalDatasetTlvs * aDatasetTlvs)
+void OT_API_WRAPPER_NAME(otDatasetConvertToTlvs)(const otOperationalDataset *aDataset,
+                                                 otOperationalDatasetTlvs   *aDatasetTlvs)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otDatasetConvertToTlvs)(aDataset, aDatasetTlvs);
     sl_ot_rtos_release_stack_mutex();
 }
-

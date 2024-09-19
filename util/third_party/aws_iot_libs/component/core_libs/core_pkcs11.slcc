@@ -6,6 +6,16 @@ description: This component fetches PKCS11 and mbedTLS with AWS related configs.
 
 package: amazon_platform
 quality: production
+metadata:
+  sbom:
+    license: MIT
+    upstream:
+      name: corePKCS11
+      version: 3.0.0
+      supplier: FreeRTOS
+      url: https://github.com/FreeRTOS/corePKCS11
+      package_url: https://github.com/FreeRTOS/corePKCS11/tree/ccb8fb
+      comment: Software implementation of the PKCS #11 standard
 
 provides:
   - name: core_pkcs11
@@ -29,6 +39,10 @@ requires:
   - name: iot_logging
   - name: iot_crypto
   - name: iot_default_root_certificates
+  - name: iot_sbom_lib_abstraction_common_io
+  - name: lib_3rdparty_pkcs11
+  - name: lib_abstraction_pkcs11_test
+  - name: lib_mbedtls_utils
 
   - name: nvm3_default
 
@@ -39,11 +53,7 @@ source:
   - path: libraries/abstractions/pkcs11/corePKCS11/source/core_pkcs11.c
   - path: libraries/abstractions/pkcs11/corePKCS11/source/core_pki_utils.c
   - path: vendors/siliconlabs/boards/all/ports/pkcs11/core_pkcs11_mbedtls_3.c
-  - path: libraries/abstractions/pkcs11/test/iot_test_pkcs11.c
-    condition: ["aws_tests_defs"]
   - path: vendors/siliconlabs/boards/all/ports/pkcs11/core_pkcs11_pal.c
-  - path: libraries/3rdparty/mbedtls_utils/mbedtls_error.c
-  - path: libraries/3rdparty/mbedtls_utils/mbedtls_utils.c
 
 include:
   - path: demos/dev_mode_key_provisioning/include
@@ -54,18 +64,6 @@ include:
       - path: core_pkcs11_pal.h
       - path: core_pkcs11.h
       - path: core_pki_utils.h
-  - path: libraries/3rdparty/pkcs11
-    file_list:
-      - path: pkcs11.h
-      - path: pkcs11f.h
-      - path: pkcs11t.h
-  - path: libraries/abstractions/pkcs11/test
-    file_list:
-      - path: iot_test_pkcs11_globals.h
-    condition: ["aws_tests_defs"]
-  - path: libraries/3rdparty/mbedtls_utils
-    file_list:
-      - path: mbedtls_error.h
 
 define:
   - name: NVM3_DEFAULT_MAX_OBJECT_SIZE

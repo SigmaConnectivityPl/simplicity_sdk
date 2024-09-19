@@ -78,14 +78,15 @@ static u3c_event_data_validate user_credential_event_validate_data = {
  * Hard-coded event data for simulating local initiation of the Credential Learn
  * process
  */
-u3c_event_data_learn_start credential_learn_start_data = {
-  .learn_target = {
+static u3c_credential_learn_event_data credential_learn_start_data = {
+  .target = {
     .uuid = 1,
     .slot = 2,
     .type = CREDENTIAL_TYPE_PIN_CODE
   },
   .operation_type = U3C_OPERATION_TYPE_ADD,
-  .timeout_seconds = 0 // Use default value based on configuration
+  .timeout_seconds = 0, // Use default value based on configuration
+  .source_id = 0
 };
 #endif
 

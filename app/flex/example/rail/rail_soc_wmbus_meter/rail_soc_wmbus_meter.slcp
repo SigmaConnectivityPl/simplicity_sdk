@@ -21,6 +21,7 @@ component:
   - id: board_control
     condition: [hardware_board]
   - id: sl_simple_rail_stub
+  - id: sl_flex_rail_sleep
   - id: power_manager
   - id: rail_util_init
     instance:

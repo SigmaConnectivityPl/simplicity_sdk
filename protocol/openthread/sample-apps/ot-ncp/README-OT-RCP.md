@@ -10,6 +10,6 @@ The advantage of this design is that OpenThread can utilize the resources on the
 
 This design is useful for devices that are less sensitive to power constraints. For example, the host processor on a video camera is always on to process video.
 
-OpenThread Border Router supports an RCP design. For more information, refer to *AN1256: Using the Silicon Labs RCP with the OpenThread Border Router*.
+OpenThread Border Router supports an RCP design. For more information, refer to _AN1256: Using the Silicon Labs RCP with the OpenThread Border Router_.
 
 The corresponding host application is located at `util/third_party/ot-br-posix`

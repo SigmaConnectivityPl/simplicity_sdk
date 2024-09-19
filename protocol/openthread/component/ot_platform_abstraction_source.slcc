@@ -53,3 +53,10 @@ source:
 metadata:
   sbom:
     license: BSD-3-Clause
+template_contribution:
+  - name: power_manager_handler
+    value:
+      event: sleep_on_isr_exit
+      include: alarm.h
+      handler: "efr32AlarmSleepOnISRExit"
+    condition: [power_manager]

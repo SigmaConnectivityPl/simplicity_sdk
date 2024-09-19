@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief FTD application logic.
  *******************************************************************************
@@ -28,9 +28,11 @@
  *
  ******************************************************************************/
 
-#include <string.h>
 #include <assert.h>
+#include <string.h>
 
+#include <common/code_utils.hpp>
+#include <common/logging.hpp>
 #include <openthread/cli.h>
 #include <openthread/dataset_ftd.h>
 #include <openthread/instance.h>
@@ -38,8 +40,6 @@
 #include <openthread/thread.h>
 #include <openthread/udp.h>
 #include <openthread/platform/logging.h>
-#include <common/code_utils.hpp>
-#include <common/logging.hpp>
 
 #include "sl_button.h"
 #include "sl_simple_button.h"
@@ -60,14 +60,14 @@
 
 // Forward declarations
 otInstance *otGetInstance(void);
-void sFtdReceiveCallback(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo);
+void        sFtdReceiveCallback(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo);
 extern void otSysEventSignalPending(void);
 
 // Variables
-static otUdpSocket         sFtdSocket;
-static bool                sHaveSwitchAddress = false;
-static otIp6Address        sSwitchAddress;
-static bool                sFtdButtonPressed  = false;
+static otUdpSocket  sFtdSocket;
+static bool         sHaveSwitchAddress = false;
+static otIp6Address sSwitchAddress;
+static bool         sFtdButtonPressed = false;
 
 void sleepyInit(void)
 {
@@ -107,8 +107,8 @@ void setNetworkConfiguration(void)
     aDataset.mComponents.mIsExtendedPanIdPresent = true;
 
     /* Set network key to 1234C0DE1AB51234C0DE1AB51234C0DE */
-    uint8_t key[OT_NETWORK_KEY_SIZE] = {0x12, 0x34, 0xC0, 0xDE, 0x1A, 0xB5, 0x12, 0x34,
-                                        0xC0, 0xDE, 0x1A, 0xB5, 0x12, 0x34, 0xC0, 0xDE};
+    uint8_t key[OT_NETWORK_KEY_SIZE] =
+        {0x12, 0x34, 0xC0, 0xDE, 0x1A, 0xB5, 0x12, 0x34, 0xC0, 0xDE, 0x1A, 0xB5, 0x12, 0x34, 0xC0, 0xDE};
     memcpy(aDataset.mNetworkKey.m8, key, sizeof(aDataset.mNetworkKey));
     aDataset.mComponents.mIsNetworkKeyPresent = true;
 

@@ -65,7 +65,8 @@ void otPlatReset(otInstance *aInstance)
 OT_TOOL_WEAK void bootloader_rebootAndInstall(void)
 {
     // Weak stub function
-    // This should be discarded in favor of the function definition in bootloader_interface code, when that component is used
+    // This should be discarded in favor of the function definition in bootloader_interface code, when that component is
+    // used
 }
 
 otError otPlatResetToBootloader(otInstance *aInstance)

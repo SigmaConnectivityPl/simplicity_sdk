@@ -576,7 +576,7 @@ void print_standard_name(char *print_buffer)
 void set_standard_phy_channel(void)
 {
   if (current_phy_standard_value() == IEEE802154_250KBPS || current_phy_standard_value() == IEEE802154_250KBPS_ANTDIV) {
-    if (range_test_settings.channel > IEEE802154_END_CHANNEL) {
+    if (range_test_settings.channel > IEEE802154_END_CHANNEL || range_test_settings.channel < IEEE802154_START_CHANNEL) {
       range_test_settings.channel = IEEE802154_START_CHANNEL;
     }
   } else {

@@ -375,7 +375,7 @@ static int32_t gbl_parseHeader(ParserContext_t  *context,
   context->offsetInTag = 0UL;
 
 #if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
-  if (context->enableDeltaGBLLenCount == true) {
+  if (context->enableGBLLengthCount == true) {
     if (BOOTLOADER_ENFORCE_ENCRYPTED_UPGRADE == 1U ) {
       //Take only the lenght of un-encrypted tags
       if ((gblTagHeader->tagId == GBL_TAG_ID_HEADER_V3)
@@ -385,13 +385,13 @@ static int32_t gbl_parseHeader(ParserContext_t  *context,
           || (gblTagHeader->tagId == GBL_TAG_ID_SIGNATURE_ECDSA_P256)
           || (gblTagHeader->tagId == GBL_TAG_ID_END)) {
         //If Encryption is enabled, count only the lenght of un-encrypted tags.
-        context->deltaGBLLength += context->lengthOfTag;  //gblTagHeader->length;
-        context->deltaGBLLength += 8;   // To account for tag id and length
+        context->gblLength += context->lengthOfTag;  //gblTagHeader->length;
+        context->gblLength += 8;   // To account for tag id and length
       }
     } else {
       //Encryption not enabled.
-      context->deltaGBLLength += context->lengthOfTag;
-      context->deltaGBLLength += 8;
+      context->gblLength += context->lengthOfTag;
+      context->gblLength += 8;
     }
   }
 #endif
@@ -537,6 +537,17 @@ int32_t gbl_writeProgData(ParserContext_t *context,
     (void) memset(&buffer[withholdSrcOffset], 0xFF, 4U);
   }
 
+#if BTL_PARSER_SUPPORT_DELTA_DFU
+  //Check if the delta patch extraction won't overstep the storage slot
+  //Check this only in case of a delta upgrade. Skip this in scenarios
+  //where the bootloader supports delta DFU but it's parsing a regular
+  //app upgrade.
+  if (context->newFwCRC != 0 && ((context->programmingAddress + length) > context->endOfStorageSlot)) {
+    //OOB write
+    return BOOTLOADER_ERROR_PARSER_OOB_WRITE;
+  }
+#endif //BTL_PARSER_SUPPORT_DELTA_DFU
+
   callbacks->applicationCallback(context->programmingAddress,
                                  buffer,
                                  length,
@@ -584,10 +595,11 @@ int32_t parser_init(void *context, void *decryptContext, void *authContext, uint
   parserContext->currentTagOrder = GBL_TAG_ORDER_INIT;
 
 #if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
-  parserContext->deltaGBLLength = 0U;
+  parserContext->gblLength = 0U;
   parserContext->lengthOfPatch = 0U;
   parserContext->newFwCRC = 0x0U;
-  parserContext->enableDeltaGBLLenCount = false;
+  parserContext->enableGBLLengthCount = false;
+  parserContext->endOfStorageSlot = 0U;
 #endif
 
   if ((PARSER_REQUIRE_CONFIDENTIALITY) && (decryptContext == NULL)) {
@@ -624,7 +636,7 @@ int32_t parser_parse(void                              *context,
 
 #if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
   if (callbacks->applicationCallback == NULL) {
-    parserContext->enableDeltaGBLLenCount = true;
+    parserContext->enableGBLLengthCount = true;
   }
 #endif
 
@@ -751,7 +763,7 @@ int32_t parser_parse(void                              *context,
       case GblParserStateDelta:
         retval = parser_parseDelta(parserContext, &input, imageProperties);
         if (callbacks->applicationCallback != NULL) {
-          parserContext->deltaPatchAddress = parserContext->deltaPatchAddress + parserContext->deltaGBLLength;
+          parserContext->deltaPatchAddress = parserContext->deltaPatchAddress + parserContext->gblLength;
           if (parserContext->deltaPatchAddress & (FLASH_PAGE_SIZE - 1)) {
             parserContext->deltaPatchAddress = parserContext->deltaPatchAddress - (parserContext->deltaPatchAddress & (FLASH_PAGE_SIZE - 1)) + FLASH_PAGE_SIZE;
             parserContext->programmingAddress = parserContext->deltaPatchAddress;
@@ -790,7 +802,7 @@ int32_t parser_parse(void                              *context,
         if ((parserContext->customTagId == GBL_TAG_ID_DELTA_LZ4) || (parserContext->customTagId == GBL_TAG_ID_DELTA_LZMA) ) {
           imageProperties->contents |= BTL_IMAGE_CONTENT_DELTA;
           if ((callbacks->applicationCallback != NULL) && (parserContext->programmingAddress == 0U)) {
-            parserContext->deltaPatchAddress = parserContext->deltaPatchAddress + parserContext->deltaGBLLength;
+            parserContext->deltaPatchAddress = parserContext->deltaPatchAddress + parserContext->gblLength;
             if (parserContext->deltaPatchAddress & (FLASH_PAGE_SIZE - 1)) {
               parserContext->deltaPatchAddress = parserContext->deltaPatchAddress - (parserContext->deltaPatchAddress & (FLASH_PAGE_SIZE - 1)) + FLASH_PAGE_SIZE;
               parserContext->programmingAddress = parserContext->deltaPatchAddress;

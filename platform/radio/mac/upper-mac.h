@@ -36,7 +36,8 @@
 #endif
 //#define MAX_MAC_INDEX 2
 #ifdef HIGH_DATARATE_PHY
-#define MAX_FLAT_PACKET_SIZE 255 // CHANGE THIS FOR 2049 size packet when supported
+//+9 is sizeof (RAIL_SchedulerInfo_t)
+#define MAX_FLAT_PACKET_SIZE (255 + 9) // CHANGE THIS FOR 2049+9 size packet when supported
 #else
 #define MAX_FLAT_PACKET_SIZE 127
 #endif //HIGH_DATARATE_PHY

@@ -3,7 +3,7 @@
  * @brief Core application logic.
  *******************************************************************************
  * # License
- * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -47,17 +47,17 @@
 #endif
 
 #if SL_SIMPLE_BUTTON_COUNT >= 2
-#define PB0               SL_SIMPLE_BUTTON_INSTANCE(0)
-#define PB1               SL_SIMPLE_BUTTON_INSTANCE(1)
+#define BUTTON_0          SL_SIMPLE_BUTTON_INSTANCE(0)
+#define BUTTON_1          SL_SIMPLE_BUTTON_INSTANCE(1)
 #elif SL_SIMPLE_BUTTON_COUNT == 1
-#define PB0               SL_SIMPLE_BUTTON_INSTANCE(0)
-#define PB1               PB0
+#define BUTTON_0          SL_SIMPLE_BUTTON_INSTANCE(0)
+#define BUTTON_1          BUTTON_0
 #define LED0              SL_SIMPLE_LED_INSTANCE(0)
 #define BUTTON_TIMEOUT    1000
 #endif // SL_SIMPLE_BUTTON_COUNT
 
-#define PB0_VALUE    ((uint8_t)(1 << 0))  ///< Button 0 pressed.
-#define PB1_VALUE    ((uint8_t)(1 << 1))  ///< Button 1 pressed.
+#define BUTTON_0_VALUE    ((uint8_t)(1 << 0))  ///< Button 0 pressed.
+#define BUTTON_1_VALUE    ((uint8_t)(1 << 1))  ///< Button 1 pressed.
 
 /// Enabled, if switching roles (central - peripheral)
 bool switching_roles = false;
@@ -176,11 +176,11 @@ static void handle_cli_switch_command(throughput_role_t role_request)
 uint8_t app_check_buttons()
 {
   uint8_t ret = 0;
-  if (sl_button_get_state(PB0) == SL_SIMPLE_BUTTON_PRESSED) {
-    ret |= PB0_VALUE;
+  if (sl_button_get_state(BUTTON_0) == SL_SIMPLE_BUTTON_PRESSED) {
+    ret |= BUTTON_0_VALUE;
   }
-  if (sl_button_get_state(PB1) == SL_SIMPLE_BUTTON_PRESSED) {
-    ret |= PB1_VALUE;
+  if (sl_button_get_state(BUTTON_1) == SL_SIMPLE_BUTTON_PRESSED) {
+    ret |= BUTTON_1_VALUE;
   }
   return ret;
 }

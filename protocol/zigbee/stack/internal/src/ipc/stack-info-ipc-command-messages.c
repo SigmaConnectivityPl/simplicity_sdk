@@ -651,18 +651,15 @@ void sl_zigbee_get_extended_pan_id(uint8_t *resultLocation)
 {
   sli_zigbee_ipc_cmd_t msg;
 
-  if ((16) > (16)) {
-    assert(false); // "vector resultLocation length exceeds expected maximum
+  if (resultLocation != NULL) {
+    memmove(msg.data.get_extended_pan_id.request.resultLocation, resultLocation, sizeof(uint8_t) * (16));
   }
 
-  memmove(msg.data.get_extended_pan_id.request.resultLocation, resultLocation, sizeof(uint8_t) * (16));
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_extended_pan_id_process_ipc_command, &msg);
 
-  if ((16) > (16)) {
-    assert(false); // "vector resultLocation length exceeds expected maximum
+  if (resultLocation != NULL) {
+    memmove(resultLocation, msg.data.get_extended_pan_id.request.resultLocation, sizeof(uint8_t) * (16));
   }
-
-  memmove(resultLocation, msg.data.get_extended_pan_id.request.resultLocation, sizeof(uint8_t) * (16));
 }
 
 uint8_t sl_zigbee_get_initial_neighbor_outgoing_cost(void)

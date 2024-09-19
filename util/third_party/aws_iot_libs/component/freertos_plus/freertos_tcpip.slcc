@@ -74,6 +74,16 @@ description: >
 
 package: amazon_platform
 quality: production
+metadata:
+  sbom:
+    license: MIT
+    upstream:
+      name: FreeRTOS-Plus-TCP
+      version: 2.3.2
+      supplier: FreeRTOS
+      url: https:https://github.com/FreeRTOS/FreeRTOS-Plus-TCP
+      package_url: https://github.com/FreeRTOS/FreeRTOS-Plus-TCP/tree/9a25860
+      comment: FreeRTOS-Plus-TCP is a scalable, open source and thread safe TCP/IP stack for FreeRTOS.
 
 provides:
   - name: freertos_tcpip
@@ -81,6 +91,7 @@ provides:
 requires:
   - name: iot_config_common
   - name: segger_rtt
+  - name: iot_sbom_lib_abstraction_common_io
 
 root_path: util/third_party/aws_iot_libs
 

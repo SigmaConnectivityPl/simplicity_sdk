@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief This file includes all compile-time configuration constants used by SiLabs POSIX builds.
  *
@@ -34,6 +34,7 @@
 #ifndef OPENTHREAD_CORE_SILABS_POSIX_CONFIG_H_
 #define OPENTHREAD_CORE_SILABS_POSIX_CONFIG_H_
 
+/* clang-format off */
 /******************************************************************************
  * Recommended setup strings for Thread certified Silicon Labs OTBRs
  *****************************************************************************/
@@ -156,6 +157,7 @@ sudo INFRA_IF_NAME=eth0 RELEASE=1 REFERENCE_DEVICE=1 BACKBONE_ROUTER=1 BORDER_RO
         ./script/setup
 */
 
+/* clang-format on */
 /******************************************************************************
  * Vendor defaults
  *****************************************************************************/
@@ -380,8 +382,8 @@ sudo INFRA_IF_NAME=eth0 RELEASE=1 REFERENCE_DEVICE=1 BACKBONE_ROUTER=1 BORDER_RO
 #ifndef OPENTHREAD_CONFIG_RADIO_915MHZ_OQPSK_SUPPORT
 #ifndef OPENTHREAD_CONFIG_RADIO_2P4GHZ_OQPSK_SUPPORT
 #define OPENTHREAD_CONFIG_PLATFORM_RADIO_PROPRIETARY_SUPPORT 0
-#define OPENTHREAD_CONFIG_RADIO_915MHZ_OQPSK_SUPPORT         0
-#define OPENTHREAD_CONFIG_RADIO_2P4GHZ_OQPSK_SUPPORT         1
+#define OPENTHREAD_CONFIG_RADIO_915MHZ_OQPSK_SUPPORT 0
+#define OPENTHREAD_CONFIG_RADIO_2P4GHZ_OQPSK_SUPPORT 1
 #endif
 #endif
 #endif

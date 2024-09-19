@@ -6,7 +6,9 @@ description: C SDK Libraries Init Helper
 
 package: amazon_platform
 quality: production
-
+metadata:
+  sbom:
+    reference: iot_sbom_freertos_common
 provides:
   - name: iot_lib_init
 

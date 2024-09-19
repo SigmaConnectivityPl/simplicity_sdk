@@ -84,7 +84,7 @@
 typedef struct app_setting_wisun{
   char network_name[SL_WISUN_NETWORK_NAME_SIZE + 1];
   uint8_t network_size;
-  int8_t tx_power;
+  int16_t tx_power;
   uint8_t device_type;
   uint8_t lfn_profile;
   bool is_default_phy;
@@ -691,7 +691,7 @@ static sl_status_t _app_wisun_application_setting(const app_setting_wisun_t * co
 #endif
 
   // sets the TX power
-  ret = sl_wisun_set_tx_power(setting->tx_power);
+  ret = sl_wisun_set_tx_power_ddbm(setting->tx_power);
   if (ret != SL_STATUS_OK) {
     printf("[Failed: unable to set TX power: %lu]\n", ret);
     _app_wisun_core_set_state(SL_WISUN_APP_CORE_STATE_SET_TX_POWER_ERROR);

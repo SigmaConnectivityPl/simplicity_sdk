@@ -565,7 +565,7 @@ static sl_status_t state_any_on_delete_instance(cs_initiator_t             *init
     data_out.evt_error.sc = sc;
     sc = initiator_state_machine_event_handler(initiator->conn_handle,
                                                INITIATOR_EVT_ERROR,
-                                               NULL);
+                                               &data_out);
   }
 
   return sc;

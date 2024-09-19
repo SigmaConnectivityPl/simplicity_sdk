@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief MTD application logic.
  *******************************************************************************
@@ -29,11 +29,13 @@
  ******************************************************************************/
 
 // Define module name for Power Manager debuging feature.
-#define CURRENT_MODULE_NAME    "OPENTHREAD_SAMPLE_APP"
+#define CURRENT_MODULE_NAME "OPENTHREAD_SAMPLE_APP"
 
-#include <string.h>
 #include <assert.h>
+#include <string.h>
 
+#include <common/code_utils.hpp>
+#include <common/logging.hpp>
 #include <openthread/cli.h>
 #include <openthread/dataset_ftd.h>
 #include <openthread/instance.h>
@@ -41,8 +43,6 @@
 #include <openthread/thread.h>
 #include <openthread/udp.h>
 #include <openthread/platform/logging.h>
-#include <common/code_utils.hpp>
-#include <common/logging.hpp>
 
 #include "sl_button.h"
 #include "sl_simple_button.h"
@@ -67,7 +67,7 @@
 
 // Forward declarations
 otInstance *otGetInstance(void);
-void mtdReceiveCallback(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo);
+void        mtdReceiveCallback(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo);
 extern void otSysEventSignalPending(void);
 
 // Variables
@@ -141,8 +141,8 @@ void setNetworkConfiguration(void)
     aDataset.mComponents.mIsExtendedPanIdPresent = true;
 
     /* Set network key to 1234C0DE1AB51234C0DE1AB51234C0DE */
-    uint8_t key[OT_NETWORK_KEY_SIZE] = {0x12, 0x34, 0xC0, 0xDE, 0x1A, 0xB5, 0x12, 0x34,
-                                        0xC0, 0xDE, 0x1A, 0xB5, 0x12, 0x34, 0xC0, 0xDE};
+    uint8_t key[OT_NETWORK_KEY_SIZE] =
+        {0x12, 0x34, 0xC0, 0xDE, 0x1A, 0xB5, 0x12, 0x34, 0xC0, 0xDE, 0x1A, 0xB5, 0x12, 0x34, 0xC0, 0xDE};
     memcpy(aDataset.mNetworkKey.m8, key, sizeof(aDataset.mNetworkKey));
     aDataset.mComponents.mIsNetworkKeyPresent = true;
 
@@ -203,7 +203,7 @@ void sl_button_on_change(const sl_button_t *handle)
         otSysEventSignalPending();
     }
 #ifdef SL_CATALOG_KERNEL_PRESENT
-        sl_ot_rtos_set_pending_event(SL_OT_RTOS_EVENT_APP);
+    sl_ot_rtos_set_pending_event(SL_OT_RTOS_EVENT_APP);
 #endif
 }
 
@@ -213,9 +213,9 @@ void sl_button_on_change(const sl_button_t *handle)
 
 void applicationTick(void)
 {
-    otMessageInfo    messageInfo;
-    otMessage       *message = NULL;
-    const char      *payload = MTD_MESSAGE;
+    otMessageInfo messageInfo;
+    otMessage    *message = NULL;
+    const char   *payload = MTD_MESSAGE;
 
     if (sPrintState)
     {

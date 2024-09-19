@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief CMSIS RTOS2 adaptation for running OpenThread in RTOS
  *******************************************************************************
@@ -33,25 +33,25 @@
 
 #include <openthread-core-config.h>
 #include <openthread-system.h>
-#include <openthread/platform/time.h>
 #include <openthread/tasklet.h>
+#include <openthread/platform/time.h>
 
 #include <mbedtls/platform.h>
 
 #include "cmsis_os2.h"
 #include "platform-efr32.h"
-#include "sl_ot_rtos_adaptation.h"
-#include "sl_ot_init.h"
 #include "sl_cmsis_os2_common.h"
 #include "sl_component_catalog.h"
+#include "sl_ot_init.h"
+#include "sl_ot_rtos_adaptation.h"
 
 // Structure defining task information
 typedef struct sl_ot_rtos_thread_t
 {
-    osThreadId_t                id;             // Task ID
-    osSemaphoreId_t             semaphore;      // Task wake semaphore
-    volatile sl_ot_rtos_event_t events;         // Task specific flags, to notify about the pending event
-    uint64_t                    active_duration;// Tracking the active duration of the stacks.
+    osThreadId_t                id;              // Task ID
+    osSemaphoreId_t             semaphore;       // Task wake semaphore
+    volatile sl_ot_rtos_event_t events;          // Task specific flags, to notify about the pending event
+    uint64_t                    active_duration; // Tracking the active duration of the stacks.
 } sl_ot_rtos_thread_t;
 
 /* OT main stack task specific settings */
@@ -61,18 +61,16 @@ __ALIGNED(4) static uint8_t sli_ot_stack_task_cb[osThreadCbSize];
 static void sli_ot_stack_task(void *aContext);
 
 static const osThreadAttr_t sli_ot_stack_task_attr = {
-  .name  = "OT Stack",
-  .attr_bits = 0u,
-  .stack_size = SL_OPENTHREAD_STACK_TASK_MEM_SIZE,
-  .stack_mem = sli_ot_stack_task_mem,
-  .cb_mem = sli_ot_stack_task_cb,
-  .cb_size = osThreadCbSize,
-  .priority = (osPriority_t) SL_OPENTHREAD_RTOS_STACK_TASK_PRIORITY,
+    .name       = "OT Stack",
+    .attr_bits  = 0u,
+    .stack_size = SL_OPENTHREAD_STACK_TASK_MEM_SIZE,
+    .stack_mem  = sli_ot_stack_task_mem,
+    .cb_mem     = sli_ot_stack_task_cb,
+    .cb_size    = osThreadCbSize,
+    .priority   = (osPriority_t)SL_OPENTHREAD_RTOS_STACK_TASK_PRIORITY,
 };
 
-static const osSemaphoreAttr_t sli_ot_stack_semaphore_attr = {
-    .name = "OT Stack Semaphore"
-};
+static const osSemaphoreAttr_t sli_ot_stack_semaphore_attr = {.name = "OT Stack Semaphore"};
 
 /* OT app task specific settings */
 #if SL_OPENTHREAD_ENABLE_APP_TASK
@@ -82,46 +80,42 @@ __ALIGNED(4) static uint8_t sli_ot_app_task_cb[osThreadCbSize];
 static void sli_ot_app_task(void *aContext);
 
 static const osThreadAttr_t sli_ot_app_task_attr = {
-  .name  = "OT App",
-  .attr_bits = 0u,
-  .stack_size = SL_OPENTHREAD_APP_TASK_MEM_SIZE,
-  .stack_mem = sli_ot_app_task_mem,
-  .cb_mem = sli_ot_app_task_cb,
-  .cb_size = osThreadCbSize,
-  .priority = (osPriority_t) SL_OPENTHREAD_RTOS_APP_TASK_PRIORITY,
+    .name       = "OT App",
+    .attr_bits  = 0u,
+    .stack_size = SL_OPENTHREAD_APP_TASK_MEM_SIZE,
+    .stack_mem  = sli_ot_app_task_mem,
+    .cb_mem     = sli_ot_app_task_cb,
+    .cb_size    = osThreadCbSize,
+    .priority   = (osPriority_t)SL_OPENTHREAD_RTOS_APP_TASK_PRIORITY,
 };
 
-static const osSemaphoreAttr_t sli_ot_app_semaphore_attr = {
-    .name = "OT App Semaphore"
-};
+static const osSemaphoreAttr_t sli_ot_app_semaphore_attr = {.name = "OT App Semaphore"};
 #endif
 
 /* OT CLI task specific settings */
-#if SL_OPENTHREAD_ENABLE_CLI_TASK && defined(SL_CATALOG_OPENTHREAD_CLI_PRESENT) 
+#if SL_OPENTHREAD_ENABLE_CLI_TASK && defined(SL_CATALOG_OPENTHREAD_CLI_PRESENT)
 static sl_ot_rtos_thread_t sli_ot_cli_task_info;
 __ALIGNED(8) static uint8_t sli_ot_cli_task_mem[SL_OPENTHREAD_CLI_TASK_MEM_SIZE];
-__ALIGNED(4) static uint8_t sli_ot_cli_task_cb [osThreadCbSize];
+__ALIGNED(4) static uint8_t sli_ot_cli_task_cb[osThreadCbSize];
 static void sli_ot_cli_task(void *aContext);
 
 static const osThreadAttr_t sli_ot_cli_task_attr = {
-    .name = "OT CLI",
-    .attr_bits = 0u,
+    .name       = "OT CLI",
+    .attr_bits  = 0u,
     .stack_size = SL_OPENTHREAD_CLI_TASK_MEM_SIZE,
-    .stack_mem = sli_ot_cli_task_mem,
-    .cb_mem = sli_ot_cli_task_cb,
-    .cb_size = osThreadCbSize,
-    .priority = (osPriority_t) SL_OPENTHREAD_RTOS_CLI_TASK_PRIORITY,
+    .stack_mem  = sli_ot_cli_task_mem,
+    .cb_mem     = sli_ot_cli_task_cb,
+    .cb_size    = osThreadCbSize,
+    .priority   = (osPriority_t)SL_OPENTHREAD_RTOS_CLI_TASK_PRIORITY,
 };
 
-static const osSemaphoreAttr_t sli_ot_cli_semaphore_attr = {
-    .name = "OT CLI Semaphore"
-};
-#endif //SL_OPENTHREAD_ENABLE_CLI_TASK && defined(SL_CATALOG_OPENTHREAD_CLI_PRESENT) 
+static const osSemaphoreAttr_t sli_ot_cli_semaphore_attr = {.name = "OT CLI Semaphore"};
+#endif // SL_OPENTHREAD_ENABLE_CLI_TASK && defined(SL_CATALOG_OPENTHREAD_CLI_PRESENT)
 
-osMutexId_t sli_ot_stack_mutex;
+osMutexId_t                sli_ot_stack_mutex;
 static const osMutexAttr_t sli_stack_mutex_attributes = {
-  .name = "OT Stack Mutex",
-  .attr_bits = osMutexRecursive | osMutexPrioInherit,
+    .name      = "OT Stack Mutex",
+    .attr_bits = osMutexRecursive | osMutexPrioInherit,
 };
 
 otInstance *otGetInstance(void);
@@ -129,22 +123,22 @@ otInstance *otGetInstance(void);
 // Create the main task mutex. This mutex will be used to grant access to stack.
 static void sl_ot_rtos_create_stack_mutex(void)
 {
-  sli_ot_stack_mutex = osMutexNew(&sli_stack_mutex_attributes);
-  EFM_ASSERT(sli_ot_stack_mutex != NULL);
+    sli_ot_stack_mutex = osMutexNew(&sli_stack_mutex_attributes);
+    EFM_ASSERT(sli_ot_stack_mutex != NULL);
 }
 
 // Helper function to create a task and a semaphore that can be used to wake the task
 static void sl_ot_rtos_stack_create(sl_ot_rtos_thread_t     *task_info,
-                                 const osThreadFunc_t       task_handler,
-                                 const osThreadAttr_t       *task_attributes,
-                                 const osSemaphoreAttr_t    *semaphore_attributes)
+                                    const osThreadFunc_t     task_handler,
+                                    const osThreadAttr_t    *task_attributes,
+                                    const osSemaphoreAttr_t *semaphore_attributes)
 {
-    static const uint32_t MAX_SEMAPHORE_COUNT = 1;
+    static const uint32_t MAX_SEMAPHORE_COUNT     = 1;
     static const uint32_t INITIAL_SEMAPHORE_COUNT = 0;
 
-    task_info->events = 0;
+    task_info->events    = 0;
     task_info->semaphore = osSemaphoreNew(MAX_SEMAPHORE_COUNT, INITIAL_SEMAPHORE_COUNT, semaphore_attributes);
-    task_info->id = osThreadNew(*task_handler, NULL, task_attributes);
+    task_info->id        = osThreadNew(*task_handler, NULL, task_attributes);
 }
 
 // Wait loop for tasks. We acquire the task semaphore and acquire the semaphore and external events can
@@ -154,7 +148,7 @@ static sl_ot_rtos_event_t sl_ot_rtos_wait_for_event(sl_ot_rtos_thread_t *task_in
     sl_ot_rtos_event_t accessible_events = task_info->events & event;
     while (accessible_events == 0)
     {
-        (void) osSemaphoreAcquire(task_info->semaphore, osWaitForever);
+        (void)osSemaphoreAcquire(task_info->semaphore, osWaitForever);
         accessible_events = task_info->events & event;
     }
     task_info->events &= ~accessible_events;
@@ -165,20 +159,23 @@ static sl_ot_rtos_event_t sl_ot_rtos_wait_for_event(sl_ot_rtos_thread_t *task_in
 static void sl_ot_rtos_set_event_flag(sl_ot_rtos_thread_t *task_info, sl_ot_rtos_event_t event)
 {
     task_info->events |= event;
-    (void) osSemaphoreRelease(task_info->semaphore); 
+    (void)osSemaphoreRelease(task_info->semaphore);
 }
 
 // Initialize the stack task.
 void sl_ot_rtos_stack_init(void)
 {
     // Create main stack task for operation..
-    sl_ot_rtos_stack_create(&sli_ot_stack_task_info, sli_ot_stack_task, &sli_ot_stack_task_attr, &sli_ot_stack_semaphore_attr);
+    sl_ot_rtos_stack_create(&sli_ot_stack_task_info,
+                            sli_ot_stack_task,
+                            &sli_ot_stack_task_attr,
+                            &sli_ot_stack_semaphore_attr);
 
-#if SL_OPENTHREAD_ENABLE_CLI_TASK && defined(SL_CATALOG_OPENTHREAD_CLI_PRESENT) 
+#if SL_OPENTHREAD_ENABLE_CLI_TASK && defined(SL_CATALOG_OPENTHREAD_CLI_PRESENT)
     // If CLI is enabled and CLI task is needed, create one..
     sl_ot_rtos_stack_create(&sli_ot_cli_task_info, sli_ot_cli_task, &sli_ot_cli_task_attr, &sli_ot_cli_semaphore_attr);
 #endif
-    
+
     // Create the main stack mutex. This mutex will be used to request access for stack.
     sl_ot_rtos_create_stack_mutex();
 
@@ -198,7 +195,7 @@ void sl_ot_rtos_app_init(void)
 
 void sl_ot_rtos_set_pending_event(sl_ot_rtos_event_t event)
 {
-#if SL_OPENTHREAD_ENABLE_CLI_TASK && defined(SL_CATALOG_OPENTHREAD_CLI_PRESENT) 
+#if SL_OPENTHREAD_ENABLE_CLI_TASK && defined(SL_CATALOG_OPENTHREAD_CLI_PRESENT)
     if (event & SL_OT_RTOS_EVENT_UART)
     {
         // If SL_OT_RTOS_EVENT_UART is raised, set the event flag for CLI task.
@@ -244,10 +241,11 @@ static void sli_ot_stack_task(void *context)
         otSysProcessDrivers(instance);
         otTaskletsProcess(instance);
 
-        //Release the stack mutex
+        // Release the stack mutex
         sl_ot_rtos_release_stack_mutex();
 
-        if (!otTaskletsArePending(instance)) {
+        if (!otTaskletsArePending(instance))
+        {
             sli_ot_stack_task_info.active_duration += otPlatTimeGet() - timestamp;
             // If tasklets are not pending, wait for stack event..
             (void)sl_ot_rtos_wait_for_event(&sli_ot_stack_task_info, SL_OT_RTOS_EVENT_STACK);
@@ -265,7 +263,7 @@ static void sli_ot_app_task(void *context)
     OT_UNUSED_VARIABLE(context);
 
     while (!otSysPseudoResetWasRequested())
-    {   
+    {
         uint64_t timestamp = otPlatTimeGet();
         // Give a tick to application..
         sl_ot_rtos_application_tick();
@@ -273,12 +271,12 @@ static void sli_ot_app_task(void *context)
         // Wait for the app event..
         (void)sl_ot_rtos_wait_for_event(&sli_ot_app_task_info, SL_OT_RTOS_EVENT_APP);
     }
-    //If reset is requested terminate the app task..
+    // If reset is requested terminate the app task..
     osThreadTerminate(sli_ot_app_task_info.id);
 }
-#endif //SL_OPENTHREAD_ENABLE_APP_TASK
+#endif // SL_OPENTHREAD_ENABLE_APP_TASK
 
-#if SL_OPENTHREAD_ENABLE_CLI_TASK && defined(SL_CATALOG_OPENTHREAD_CLI_PRESENT) 
+#if SL_OPENTHREAD_ENABLE_CLI_TASK && defined(SL_CATALOG_OPENTHREAD_CLI_PRESENT)
 static void sli_ot_cli_task(void *aContext)
 {
     (void)aContext;
@@ -288,7 +286,7 @@ static void sli_ot_cli_task(void *aContext)
         uint64_t timestamp = otPlatTimeGet();
 
         // Process UART events. We acquire stack mutex here because, we will be accessing
-        // the stack to provide serial callbacks. As these are platform level callbacks, it 
+        // the stack to provide serial callbacks. As these are platform level callbacks, it
         // must be in stack context.
         sl_ot_rtos_acquire_stack_mutex();
         efr32UartProcess();

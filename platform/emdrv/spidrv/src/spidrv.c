@@ -384,11 +384,6 @@ static Ecode_t SPIDRV_InitUsart(SPIDRV_Handle_t handle, SPIDRV_Init_t *initData)
                                              | USART_ROUTEPEN_CLKPEN
                                              | USART_ROUTEPEN_CSPEN;
 #elif defined (_GPIO_USART_ROUTEEN_MASK)
-    GPIO->USARTROUTE[spiPortNum].ROUTEEN = GPIO_USART_ROUTEEN_TXPEN
-                                           | GPIO_USART_ROUTEEN_RXPEN
-                                           | GPIO_USART_ROUTEEN_CLKPEN
-                                           | GPIO_USART_ROUTEEN_CSPEN;
-
     GPIO->USARTROUTE[spiPortNum].TXROUTE = ((uint32_t)initData->portTx
                                             << _GPIO_USART_TXROUTE_PORT_SHIFT)
                                            | ((uint32_t)initData->pinTx
@@ -408,6 +403,11 @@ static Ecode_t SPIDRV_InitUsart(SPIDRV_Handle_t handle, SPIDRV_Init_t *initData)
                                             << _GPIO_USART_CSROUTE_PORT_SHIFT)
                                            | ((uint32_t)initData->pinCs
                                               << _GPIO_USART_CSROUTE_PIN_SHIFT);
+
+    GPIO->USARTROUTE[spiPortNum].ROUTEEN = GPIO_USART_ROUTEEN_TXPEN
+                                           | GPIO_USART_ROUTEEN_RXPEN
+                                           | GPIO_USART_ROUTEEN_CLKPEN
+                                           | GPIO_USART_ROUTEEN_CSPEN;
 #else
     handle->peripheral.usartPort->ROUTE = USART_ROUTE_TXPEN
                                           | USART_ROUTE_RXPEN
@@ -431,10 +431,6 @@ static Ecode_t SPIDRV_InitUsart(SPIDRV_Handle_t handle, SPIDRV_Init_t *initData)
                                              | USART_ROUTEPEN_RXPEN
                                              | USART_ROUTEPEN_CLKPEN;
 #elif defined (GPIO_USART_ROUTEEN_TXPEN)
-    GPIO->USARTROUTE[spiPortNum].ROUTEEN = GPIO_USART_ROUTEEN_TXPEN
-                                           | GPIO_USART_ROUTEEN_RXPEN
-                                           | GPIO_USART_ROUTEEN_CLKPEN;
-
     GPIO->USARTROUTE[spiPortNum].TXROUTE = ((uint32_t)initData->portTx
                                             << _GPIO_USART_TXROUTE_PORT_SHIFT)
                                            | ((uint32_t)initData->pinTx
@@ -449,6 +445,10 @@ static Ecode_t SPIDRV_InitUsart(SPIDRV_Handle_t handle, SPIDRV_Init_t *initData)
                                              << _GPIO_USART_CLKROUTE_PORT_SHIFT)
                                             | ((uint32_t)initData->pinClk
                                                << _GPIO_USART_CLKROUTE_PIN_SHIFT);
+
+    GPIO->USARTROUTE[spiPortNum].ROUTEEN = GPIO_USART_ROUTEEN_TXPEN
+                                           | GPIO_USART_ROUTEEN_RXPEN
+                                           | GPIO_USART_ROUTEEN_CLKPEN;
 #else
     handle->peripheral.usartPort->ROUTE = USART_ROUTE_TXPEN
                                           | USART_ROUTE_RXPEN

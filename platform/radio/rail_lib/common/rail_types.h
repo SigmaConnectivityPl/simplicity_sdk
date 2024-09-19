@@ -5613,11 +5613,11 @@ typedef struct RAIL_VerifyConfig {
  */
 RAIL_ENUM(RAIL_Vdet_Mode_t) {
   /** VDET is completely disabled. */
-  RAIL_VDET_MODE_DISABLED = 0,
-  /** VDET_AUTOMATIC causes VDET measurements to be taken every Tx packet at the specified time. */
-  RAIL_VDET_MODE_AUTOMATIC = 1,
-  /** VDET_IMMEDIATE causes an immediate VDET measurement. VDET must not be in RAIL_VDET_MODE_AUTOMATIC. */
-  RAIL_VDET_MODE_IMMEDIATE = 2,
+  RAIL_VDET_MODE_DISABLED = 0u,
+  /** AUTOMATIC causes VDET measurements to be taken every Tx packet at the specified time. */
+  RAIL_VDET_MODE_AUTOMATIC = 1u,
+  /** IMMEDIATE causes an immediate VDET measurement. VDET must not be in \ref RAIL_VDET_MODE_AUTOMATIC. */
+  RAIL_VDET_MODE_IMMEDIATE = 2u,
   /** A count of the choices in this enumeration. Must be last. */
   RAIL_VDET_MODE_COUNT
 };
@@ -5649,11 +5649,11 @@ RAIL_ENUM(RAIL_Vdet_Mode_t) {
  */
 RAIL_ENUM(RAIL_Vdet_Resolution_t) {
   /** ~10 bit resolution. */
-  RAIL_VDET_RESOLUTION_10_BIT = 0,
+  RAIL_VDET_RESOLUTION_10_BIT = 0u,
   /** ~11 bit resolution. */
-  RAIL_VDET_RESOLUTION_11_BIT = 1,
+  RAIL_VDET_RESOLUTION_11_BIT = 1u,
   /** ~12 bit resolution. */
-  RAIL_VDET_RESOLUTION_12_BIT = 2,
+  RAIL_VDET_RESOLUTION_12_BIT = 2u,
   /** A count of the choices in this enumeration. Must be last. */
   RAIL_VDET_RESOLUTION_COUNT
 };
@@ -5686,30 +5686,33 @@ RAIL_ENUM(RAIL_Vdet_Resolution_t) {
 // MUST BE KEPT IN ALIGNMENT WITH #DEFINES FOR VDET_STATUS IN RFLDMA YAML FILE!
 RAIL_ENUM(RAIL_Vdet_Status_t) {
   /** IDLE - Waiting for next command/measurement */
-  RAIL_VDET_STATUS_IDLE = 0,
+  RAIL_VDET_STATUS_IDLE = 0u,
   /** START of the VDET measurement activity. */
-  RAIL_VDET_STATUS_START = 1,
+  RAIL_VDET_STATUS_START = 1u,
   /** Completion of a 10 bit measurement. */
-  RAIL_VDET_STATUS_10_BIT_DONE = 2,
+  RAIL_VDET_STATUS_10_BIT_DONE = 2u,
   /** Completion of a 11 bit measurement. */
-  RAIL_VDET_STATUS_11_BIT_DONE = 3,
+  RAIL_VDET_STATUS_11_BIT_DONE = 3u,
   /** Completion of a 12 bit measurement. */
-  RAIL_VDET_STATUS_12_BIT_DONE = 4,
+  RAIL_VDET_STATUS_12_BIT_DONE = 4u,
+  /** Conflict with another AuxADC user */
+  RAIL_VDET_STATUS_BLOCKED = 5u,
   /** An error has occurred. */
-  RAIL_VDET_STATUS_ERROR = 5,
+  RAIL_VDET_STATUS_ERROR = 6u,
   /** A count of the choices in this enumeration. Must be last. */
   RAIL_VDET_STATUS_COUNT
 };
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 // Self-referencing defines minimize compiler complaints when using RAIL_ENUM
-#define RAIL_VDET_STATUS_IDLE                   ((RAIL_Vdet_Status_t) RAIL_VDET_STATUS_IDLE)
-#define RAIL_VDET_STATUS_START                  ((RAIL_Vdet_Status_t) RAIL_VDET_STATUS_START)
-#define RAIL_VDET_STATUS_10_BIT_DONE            ((RAIL_Vdet_Status_t) RAIL_VDET_STATUS_10_BIT_DONE)
-#define RAIL_VDET_STATUS_11_BIT_DONE            ((RAIL_Vdet_Status_t) RAIL_VDET_STATUS_11_BIT_DONE)
-#define RAIL_VDET_STATUS_12_BIT_DONE            ((RAIL_Vdet_Status_t) RAIL_VDET_STATUS_12_BIT_DONE)
-#define RAIL_VDET_STATUS_ERROR                  ((RAIL_Vdet_Status_t) RAIL_VDET_STATUS_ERROR)
-#define RAIL_VDET_STATUS_COUNT                  ((RAIL_Vdet_Status_t) RAIL_VDET_STATUS_COUNT)
+#define RAIL_VDET_STATUS_IDLE        ((RAIL_Vdet_Status_t) RAIL_VDET_STATUS_IDLE)
+#define RAIL_VDET_STATUS_START       ((RAIL_Vdet_Status_t) RAIL_VDET_STATUS_START)
+#define RAIL_VDET_STATUS_10_BIT_DONE ((RAIL_Vdet_Status_t) RAIL_VDET_STATUS_10_BIT_DONE)
+#define RAIL_VDET_STATUS_11_BIT_DONE ((RAIL_Vdet_Status_t) RAIL_VDET_STATUS_11_BIT_DONE)
+#define RAIL_VDET_STATUS_12_BIT_DONE ((RAIL_Vdet_Status_t) RAIL_VDET_STATUS_12_BIT_DONE)
+#define RAIL_VDET_STATUS_BLOCKED     ((RAIL_Vdet_Status_t) RAIL_VDET_STATUS_BLOCKED)
+#define RAIL_VDET_STATUS_ERROR       ((RAIL_Vdet_Status_t) RAIL_VDET_STATUS_ERROR)
+#define RAIL_VDET_STATUS_COUNT       ((RAIL_Vdet_Status_t) RAIL_VDET_STATUS_COUNT)
 #endif//DOXYGEN_SHOULD_SKIP_THIS
 
 /**
@@ -5722,6 +5725,7 @@ RAIL_ENUM(RAIL_Vdet_Status_t) {
     "RAIL_VDET_STATUS_10_BIT_DONE",   \
     "RAIL_VDET_STATUS_11_BIT_DONE",   \
     "RAIL_VDET_STATUS_12_BIT_DONE",   \
+    "RAIL_VDET_STATUS_BLOCKED",       \
     "RAIL_VDET_STATUS_ERROR",         \
 }
 

@@ -37,12 +37,10 @@
 #include "cmsis_os2.h"
 #include "sl_cmsis_os2_common.h"
 #include "app.h"
-
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
-#define APP_STACK_SIZE_BYTES   512UL
-
+#define APP_STACK_SIZE_BYTES  (2048UL)
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
 // -----------------------------------------------------------------------------
@@ -71,12 +69,12 @@ void app_init(void)
     .priority    = osPriorityNormal,
     .tz_module   = 0
   };
+
   osThreadId_t app_thr_id = osThreadNew(app_task,
                                         NULL,
                                         &app_task_attr);
   assert(app_thr_id != NULL);
 }
-
 // -----------------------------------------------------------------------------
 //                          Static Function Definitions
 // -----------------------------------------------------------------------------

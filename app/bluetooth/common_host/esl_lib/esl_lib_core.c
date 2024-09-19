@@ -296,6 +296,43 @@ static void esl_lib_core_on_bt_event(sl_bt_msg_t *evt)
                             SL_STATUS_ALLOCATION_FAILED,
                             ap_state->core_state);
       break;
+    case sl_bt_evt_system_error_id: {
+      uint32_t data = 0;
+      lib_status = ESL_LIB_STATUS_SYSTEM_ERROR;
+
+      // Get a maximum of 4 bytes from the available data. If there's any.
+      switch (evt->data.evt_system_error.data.len) {
+        default:
+        /* FALLTHROUGH */
+        case 4:
+          data |= (evt->data.evt_system_error.data.data[3] << 24);
+        /* FALLTHROUGH */
+        case 3:
+          data |= (evt->data.evt_system_error.data.data[2] << 16);
+        /* FALLTHROUGH */
+        case 2:
+          data |= (evt->data.evt_system_error.data.data[1] << 8);
+        /* FALLTHROUGH */
+        case 1:
+          data |= evt->data.evt_system_error.data.data[0];
+        /* FALLTHROUGH */
+        case 0:
+          break;
+      }
+      // Swap DATA endianness for better readability in error message (can be read as BGAPI MSG HDR data if complete)
+      data = ((data >> 24) & 0xff)        // move byte 3 to byte 0
+             | ((data << 8)  & 0xff0000)  // move byte 1 to byte 2
+             | ((data >> 8)  & 0xff00)    // move byte 2 to byte 1
+             | ((data << 24) & 0xff000000); // byte 0 to byte 3
+
+      if (evt->data.evt_system_error.reason == SL_STATUS_COMMAND_INCOMPLETE) {
+        // Reduce the severity level for incomplete commands (only!)
+        lib_critical_error = false;
+      } else {
+        lib_critical_error = true;
+      }
+      esl_lib_log_core_error("System error occured, sc = 0x%04x, data=0x%08x" APP_LOG_NL, evt->data.evt_system_error.reason, data);
+    } break;
     default:
       break;
   }

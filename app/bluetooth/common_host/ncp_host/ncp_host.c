@@ -376,6 +376,12 @@ static int32_t ncp_host_get_boot_event(void)
   booted = true;
   (void)app_timer_stop(&boot_timer);
 
+#if defined(SECURITY) && SECURITY == 1
+  if (enable_security) {
+    ncp_sec_host_command_handler(&buf_ncp_in);
+  }
+#endif // defined(SECURITY) && SECURITY == 1
+
   return buf_ncp_in.len;
 }
 

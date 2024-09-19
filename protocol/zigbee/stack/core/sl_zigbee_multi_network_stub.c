@@ -409,6 +409,7 @@ void sli_zigbee_stack_call_populate_counters(sl_zigbee_counter_type_t type, uint
 {
   sl_zigbee_counter_info_t info;
   info.data = data;
+  info.otherFields = NULL;
   sli_zigbee_stack_populate_counters(type, info);
 }
 void sli_zigbee_build_and_send_counter_info(sl_zigbee_counter_type_t counter, sl_802154_short_addr_t dst, uint8_t data)
@@ -447,6 +448,9 @@ void sli_zigbee_build_and_send_counter_info(sl_zigbee_counter_type_t counter, sl
     other.phy_index = tmpIndex;
     other.destinationNodeId = dst;
     info.otherFields = &other;
+  } else {
+    // otherFields is not used -- need this branch for MISRA compliance
+    info.otherFields = NULL;
   }
 
   sli_zigbee_stack_populate_counters(counter, info);

@@ -1,0 +1,12 @@
+id: ot_rtos_wrappers_real
+label: SL RTOS helper component
+package: OpenThread
+category: OpenThread
+quality: production
+description: This component provides wrapper functions for all openthread APIs allowing access to the thread stack in a multi-threaded environment.
+ui_hints:
+  visibility: never
+requires:
+  - name: ot_rtos_wrappers
+provides:
+  - name: ot_rtos_wrappers_real

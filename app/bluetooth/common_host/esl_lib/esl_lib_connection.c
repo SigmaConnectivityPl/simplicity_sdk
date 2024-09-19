@@ -782,12 +782,10 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
                                    &conn);
       if (sc == SL_STATUS_OK) {
         conn->security    = evt->data.evt_connection_parameters.security_mode;
-        conn->max_payload = evt->data.evt_connection_parameters.txsize - GATT_OVERHEAD;
-        esl_lib_log_connection_debug(CONN_FMT "Connection parameters, connection handle = %u, security = %u, payload = %u" APP_LOG_NL,
+        esl_lib_log_connection_debug(CONN_FMT "Connection parameters, connection handle = %u, security = %u" APP_LOG_NL,
                                      conn,
                                      conn->connection_handle,
-                                     conn->security,
-                                     conn->max_payload);
+                                     conn->security);
         // Bonding is considered finished when security has elevated.
         if (conn->security > sl_bt_connection_mode1_level1) {
           if (conn->state == ESL_LIB_CONNECTION_STATE_BONDING
@@ -895,6 +893,16 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
       } else {
         // Suppress error event for unknown connections
         sc = SL_STATUS_OK;
+      }
+      break;
+    case sl_bt_evt_connection_data_length_id:
+      sc = esl_lib_connection_find(evt->data.evt_connection_data_length.connection,
+                                   &conn);
+      if (sc == SL_STATUS_OK) {
+        conn->max_payload = evt->data.evt_connection_data_length.tx_data_len - GATT_OVERHEAD;
+        esl_lib_log_connection_debug(CONN_FMT "Connection payload = %u" APP_LOG_NL,
+                                     conn,
+                                     conn->max_payload);
       }
       break;
     // Bonding

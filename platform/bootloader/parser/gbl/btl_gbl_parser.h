@@ -257,8 +257,8 @@ typedef struct {
   /// Context for custom tag
   uint32_t            customTagId;
 #if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
-  /// Length of Delta patch GBl
-  uint32_t            deltaGBLLength;
+  /// Length of GBl
+  uint32_t            gblLength;
   /// Address where the GBL has to be extracted
   uint32_t            deltaPatchAddress;
   /// Length of extracted data
@@ -267,8 +267,10 @@ typedef struct {
   uint32_t            newFwCRC;
   //Size of the newly created firmware
   uint32_t            newFwSize;
-  /// Enable delta GBL length counting
-  bool                enableDeltaGBLLenCount;
+  /// Enable GBL length counting
+  bool                enableGBLLengthCount;
+  /// End address of the current storage slot that is being processed
+  uint32_t            endOfStorageSlot;
 #endif
 #if defined(_SILICON_LABS_32B_SERIES_2)
   /// GBL Certificate

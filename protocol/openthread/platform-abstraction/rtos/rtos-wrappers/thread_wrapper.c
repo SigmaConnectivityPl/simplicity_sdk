@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Thread APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,89 +29,121 @@
  *
  ******************************************************************************/
 
-#include <openthread/thread.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/thread.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern bool OT_API_REAL_NAME(otThreadIsAnycastLocateInProgress)(otInstance * aInstance);
-extern bool OT_API_REAL_NAME(otThreadIsDiscoverInProgress)(otInstance * aInstance);
-extern bool OT_API_REAL_NAME(otThreadIsSingleton)(otInstance * aInstance);
-extern const char *OT_API_REAL_NAME(otThreadDeviceRoleToString)(otDeviceRole aRole);
-extern const char *OT_API_REAL_NAME(otThreadGetDomainName)(otInstance * aInstance);
-extern const char *OT_API_REAL_NAME(otThreadGetNetworkName)(otInstance * aInstance);
-extern const otExtendedPanId *OT_API_REAL_NAME(otThreadGetExtendedPanId)(otInstance * aInstance);
-extern const otIp6Address *OT_API_REAL_NAME(otThreadGetLinkLocalAllThreadNodesMulticastAddress)(otInstance * aInstance);
-extern const otIp6Address *OT_API_REAL_NAME(otThreadGetLinkLocalIp6Address)(otInstance * aInstance);
-extern const otIp6Address *OT_API_REAL_NAME(otThreadGetMeshLocalEid)(otInstance * aInstance);
-extern const otIp6Address *OT_API_REAL_NAME(otThreadGetRealmLocalAllThreadNodesMulticastAddress)(otInstance * aInstance);
-extern const otIp6Address *OT_API_REAL_NAME(otThreadGetRloc)(otInstance * aInstance);
-extern const otIp6InterfaceIdentifier *OT_API_REAL_NAME(otThreadGetFixedDuaInterfaceIdentifier)(otInstance * aInstance);
-extern const otIpCounters *OT_API_REAL_NAME(otThreadGetIp6Counters)(otInstance * aInstance);
-extern const otMeshLocalPrefix *OT_API_REAL_NAME(otThreadGetMeshLocalPrefix)(otInstance * aInstance);
-extern const otMleCounters *OT_API_REAL_NAME(otThreadGetMleCounters)(otInstance * aInstance);
-extern const uint32_t *OT_API_REAL_NAME(otThreadGetTimeInQueueHistogram)(otInstance * aInstance,uint16_t * aNumBins,uint32_t * aBinInterval);
-extern otDeviceRole OT_API_REAL_NAME(otThreadGetDeviceRole)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otThreadBecomeChild)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otThreadBecomeDetached)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otThreadDetachGracefully)(otInstance * aInstance,otDetachGracefullyCallback aCallback,void * aContext);
-extern otError OT_API_REAL_NAME(otThreadDiscover)(otInstance * aInstance,uint32_t aScanChannels,uint16_t aPanId,bool aJoiner,bool aEnableEui64Filtering,otHandleActiveScanResult aCallback,void * aCallbackContext);
-extern otError OT_API_REAL_NAME(otThreadGetLeaderData)(otInstance * aInstance,otLeaderData * aLeaderData);
-extern otError OT_API_REAL_NAME(otThreadGetLeaderRloc)(otInstance * aInstance,otIp6Address * aLeaderRloc);
-extern otError OT_API_REAL_NAME(otThreadGetNextNeighborInfo)(otInstance * aInstance,otNeighborInfoIterator * aIterator,otNeighborInfo * aInfo);
-extern otError OT_API_REAL_NAME(otThreadGetParentAverageRssi)(otInstance * aInstance,int8_t * aParentRssi);
-extern otError OT_API_REAL_NAME(otThreadGetParentInfo)(otInstance * aInstance,otRouterInfo * aParentInfo);
-extern otError OT_API_REAL_NAME(otThreadGetParentLastRssi)(otInstance * aInstance,int8_t * aLastRssi);
-extern otError OT_API_REAL_NAME(otThreadGetServiceAloc)(otInstance * aInstance,uint8_t aServiceId,otIp6Address * aServiceAloc);
-extern otError OT_API_REAL_NAME(otThreadLocateAnycastDestination)(otInstance * aInstance,const otIp6Address * aAnycastAddress,otThreadAnycastLocatorCallback aCallback,void * aContext);
-extern otError OT_API_REAL_NAME(otThreadSearchForBetterParent)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otThreadSendProactiveBackboneNotification)(otInstance * aInstance,otIp6Address * aTarget,otIp6InterfaceIdentifier * aMlIid,uint32_t aTimeSinceLastTransaction);
-extern otError OT_API_REAL_NAME(otThreadSetDomainName)(otInstance * aInstance,const char * aDomainName);
-extern otError OT_API_REAL_NAME(otThreadSetEnabled)(otInstance * aInstance,bool aEnabled);
-extern otError OT_API_REAL_NAME(otThreadSetExtendedPanId)(otInstance * aInstance,const otExtendedPanId * aExtendedPanId);
-extern otError OT_API_REAL_NAME(otThreadSetFixedDuaInterfaceIdentifier)(otInstance * aInstance,const otIp6InterfaceIdentifier * aIid);
-extern otError OT_API_REAL_NAME(otThreadSetJoinerAdvertisement)(otInstance * aInstance,uint32_t aOui,const uint8_t * aAdvData,uint8_t aAdvDataLength);
-extern otError OT_API_REAL_NAME(otThreadSetLinkMode)(otInstance * aInstance,otLinkModeConfig aConfig);
-extern otError OT_API_REAL_NAME(otThreadSetMeshLocalPrefix)(otInstance * aInstance,const otMeshLocalPrefix * aMeshLocalPrefix);
-extern otError OT_API_REAL_NAME(otThreadSetNetworkKey)(otInstance * aInstance,const otNetworkKey * aKey);
-extern otError OT_API_REAL_NAME(otThreadSetNetworkKeyRef)(otInstance * aInstance,otNetworkKeyRef aKeyRef);
-extern otError OT_API_REAL_NAME(otThreadSetNetworkName)(otInstance * aInstance,const char * aNetworkName);
-extern otLinkModeConfig OT_API_REAL_NAME(otThreadGetLinkMode)(otInstance * aInstance);
-extern otNetworkKeyRef OT_API_REAL_NAME(otThreadGetNetworkKeyRef)(otInstance * aInstance);
-extern uint16_t OT_API_REAL_NAME(otThreadGetKeySwitchGuardTime)(otInstance * aInstance);
-extern uint16_t OT_API_REAL_NAME(otThreadGetRloc16)(otInstance * aInstance);
-extern uint16_t OT_API_REAL_NAME(otThreadGetVersion)(void);
-extern uint32_t OT_API_REAL_NAME(otThreadGetChildTimeout)(otInstance * aInstance);
-extern uint32_t OT_API_REAL_NAME(otThreadGetKeySequenceCounter)(otInstance * aInstance);
-extern uint32_t OT_API_REAL_NAME(otThreadGetMaxTimeInQueue)(otInstance * aInstance);
-extern uint32_t OT_API_REAL_NAME(otThreadGetPartitionId)(otInstance * aInstance);
-extern uint8_t OT_API_REAL_NAME(otThreadGetLeaderRouterId)(otInstance * aInstance);
-extern uint8_t OT_API_REAL_NAME(otThreadGetLeaderWeight)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otConvertDurationInSecondsToString)(uint32_t aDuration,char * aBuffer,uint16_t aSize);
-extern void OT_API_REAL_NAME(otThreadGetNetworkKey)(otInstance * aInstance,otNetworkKey * aNetworkKey);
-extern void OT_API_REAL_NAME(otThreadRegisterParentResponseCallback)(otInstance * aInstance,otThreadParentResponseCallback aCallback,void * aContext);
-extern void OT_API_REAL_NAME(otThreadResetIp6Counters)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otThreadResetMleCounters)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otThreadResetTimeInQueueStat)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otThreadSendAddressNotification)(otInstance * aInstance,otIp6Address * aDestination,otIp6Address * aTarget,otIp6InterfaceIdentifier * aMlIid);
-extern void OT_API_REAL_NAME(otThreadSetChildTimeout)(otInstance * aInstance,uint32_t aTimeout);
-extern void OT_API_REAL_NAME(otThreadSetDiscoveryRequestCallback)(otInstance * aInstance,otThreadDiscoveryRequestCallback aCallback,void * aContext);
-extern void OT_API_REAL_NAME(otThreadSetKeySequenceCounter)(otInstance * aInstance,uint32_t aKeySequenceCounter);
-extern void OT_API_REAL_NAME(otThreadSetKeySwitchGuardTime)(otInstance * aInstance,uint16_t aKeySwitchGuardTime);
+extern bool                   OT_API_REAL_NAME(otThreadIsAnycastLocateInProgress)(otInstance *aInstance);
+extern bool                   OT_API_REAL_NAME(otThreadIsDiscoverInProgress)(otInstance *aInstance);
+extern bool                   OT_API_REAL_NAME(otThreadIsSingleton)(otInstance *aInstance);
+extern const char            *OT_API_REAL_NAME(otThreadDeviceRoleToString)(otDeviceRole aRole);
+extern const char            *OT_API_REAL_NAME(otThreadGetDomainName)(otInstance *aInstance);
+extern const char            *OT_API_REAL_NAME(otThreadGetNetworkName)(otInstance *aInstance);
+extern const otExtendedPanId *OT_API_REAL_NAME(otThreadGetExtendedPanId)(otInstance *aInstance);
+extern const otIp6Address *OT_API_REAL_NAME(otThreadGetLinkLocalAllThreadNodesMulticastAddress)(otInstance *aInstance);
+extern const otIp6Address *OT_API_REAL_NAME(otThreadGetLinkLocalIp6Address)(otInstance *aInstance);
+extern const otIp6Address *OT_API_REAL_NAME(otThreadGetMeshLocalEid)(otInstance *aInstance);
+extern const otIp6Address *OT_API_REAL_NAME(otThreadGetRealmLocalAllThreadNodesMulticastAddress)(otInstance *aInstance);
+extern const otIp6Address *OT_API_REAL_NAME(otThreadGetRloc)(otInstance *aInstance);
+extern const otIp6InterfaceIdentifier *OT_API_REAL_NAME(otThreadGetFixedDuaInterfaceIdentifier)(otInstance *aInstance);
+extern const otIpCounters             *OT_API_REAL_NAME(otThreadGetIp6Counters)(otInstance *aInstance);
+extern const otMeshLocalPrefix        *OT_API_REAL_NAME(otThreadGetMeshLocalPrefix)(otInstance *aInstance);
+extern const otMleCounters            *OT_API_REAL_NAME(otThreadGetMleCounters)(otInstance *aInstance);
+extern const uint32_t                 *OT_API_REAL_NAME(otThreadGetTimeInQueueHistogram)(otInstance *aInstance,
+                                                                         uint16_t   *aNumBins,
+                                                                         uint32_t   *aBinInterval);
+extern otDeviceRole                    OT_API_REAL_NAME(otThreadGetDeviceRole)(otInstance *aInstance);
+extern otError                         OT_API_REAL_NAME(otThreadBecomeChild)(otInstance *aInstance);
+extern otError                         OT_API_REAL_NAME(otThreadBecomeDetached)(otInstance *aInstance);
+extern otError                         OT_API_REAL_NAME(otThreadDetachGracefully)(otInstance                *aInstance,
+                                                          otDetachGracefullyCallback aCallback,
+                                                          void                      *aContext);
+extern otError                         OT_API_REAL_NAME(otThreadDiscover)(otInstance              *aInstance,
+                                                  uint32_t                 aScanChannels,
+                                                  uint16_t                 aPanId,
+                                                  bool                     aJoiner,
+                                                  bool                     aEnableEui64Filtering,
+                                                  otHandleActiveScanResult aCallback,
+                                                  void                    *aCallbackContext);
+extern otError OT_API_REAL_NAME(otThreadGetLeaderData)(otInstance *aInstance, otLeaderData *aLeaderData);
+extern otError OT_API_REAL_NAME(otThreadGetLeaderRloc)(otInstance *aInstance, otIp6Address *aLeaderRloc);
+extern otError OT_API_REAL_NAME(otThreadGetNextNeighborInfo)(otInstance             *aInstance,
+                                                             otNeighborInfoIterator *aIterator,
+                                                             otNeighborInfo         *aInfo);
+extern otError OT_API_REAL_NAME(otThreadGetParentAverageRssi)(otInstance *aInstance, int8_t *aParentRssi);
+extern otError OT_API_REAL_NAME(otThreadGetParentInfo)(otInstance *aInstance, otRouterInfo *aParentInfo);
+extern otError OT_API_REAL_NAME(otThreadGetParentLastRssi)(otInstance *aInstance, int8_t *aLastRssi);
+extern otError OT_API_REAL_NAME(otThreadGetServiceAloc)(otInstance   *aInstance,
+                                                        uint8_t       aServiceId,
+                                                        otIp6Address *aServiceAloc);
+extern otError OT_API_REAL_NAME(otThreadLocateAnycastDestination)(otInstance                    *aInstance,
+                                                                  const otIp6Address            *aAnycastAddress,
+                                                                  otThreadAnycastLocatorCallback aCallback,
+                                                                  void                          *aContext);
+extern otError OT_API_REAL_NAME(otThreadSearchForBetterParent)(otInstance *aInstance);
+extern otError OT_API_REAL_NAME(otThreadSendProactiveBackboneNotification)(otInstance               *aInstance,
+                                                                           otIp6Address             *aTarget,
+                                                                           otIp6InterfaceIdentifier *aMlIid,
+                                                                           uint32_t aTimeSinceLastTransaction);
+extern otError OT_API_REAL_NAME(otThreadSetDomainName)(otInstance *aInstance, const char *aDomainName);
+extern otError OT_API_REAL_NAME(otThreadSetEnabled)(otInstance *aInstance, bool aEnabled);
+extern otError OT_API_REAL_NAME(otThreadSetExtendedPanId)(otInstance *aInstance, const otExtendedPanId *aExtendedPanId);
+extern otError OT_API_REAL_NAME(otThreadSetFixedDuaInterfaceIdentifier)(otInstance                     *aInstance,
+                                                                        const otIp6InterfaceIdentifier *aIid);
+extern otError OT_API_REAL_NAME(otThreadSetJoinerAdvertisement)(otInstance    *aInstance,
+                                                                uint32_t       aOui,
+                                                                const uint8_t *aAdvData,
+                                                                uint8_t        aAdvDataLength);
+extern otError OT_API_REAL_NAME(otThreadSetLinkMode)(otInstance *aInstance, otLinkModeConfig aConfig);
+extern otError OT_API_REAL_NAME(otThreadSetMeshLocalPrefix)(otInstance              *aInstance,
+                                                            const otMeshLocalPrefix *aMeshLocalPrefix);
+extern otError OT_API_REAL_NAME(otThreadSetNetworkKey)(otInstance *aInstance, const otNetworkKey *aKey);
+extern otError OT_API_REAL_NAME(otThreadSetNetworkKeyRef)(otInstance *aInstance, otNetworkKeyRef aKeyRef);
+extern otError OT_API_REAL_NAME(otThreadSetNetworkName)(otInstance *aInstance, const char *aNetworkName);
+extern otLinkModeConfig OT_API_REAL_NAME(otThreadGetLinkMode)(otInstance *aInstance);
+extern otNetworkKeyRef  OT_API_REAL_NAME(otThreadGetNetworkKeyRef)(otInstance *aInstance);
+extern uint16_t         OT_API_REAL_NAME(otThreadGetKeySwitchGuardTime)(otInstance *aInstance);
+extern uint16_t         OT_API_REAL_NAME(otThreadGetRloc16)(otInstance *aInstance);
+extern uint16_t         OT_API_REAL_NAME(otThreadGetVersion)(void);
+extern uint32_t         OT_API_REAL_NAME(otThreadGetChildTimeout)(otInstance *aInstance);
+extern uint32_t         OT_API_REAL_NAME(otThreadGetKeySequenceCounter)(otInstance *aInstance);
+extern uint32_t         OT_API_REAL_NAME(otThreadGetMaxTimeInQueue)(otInstance *aInstance);
+extern uint32_t         OT_API_REAL_NAME(otThreadGetPartitionId)(otInstance *aInstance);
+extern uint8_t          OT_API_REAL_NAME(otThreadGetLeaderRouterId)(otInstance *aInstance);
+extern uint8_t          OT_API_REAL_NAME(otThreadGetLeaderWeight)(otInstance *aInstance);
+extern void OT_API_REAL_NAME(otConvertDurationInSecondsToString)(uint32_t aDuration, char *aBuffer, uint16_t aSize);
+extern void OT_API_REAL_NAME(otThreadGetNetworkKey)(otInstance *aInstance, otNetworkKey *aNetworkKey);
+extern void OT_API_REAL_NAME(otThreadRegisterParentResponseCallback)(otInstance                    *aInstance,
+                                                                     otThreadParentResponseCallback aCallback,
+                                                                     void                          *aContext);
+extern void OT_API_REAL_NAME(otThreadResetIp6Counters)(otInstance *aInstance);
+extern void OT_API_REAL_NAME(otThreadResetMleCounters)(otInstance *aInstance);
+extern void OT_API_REAL_NAME(otThreadResetTimeInQueueStat)(otInstance *aInstance);
+extern void OT_API_REAL_NAME(otThreadSendAddressNotification)(otInstance               *aInstance,
+                                                              otIp6Address             *aDestination,
+                                                              otIp6Address             *aTarget,
+                                                              otIp6InterfaceIdentifier *aMlIid);
+extern void OT_API_REAL_NAME(otThreadSetChildTimeout)(otInstance *aInstance, uint32_t aTimeout);
+extern void OT_API_REAL_NAME(otThreadSetDiscoveryRequestCallback)(otInstance                      *aInstance,
+                                                                  otThreadDiscoveryRequestCallback aCallback,
+                                                                  void                            *aContext);
+extern void OT_API_REAL_NAME(otThreadSetKeySequenceCounter)(otInstance *aInstance, uint32_t aKeySequenceCounter);
+extern void OT_API_REAL_NAME(otThreadSetKeySwitchGuardTime)(otInstance *aInstance, uint16_t aKeySwitchGuardTime);
 
-bool OT_API_WRAPPER_NAME(otThreadIsAnycastLocateInProgress)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otThreadIsAnycastLocateInProgress)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otThreadIsAnycastLocateInProgress)(aInstance);
@@ -119,7 +151,7 @@ bool OT_API_WRAPPER_NAME(otThreadIsAnycastLocateInProgress)(otInstance * aInstan
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otThreadIsDiscoverInProgress)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otThreadIsDiscoverInProgress)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otThreadIsDiscoverInProgress)(aInstance);
@@ -127,7 +159,7 @@ bool OT_API_WRAPPER_NAME(otThreadIsDiscoverInProgress)(otInstance * aInstance)
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otThreadIsSingleton)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otThreadIsSingleton)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otThreadIsSingleton)(aInstance);
@@ -143,7 +175,7 @@ const char *OT_API_WRAPPER_NAME(otThreadDeviceRoleToString)(otDeviceRole aRole)
     return ret;
 }
 
-const char *OT_API_WRAPPER_NAME(otThreadGetDomainName)(otInstance * aInstance)
+const char *OT_API_WRAPPER_NAME(otThreadGetDomainName)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const char *ret = OT_API_REAL_NAME(otThreadGetDomainName)(aInstance);
@@ -151,7 +183,7 @@ const char *OT_API_WRAPPER_NAME(otThreadGetDomainName)(otInstance * aInstance)
     return ret;
 }
 
-const char *OT_API_WRAPPER_NAME(otThreadGetNetworkName)(otInstance * aInstance)
+const char *OT_API_WRAPPER_NAME(otThreadGetNetworkName)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const char *ret = OT_API_REAL_NAME(otThreadGetNetworkName)(aInstance);
@@ -159,7 +191,7 @@ const char *OT_API_WRAPPER_NAME(otThreadGetNetworkName)(otInstance * aInstance)
     return ret;
 }
 
-const otExtendedPanId *OT_API_WRAPPER_NAME(otThreadGetExtendedPanId)(otInstance * aInstance)
+const otExtendedPanId *OT_API_WRAPPER_NAME(otThreadGetExtendedPanId)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otExtendedPanId *ret = OT_API_REAL_NAME(otThreadGetExtendedPanId)(aInstance);
@@ -167,7 +199,7 @@ const otExtendedPanId *OT_API_WRAPPER_NAME(otThreadGetExtendedPanId)(otInstance 
     return ret;
 }
 
-const otIp6Address *OT_API_WRAPPER_NAME(otThreadGetLinkLocalAllThreadNodesMulticastAddress)(otInstance * aInstance)
+const otIp6Address *OT_API_WRAPPER_NAME(otThreadGetLinkLocalAllThreadNodesMulticastAddress)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otIp6Address *ret = OT_API_REAL_NAME(otThreadGetLinkLocalAllThreadNodesMulticastAddress)(aInstance);
@@ -175,7 +207,7 @@ const otIp6Address *OT_API_WRAPPER_NAME(otThreadGetLinkLocalAllThreadNodesMultic
     return ret;
 }
 
-const otIp6Address *OT_API_WRAPPER_NAME(otThreadGetLinkLocalIp6Address)(otInstance * aInstance)
+const otIp6Address *OT_API_WRAPPER_NAME(otThreadGetLinkLocalIp6Address)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otIp6Address *ret = OT_API_REAL_NAME(otThreadGetLinkLocalIp6Address)(aInstance);
@@ -183,7 +215,7 @@ const otIp6Address *OT_API_WRAPPER_NAME(otThreadGetLinkLocalIp6Address)(otInstan
     return ret;
 }
 
-const otIp6Address *OT_API_WRAPPER_NAME(otThreadGetMeshLocalEid)(otInstance * aInstance)
+const otIp6Address *OT_API_WRAPPER_NAME(otThreadGetMeshLocalEid)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otIp6Address *ret = OT_API_REAL_NAME(otThreadGetMeshLocalEid)(aInstance);
@@ -191,7 +223,7 @@ const otIp6Address *OT_API_WRAPPER_NAME(otThreadGetMeshLocalEid)(otInstance * aI
     return ret;
 }
 
-const otIp6Address *OT_API_WRAPPER_NAME(otThreadGetRealmLocalAllThreadNodesMulticastAddress)(otInstance * aInstance)
+const otIp6Address *OT_API_WRAPPER_NAME(otThreadGetRealmLocalAllThreadNodesMulticastAddress)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otIp6Address *ret = OT_API_REAL_NAME(otThreadGetRealmLocalAllThreadNodesMulticastAddress)(aInstance);
@@ -199,7 +231,7 @@ const otIp6Address *OT_API_WRAPPER_NAME(otThreadGetRealmLocalAllThreadNodesMulti
     return ret;
 }
 
-const otIp6Address *OT_API_WRAPPER_NAME(otThreadGetRloc)(otInstance * aInstance)
+const otIp6Address *OT_API_WRAPPER_NAME(otThreadGetRloc)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otIp6Address *ret = OT_API_REAL_NAME(otThreadGetRloc)(aInstance);
@@ -207,7 +239,7 @@ const otIp6Address *OT_API_WRAPPER_NAME(otThreadGetRloc)(otInstance * aInstance)
     return ret;
 }
 
-const otIp6InterfaceIdentifier *OT_API_WRAPPER_NAME(otThreadGetFixedDuaInterfaceIdentifier)(otInstance * aInstance)
+const otIp6InterfaceIdentifier *OT_API_WRAPPER_NAME(otThreadGetFixedDuaInterfaceIdentifier)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otIp6InterfaceIdentifier *ret = OT_API_REAL_NAME(otThreadGetFixedDuaInterfaceIdentifier)(aInstance);
@@ -215,7 +247,7 @@ const otIp6InterfaceIdentifier *OT_API_WRAPPER_NAME(otThreadGetFixedDuaInterface
     return ret;
 }
 
-const otIpCounters *OT_API_WRAPPER_NAME(otThreadGetIp6Counters)(otInstance * aInstance)
+const otIpCounters *OT_API_WRAPPER_NAME(otThreadGetIp6Counters)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otIpCounters *ret = OT_API_REAL_NAME(otThreadGetIp6Counters)(aInstance);
@@ -223,7 +255,7 @@ const otIpCounters *OT_API_WRAPPER_NAME(otThreadGetIp6Counters)(otInstance * aIn
     return ret;
 }
 
-const otMeshLocalPrefix *OT_API_WRAPPER_NAME(otThreadGetMeshLocalPrefix)(otInstance * aInstance)
+const otMeshLocalPrefix *OT_API_WRAPPER_NAME(otThreadGetMeshLocalPrefix)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otMeshLocalPrefix *ret = OT_API_REAL_NAME(otThreadGetMeshLocalPrefix)(aInstance);
@@ -231,7 +263,7 @@ const otMeshLocalPrefix *OT_API_WRAPPER_NAME(otThreadGetMeshLocalPrefix)(otInsta
     return ret;
 }
 
-const otMleCounters *OT_API_WRAPPER_NAME(otThreadGetMleCounters)(otInstance * aInstance)
+const otMleCounters *OT_API_WRAPPER_NAME(otThreadGetMleCounters)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otMleCounters *ret = OT_API_REAL_NAME(otThreadGetMleCounters)(aInstance);
@@ -239,7 +271,9 @@ const otMleCounters *OT_API_WRAPPER_NAME(otThreadGetMleCounters)(otInstance * aI
     return ret;
 }
 
-const uint32_t *OT_API_WRAPPER_NAME(otThreadGetTimeInQueueHistogram)(otInstance * aInstance,uint16_t * aNumBins,uint32_t * aBinInterval)
+const uint32_t *OT_API_WRAPPER_NAME(otThreadGetTimeInQueueHistogram)(otInstance *aInstance,
+                                                                     uint16_t   *aNumBins,
+                                                                     uint32_t   *aBinInterval)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const uint32_t *ret = OT_API_REAL_NAME(otThreadGetTimeInQueueHistogram)(aInstance, aNumBins, aBinInterval);
@@ -247,7 +281,7 @@ const uint32_t *OT_API_WRAPPER_NAME(otThreadGetTimeInQueueHistogram)(otInstance 
     return ret;
 }
 
-otDeviceRole OT_API_WRAPPER_NAME(otThreadGetDeviceRole)(otInstance * aInstance)
+otDeviceRole OT_API_WRAPPER_NAME(otThreadGetDeviceRole)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otDeviceRole ret = OT_API_REAL_NAME(otThreadGetDeviceRole)(aInstance);
@@ -255,7 +289,7 @@ otDeviceRole OT_API_WRAPPER_NAME(otThreadGetDeviceRole)(otInstance * aInstance)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadBecomeChild)(otInstance * aInstance)
+otError OT_API_WRAPPER_NAME(otThreadBecomeChild)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadBecomeChild)(aInstance);
@@ -263,7 +297,7 @@ otError OT_API_WRAPPER_NAME(otThreadBecomeChild)(otInstance * aInstance)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadBecomeDetached)(otInstance * aInstance)
+otError OT_API_WRAPPER_NAME(otThreadBecomeDetached)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadBecomeDetached)(aInstance);
@@ -271,7 +305,9 @@ otError OT_API_WRAPPER_NAME(otThreadBecomeDetached)(otInstance * aInstance)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadDetachGracefully)(otInstance * aInstance,otDetachGracefullyCallback aCallback,void * aContext)
+otError OT_API_WRAPPER_NAME(otThreadDetachGracefully)(otInstance                *aInstance,
+                                                      otDetachGracefullyCallback aCallback,
+                                                      void                      *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadDetachGracefully)(aInstance, aCallback, aContext);
@@ -279,15 +315,27 @@ otError OT_API_WRAPPER_NAME(otThreadDetachGracefully)(otInstance * aInstance,otD
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadDiscover)(otInstance * aInstance,uint32_t aScanChannels,uint16_t aPanId,bool aJoiner,bool aEnableEui64Filtering,otHandleActiveScanResult aCallback,void * aCallbackContext)
+otError OT_API_WRAPPER_NAME(otThreadDiscover)(otInstance              *aInstance,
+                                              uint32_t                 aScanChannels,
+                                              uint16_t                 aPanId,
+                                              bool                     aJoiner,
+                                              bool                     aEnableEui64Filtering,
+                                              otHandleActiveScanResult aCallback,
+                                              void                    *aCallbackContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otThreadDiscover)(aInstance, aScanChannels, aPanId, aJoiner, aEnableEui64Filtering, aCallback, aCallbackContext);
+    otError ret = OT_API_REAL_NAME(otThreadDiscover)(aInstance,
+                                                     aScanChannels,
+                                                     aPanId,
+                                                     aJoiner,
+                                                     aEnableEui64Filtering,
+                                                     aCallback,
+                                                     aCallbackContext);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadGetLeaderData)(otInstance * aInstance,otLeaderData * aLeaderData)
+otError OT_API_WRAPPER_NAME(otThreadGetLeaderData)(otInstance *aInstance, otLeaderData *aLeaderData)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadGetLeaderData)(aInstance, aLeaderData);
@@ -295,7 +343,7 @@ otError OT_API_WRAPPER_NAME(otThreadGetLeaderData)(otInstance * aInstance,otLead
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadGetLeaderRloc)(otInstance * aInstance,otIp6Address * aLeaderRloc)
+otError OT_API_WRAPPER_NAME(otThreadGetLeaderRloc)(otInstance *aInstance, otIp6Address *aLeaderRloc)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadGetLeaderRloc)(aInstance, aLeaderRloc);
@@ -303,7 +351,9 @@ otError OT_API_WRAPPER_NAME(otThreadGetLeaderRloc)(otInstance * aInstance,otIp6A
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadGetNextNeighborInfo)(otInstance * aInstance,otNeighborInfoIterator * aIterator,otNeighborInfo * aInfo)
+otError OT_API_WRAPPER_NAME(otThreadGetNextNeighborInfo)(otInstance             *aInstance,
+                                                         otNeighborInfoIterator *aIterator,
+                                                         otNeighborInfo         *aInfo)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadGetNextNeighborInfo)(aInstance, aIterator, aInfo);
@@ -311,7 +361,7 @@ otError OT_API_WRAPPER_NAME(otThreadGetNextNeighborInfo)(otInstance * aInstance,
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadGetParentAverageRssi)(otInstance * aInstance,int8_t * aParentRssi)
+otError OT_API_WRAPPER_NAME(otThreadGetParentAverageRssi)(otInstance *aInstance, int8_t *aParentRssi)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadGetParentAverageRssi)(aInstance, aParentRssi);
@@ -319,7 +369,7 @@ otError OT_API_WRAPPER_NAME(otThreadGetParentAverageRssi)(otInstance * aInstance
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadGetParentInfo)(otInstance * aInstance,otRouterInfo * aParentInfo)
+otError OT_API_WRAPPER_NAME(otThreadGetParentInfo)(otInstance *aInstance, otRouterInfo *aParentInfo)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadGetParentInfo)(aInstance, aParentInfo);
@@ -327,7 +377,7 @@ otError OT_API_WRAPPER_NAME(otThreadGetParentInfo)(otInstance * aInstance,otRout
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadGetParentLastRssi)(otInstance * aInstance,int8_t * aLastRssi)
+otError OT_API_WRAPPER_NAME(otThreadGetParentLastRssi)(otInstance *aInstance, int8_t *aLastRssi)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadGetParentLastRssi)(aInstance, aLastRssi);
@@ -335,7 +385,9 @@ otError OT_API_WRAPPER_NAME(otThreadGetParentLastRssi)(otInstance * aInstance,in
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadGetServiceAloc)(otInstance * aInstance,uint8_t aServiceId,otIp6Address * aServiceAloc)
+otError OT_API_WRAPPER_NAME(otThreadGetServiceAloc)(otInstance   *aInstance,
+                                                    uint8_t       aServiceId,
+                                                    otIp6Address *aServiceAloc)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadGetServiceAloc)(aInstance, aServiceId, aServiceAloc);
@@ -343,7 +395,10 @@ otError OT_API_WRAPPER_NAME(otThreadGetServiceAloc)(otInstance * aInstance,uint8
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadLocateAnycastDestination)(otInstance * aInstance,const otIp6Address * aAnycastAddress,otThreadAnycastLocatorCallback aCallback,void * aContext)
+otError OT_API_WRAPPER_NAME(otThreadLocateAnycastDestination)(otInstance                    *aInstance,
+                                                              const otIp6Address            *aAnycastAddress,
+                                                              otThreadAnycastLocatorCallback aCallback,
+                                                              void                          *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadLocateAnycastDestination)(aInstance, aAnycastAddress, aCallback, aContext);
@@ -351,7 +406,7 @@ otError OT_API_WRAPPER_NAME(otThreadLocateAnycastDestination)(otInstance * aInst
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSearchForBetterParent)(otInstance * aInstance)
+otError OT_API_WRAPPER_NAME(otThreadSearchForBetterParent)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSearchForBetterParent)(aInstance);
@@ -359,15 +414,19 @@ otError OT_API_WRAPPER_NAME(otThreadSearchForBetterParent)(otInstance * aInstanc
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSendProactiveBackboneNotification)(otInstance * aInstance,otIp6Address * aTarget,otIp6InterfaceIdentifier * aMlIid,uint32_t aTimeSinceLastTransaction)
+otError OT_API_WRAPPER_NAME(otThreadSendProactiveBackboneNotification)(otInstance               *aInstance,
+                                                                       otIp6Address             *aTarget,
+                                                                       otIp6InterfaceIdentifier *aMlIid,
+                                                                       uint32_t aTimeSinceLastTransaction)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otThreadSendProactiveBackboneNotification)(aInstance, aTarget, aMlIid, aTimeSinceLastTransaction);
+    otError ret = OT_API_REAL_NAME(
+        otThreadSendProactiveBackboneNotification)(aInstance, aTarget, aMlIid, aTimeSinceLastTransaction);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetDomainName)(otInstance * aInstance,const char * aDomainName)
+otError OT_API_WRAPPER_NAME(otThreadSetDomainName)(otInstance *aInstance, const char *aDomainName)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetDomainName)(aInstance, aDomainName);
@@ -375,7 +434,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetDomainName)(otInstance * aInstance,const 
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetEnabled)(otInstance * aInstance,bool aEnabled)
+otError OT_API_WRAPPER_NAME(otThreadSetEnabled)(otInstance *aInstance, bool aEnabled)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetEnabled)(aInstance, aEnabled);
@@ -383,7 +442,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetEnabled)(otInstance * aInstance,bool aEna
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetExtendedPanId)(otInstance * aInstance,const otExtendedPanId * aExtendedPanId)
+otError OT_API_WRAPPER_NAME(otThreadSetExtendedPanId)(otInstance *aInstance, const otExtendedPanId *aExtendedPanId)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetExtendedPanId)(aInstance, aExtendedPanId);
@@ -391,7 +450,8 @@ otError OT_API_WRAPPER_NAME(otThreadSetExtendedPanId)(otInstance * aInstance,con
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetFixedDuaInterfaceIdentifier)(otInstance * aInstance,const otIp6InterfaceIdentifier * aIid)
+otError OT_API_WRAPPER_NAME(otThreadSetFixedDuaInterfaceIdentifier)(otInstance                     *aInstance,
+                                                                    const otIp6InterfaceIdentifier *aIid)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetFixedDuaInterfaceIdentifier)(aInstance, aIid);
@@ -399,7 +459,10 @@ otError OT_API_WRAPPER_NAME(otThreadSetFixedDuaInterfaceIdentifier)(otInstance *
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetJoinerAdvertisement)(otInstance * aInstance,uint32_t aOui,const uint8_t * aAdvData,uint8_t aAdvDataLength)
+otError OT_API_WRAPPER_NAME(otThreadSetJoinerAdvertisement)(otInstance    *aInstance,
+                                                            uint32_t       aOui,
+                                                            const uint8_t *aAdvData,
+                                                            uint8_t        aAdvDataLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetJoinerAdvertisement)(aInstance, aOui, aAdvData, aAdvDataLength);
@@ -407,7 +470,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetJoinerAdvertisement)(otInstance * aInstan
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetLinkMode)(otInstance * aInstance,otLinkModeConfig aConfig)
+otError OT_API_WRAPPER_NAME(otThreadSetLinkMode)(otInstance *aInstance, otLinkModeConfig aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetLinkMode)(aInstance, aConfig);
@@ -415,7 +478,8 @@ otError OT_API_WRAPPER_NAME(otThreadSetLinkMode)(otInstance * aInstance,otLinkMo
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetMeshLocalPrefix)(otInstance * aInstance,const otMeshLocalPrefix * aMeshLocalPrefix)
+otError OT_API_WRAPPER_NAME(otThreadSetMeshLocalPrefix)(otInstance              *aInstance,
+                                                        const otMeshLocalPrefix *aMeshLocalPrefix)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetMeshLocalPrefix)(aInstance, aMeshLocalPrefix);
@@ -423,7 +487,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetMeshLocalPrefix)(otInstance * aInstance,c
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetNetworkKey)(otInstance * aInstance,const otNetworkKey * aKey)
+otError OT_API_WRAPPER_NAME(otThreadSetNetworkKey)(otInstance *aInstance, const otNetworkKey *aKey)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetNetworkKey)(aInstance, aKey);
@@ -431,7 +495,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetNetworkKey)(otInstance * aInstance,const 
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetNetworkKeyRef)(otInstance * aInstance,otNetworkKeyRef aKeyRef)
+otError OT_API_WRAPPER_NAME(otThreadSetNetworkKeyRef)(otInstance *aInstance, otNetworkKeyRef aKeyRef)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetNetworkKeyRef)(aInstance, aKeyRef);
@@ -439,7 +503,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetNetworkKeyRef)(otInstance * aInstance,otN
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetNetworkName)(otInstance * aInstance,const char * aNetworkName)
+otError OT_API_WRAPPER_NAME(otThreadSetNetworkName)(otInstance *aInstance, const char *aNetworkName)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetNetworkName)(aInstance, aNetworkName);
@@ -447,7 +511,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetNetworkName)(otInstance * aInstance,const
     return ret;
 }
 
-otLinkModeConfig OT_API_WRAPPER_NAME(otThreadGetLinkMode)(otInstance * aInstance)
+otLinkModeConfig OT_API_WRAPPER_NAME(otThreadGetLinkMode)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otLinkModeConfig ret = OT_API_REAL_NAME(otThreadGetLinkMode)(aInstance);
@@ -455,7 +519,7 @@ otLinkModeConfig OT_API_WRAPPER_NAME(otThreadGetLinkMode)(otInstance * aInstance
     return ret;
 }
 
-otNetworkKeyRef OT_API_WRAPPER_NAME(otThreadGetNetworkKeyRef)(otInstance * aInstance)
+otNetworkKeyRef OT_API_WRAPPER_NAME(otThreadGetNetworkKeyRef)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otNetworkKeyRef ret = OT_API_REAL_NAME(otThreadGetNetworkKeyRef)(aInstance);
@@ -463,7 +527,7 @@ otNetworkKeyRef OT_API_WRAPPER_NAME(otThreadGetNetworkKeyRef)(otInstance * aInst
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otThreadGetKeySwitchGuardTime)(otInstance * aInstance)
+uint16_t OT_API_WRAPPER_NAME(otThreadGetKeySwitchGuardTime)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otThreadGetKeySwitchGuardTime)(aInstance);
@@ -471,7 +535,7 @@ uint16_t OT_API_WRAPPER_NAME(otThreadGetKeySwitchGuardTime)(otInstance * aInstan
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otThreadGetRloc16)(otInstance * aInstance)
+uint16_t OT_API_WRAPPER_NAME(otThreadGetRloc16)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otThreadGetRloc16)(aInstance);
@@ -487,7 +551,7 @@ uint16_t OT_API_WRAPPER_NAME(otThreadGetVersion)(void)
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otThreadGetChildTimeout)(otInstance * aInstance)
+uint32_t OT_API_WRAPPER_NAME(otThreadGetChildTimeout)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otThreadGetChildTimeout)(aInstance);
@@ -495,7 +559,7 @@ uint32_t OT_API_WRAPPER_NAME(otThreadGetChildTimeout)(otInstance * aInstance)
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otThreadGetKeySequenceCounter)(otInstance * aInstance)
+uint32_t OT_API_WRAPPER_NAME(otThreadGetKeySequenceCounter)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otThreadGetKeySequenceCounter)(aInstance);
@@ -503,7 +567,7 @@ uint32_t OT_API_WRAPPER_NAME(otThreadGetKeySequenceCounter)(otInstance * aInstan
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otThreadGetMaxTimeInQueue)(otInstance * aInstance)
+uint32_t OT_API_WRAPPER_NAME(otThreadGetMaxTimeInQueue)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otThreadGetMaxTimeInQueue)(aInstance);
@@ -511,7 +575,7 @@ uint32_t OT_API_WRAPPER_NAME(otThreadGetMaxTimeInQueue)(otInstance * aInstance)
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otThreadGetPartitionId)(otInstance * aInstance)
+uint32_t OT_API_WRAPPER_NAME(otThreadGetPartitionId)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otThreadGetPartitionId)(aInstance);
@@ -519,7 +583,7 @@ uint32_t OT_API_WRAPPER_NAME(otThreadGetPartitionId)(otInstance * aInstance)
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otThreadGetLeaderRouterId)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otThreadGetLeaderRouterId)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otThreadGetLeaderRouterId)(aInstance);
@@ -527,7 +591,7 @@ uint8_t OT_API_WRAPPER_NAME(otThreadGetLeaderRouterId)(otInstance * aInstance)
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otThreadGetLeaderWeight)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otThreadGetLeaderWeight)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otThreadGetLeaderWeight)(aInstance);
@@ -535,80 +599,86 @@ uint8_t OT_API_WRAPPER_NAME(otThreadGetLeaderWeight)(otInstance * aInstance)
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otConvertDurationInSecondsToString)(uint32_t aDuration,char * aBuffer,uint16_t aSize)
+void OT_API_WRAPPER_NAME(otConvertDurationInSecondsToString)(uint32_t aDuration, char *aBuffer, uint16_t aSize)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otConvertDurationInSecondsToString)(aDuration, aBuffer, aSize);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadGetNetworkKey)(otInstance * aInstance,otNetworkKey * aNetworkKey)
+void OT_API_WRAPPER_NAME(otThreadGetNetworkKey)(otInstance *aInstance, otNetworkKey *aNetworkKey)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadGetNetworkKey)(aInstance, aNetworkKey);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadRegisterParentResponseCallback)(otInstance * aInstance,otThreadParentResponseCallback aCallback,void * aContext)
+void OT_API_WRAPPER_NAME(otThreadRegisterParentResponseCallback)(otInstance                    *aInstance,
+                                                                 otThreadParentResponseCallback aCallback,
+                                                                 void                          *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadRegisterParentResponseCallback)(aInstance, aCallback, aContext);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadResetIp6Counters)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otThreadResetIp6Counters)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadResetIp6Counters)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadResetMleCounters)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otThreadResetMleCounters)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadResetMleCounters)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadResetTimeInQueueStat)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otThreadResetTimeInQueueStat)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadResetTimeInQueueStat)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSendAddressNotification)(otInstance * aInstance,otIp6Address * aDestination,otIp6Address * aTarget,otIp6InterfaceIdentifier * aMlIid)
+void OT_API_WRAPPER_NAME(otThreadSendAddressNotification)(otInstance               *aInstance,
+                                                          otIp6Address             *aDestination,
+                                                          otIp6Address             *aTarget,
+                                                          otIp6InterfaceIdentifier *aMlIid)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSendAddressNotification)(aInstance, aDestination, aTarget, aMlIid);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetChildTimeout)(otInstance * aInstance,uint32_t aTimeout)
+void OT_API_WRAPPER_NAME(otThreadSetChildTimeout)(otInstance *aInstance, uint32_t aTimeout)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetChildTimeout)(aInstance, aTimeout);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetDiscoveryRequestCallback)(otInstance * aInstance,otThreadDiscoveryRequestCallback aCallback,void * aContext)
+void OT_API_WRAPPER_NAME(otThreadSetDiscoveryRequestCallback)(otInstance                      *aInstance,
+                                                              otThreadDiscoveryRequestCallback aCallback,
+                                                              void                            *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetDiscoveryRequestCallback)(aInstance, aCallback, aContext);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetKeySequenceCounter)(otInstance * aInstance,uint32_t aKeySequenceCounter)
+void OT_API_WRAPPER_NAME(otThreadSetKeySequenceCounter)(otInstance *aInstance, uint32_t aKeySequenceCounter)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetKeySequenceCounter)(aInstance, aKeySequenceCounter);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetKeySwitchGuardTime)(otInstance * aInstance,uint16_t aKeySwitchGuardTime)
+void OT_API_WRAPPER_NAME(otThreadSetKeySwitchGuardTime)(otInstance *aInstance, uint16_t aKeySwitchGuardTime)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetKeySwitchGuardTime)(aInstance, aKeySwitchGuardTime);
     sl_ot_rtos_release_stack_mutex();
 }
-

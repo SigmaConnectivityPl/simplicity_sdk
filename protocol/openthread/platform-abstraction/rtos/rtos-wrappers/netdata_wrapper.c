@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Netdata APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,39 +29,51 @@
  *
  ******************************************************************************/
 
-#include <openthread/netdata.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/netdata.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern bool OT_API_REAL_NAME(otNetDataContainsOmrPrefix)(otInstance * aInstance,const otIp6Prefix * aPrefix);
-extern otError OT_API_REAL_NAME(otNetDataGet)(otInstance * aInstance,bool aStable,uint8_t * aData,uint8_t * aDataLength);
-extern otError OT_API_REAL_NAME(otNetDataGetNextLowpanContextInfo)(otInstance * aInstance,otNetworkDataIterator * aIterator,otLowpanContextInfo * aContextInfo);
-extern otError OT_API_REAL_NAME(otNetDataGetNextOnMeshPrefix)(otInstance * aInstance,otNetworkDataIterator * aIterator,otBorderRouterConfig * aConfig);
-extern otError OT_API_REAL_NAME(otNetDataGetNextRoute)(otInstance * aInstance,otNetworkDataIterator * aIterator,otExternalRouteConfig * aConfig);
-extern otError OT_API_REAL_NAME(otNetDataGetNextService)(otInstance * aInstance,otNetworkDataIterator * aIterator,otServiceConfig * aConfig);
-extern otError OT_API_REAL_NAME(otNetDataSteeringDataCheckJoiner)(otInstance * aInstance,const otExtAddress * aEui64);
-extern otError OT_API_REAL_NAME(otNetDataSteeringDataCheckJoinerWithDiscerner)(otInstance * aInstance,const struct otJoinerDiscerner * aDiscerner);
-extern uint8_t OT_API_REAL_NAME(otNetDataGetLength)(otInstance * aInstance);
-extern uint8_t OT_API_REAL_NAME(otNetDataGetMaxLength)(otInstance * aInstance);
-extern uint8_t OT_API_REAL_NAME(otNetDataGetStableVersion)(otInstance * aInstance);
-extern uint8_t OT_API_REAL_NAME(otNetDataGetVersion)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otNetDataGetCommissioningDataset)(otInstance * aInstance,otCommissioningDataset * aDataset);
-extern void OT_API_REAL_NAME(otNetDataResetMaxLength)(otInstance * aInstance);
+extern bool    OT_API_REAL_NAME(otNetDataContainsOmrPrefix)(otInstance *aInstance, const otIp6Prefix *aPrefix);
+extern otError OT_API_REAL_NAME(otNetDataGet)(otInstance *aInstance,
+                                              bool        aStable,
+                                              uint8_t    *aData,
+                                              uint8_t    *aDataLength);
+extern otError OT_API_REAL_NAME(otNetDataGetNextLowpanContextInfo)(otInstance            *aInstance,
+                                                                   otNetworkDataIterator *aIterator,
+                                                                   otLowpanContextInfo   *aContextInfo);
+extern otError OT_API_REAL_NAME(otNetDataGetNextOnMeshPrefix)(otInstance            *aInstance,
+                                                              otNetworkDataIterator *aIterator,
+                                                              otBorderRouterConfig  *aConfig);
+extern otError OT_API_REAL_NAME(otNetDataGetNextRoute)(otInstance            *aInstance,
+                                                       otNetworkDataIterator *aIterator,
+                                                       otExternalRouteConfig *aConfig);
+extern otError OT_API_REAL_NAME(otNetDataGetNextService)(otInstance            *aInstance,
+                                                         otNetworkDataIterator *aIterator,
+                                                         otServiceConfig       *aConfig);
+extern otError OT_API_REAL_NAME(otNetDataSteeringDataCheckJoiner)(otInstance *aInstance, const otExtAddress *aEui64);
+extern otError OT_API_REAL_NAME(
+    otNetDataSteeringDataCheckJoinerWithDiscerner)(otInstance *aInstance, const struct otJoinerDiscerner *aDiscerner);
+extern uint8_t OT_API_REAL_NAME(otNetDataGetLength)(otInstance *aInstance);
+extern uint8_t OT_API_REAL_NAME(otNetDataGetMaxLength)(otInstance *aInstance);
+extern uint8_t OT_API_REAL_NAME(otNetDataGetStableVersion)(otInstance *aInstance);
+extern uint8_t OT_API_REAL_NAME(otNetDataGetVersion)(otInstance *aInstance);
+extern void OT_API_REAL_NAME(otNetDataGetCommissioningDataset)(otInstance *aInstance, otCommissioningDataset *aDataset);
+extern void OT_API_REAL_NAME(otNetDataResetMaxLength)(otInstance *aInstance);
 
-bool OT_API_WRAPPER_NAME(otNetDataContainsOmrPrefix)(otInstance * aInstance,const otIp6Prefix * aPrefix)
+bool OT_API_WRAPPER_NAME(otNetDataContainsOmrPrefix)(otInstance *aInstance, const otIp6Prefix *aPrefix)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otNetDataContainsOmrPrefix)(aInstance, aPrefix);
@@ -69,7 +81,7 @@ bool OT_API_WRAPPER_NAME(otNetDataContainsOmrPrefix)(otInstance * aInstance,cons
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otNetDataGet)(otInstance * aInstance,bool aStable,uint8_t * aData,uint8_t * aDataLength)
+otError OT_API_WRAPPER_NAME(otNetDataGet)(otInstance *aInstance, bool aStable, uint8_t *aData, uint8_t *aDataLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otNetDataGet)(aInstance, aStable, aData, aDataLength);
@@ -77,7 +89,9 @@ otError OT_API_WRAPPER_NAME(otNetDataGet)(otInstance * aInstance,bool aStable,ui
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otNetDataGetNextLowpanContextInfo)(otInstance * aInstance,otNetworkDataIterator * aIterator,otLowpanContextInfo * aContextInfo)
+otError OT_API_WRAPPER_NAME(otNetDataGetNextLowpanContextInfo)(otInstance            *aInstance,
+                                                               otNetworkDataIterator *aIterator,
+                                                               otLowpanContextInfo   *aContextInfo)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otNetDataGetNextLowpanContextInfo)(aInstance, aIterator, aContextInfo);
@@ -85,7 +99,9 @@ otError OT_API_WRAPPER_NAME(otNetDataGetNextLowpanContextInfo)(otInstance * aIns
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otNetDataGetNextOnMeshPrefix)(otInstance * aInstance,otNetworkDataIterator * aIterator,otBorderRouterConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otNetDataGetNextOnMeshPrefix)(otInstance            *aInstance,
+                                                          otNetworkDataIterator *aIterator,
+                                                          otBorderRouterConfig  *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otNetDataGetNextOnMeshPrefix)(aInstance, aIterator, aConfig);
@@ -93,7 +109,9 @@ otError OT_API_WRAPPER_NAME(otNetDataGetNextOnMeshPrefix)(otInstance * aInstance
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otNetDataGetNextRoute)(otInstance * aInstance,otNetworkDataIterator * aIterator,otExternalRouteConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otNetDataGetNextRoute)(otInstance            *aInstance,
+                                                   otNetworkDataIterator *aIterator,
+                                                   otExternalRouteConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otNetDataGetNextRoute)(aInstance, aIterator, aConfig);
@@ -101,7 +119,9 @@ otError OT_API_WRAPPER_NAME(otNetDataGetNextRoute)(otInstance * aInstance,otNetw
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otNetDataGetNextService)(otInstance * aInstance,otNetworkDataIterator * aIterator,otServiceConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otNetDataGetNextService)(otInstance            *aInstance,
+                                                     otNetworkDataIterator *aIterator,
+                                                     otServiceConfig       *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otNetDataGetNextService)(aInstance, aIterator, aConfig);
@@ -109,7 +129,7 @@ otError OT_API_WRAPPER_NAME(otNetDataGetNextService)(otInstance * aInstance,otNe
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otNetDataSteeringDataCheckJoiner)(otInstance * aInstance,const otExtAddress * aEui64)
+otError OT_API_WRAPPER_NAME(otNetDataSteeringDataCheckJoiner)(otInstance *aInstance, const otExtAddress *aEui64)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otNetDataSteeringDataCheckJoiner)(aInstance, aEui64);
@@ -117,7 +137,8 @@ otError OT_API_WRAPPER_NAME(otNetDataSteeringDataCheckJoiner)(otInstance * aInst
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otNetDataSteeringDataCheckJoinerWithDiscerner)(otInstance * aInstance,const struct otJoinerDiscerner * aDiscerner)
+otError OT_API_WRAPPER_NAME(otNetDataSteeringDataCheckJoinerWithDiscerner)(otInstance                     *aInstance,
+                                                                           const struct otJoinerDiscerner *aDiscerner)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otNetDataSteeringDataCheckJoinerWithDiscerner)(aInstance, aDiscerner);
@@ -125,7 +146,7 @@ otError OT_API_WRAPPER_NAME(otNetDataSteeringDataCheckJoinerWithDiscerner)(otIns
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otNetDataGetLength)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otNetDataGetLength)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otNetDataGetLength)(aInstance);
@@ -133,7 +154,7 @@ uint8_t OT_API_WRAPPER_NAME(otNetDataGetLength)(otInstance * aInstance)
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otNetDataGetMaxLength)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otNetDataGetMaxLength)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otNetDataGetMaxLength)(aInstance);
@@ -141,7 +162,7 @@ uint8_t OT_API_WRAPPER_NAME(otNetDataGetMaxLength)(otInstance * aInstance)
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otNetDataGetStableVersion)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otNetDataGetStableVersion)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otNetDataGetStableVersion)(aInstance);
@@ -149,7 +170,7 @@ uint8_t OT_API_WRAPPER_NAME(otNetDataGetStableVersion)(otInstance * aInstance)
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otNetDataGetVersion)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otNetDataGetVersion)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otNetDataGetVersion)(aInstance);
@@ -157,17 +178,16 @@ uint8_t OT_API_WRAPPER_NAME(otNetDataGetVersion)(otInstance * aInstance)
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otNetDataGetCommissioningDataset)(otInstance * aInstance,otCommissioningDataset * aDataset)
+void OT_API_WRAPPER_NAME(otNetDataGetCommissioningDataset)(otInstance *aInstance, otCommissioningDataset *aDataset)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otNetDataGetCommissioningDataset)(aInstance, aDataset);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otNetDataResetMaxLength)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otNetDataResetMaxLength)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otNetDataResetMaxLength)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
-

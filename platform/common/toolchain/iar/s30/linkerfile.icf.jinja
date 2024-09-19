@@ -8,6 +8,11 @@
 {%- set flash_size = device_flash_size | first %}
 {%- set flash_page_size = device_flash_page_size | first %}
 {%- set secure_flash_size = 0 %}
+{%- if linker_mpu is defined %}
+  {%- set ram_code_alignment = 32 %}
+{%- else %}
+  {%- set ram_code_alignment = 8 %}
+{%- endif %}
 
 {#- Use Secure aliases #}
 {%- if trustzone_secure is defined %}
@@ -219,7 +224,7 @@ define block application with fixed order
 
 {%- for component in code_classification_components %}
 
-define block text_{{component}}_ram with alignment = 8
+define block text_{{component}}_ram with alignment = {{ram_code_alignment}}
 {
 {%- for selection in code_classification_selections %}
 {%- if selection['component'] == component  %}
@@ -231,7 +236,7 @@ define block text_{{component}}_ram with alignment = 8
 {%- endif %}
 };
 
-define block text_{{component}}_ram_init with alignment = 8
+define block text_{{component}}_ram_init with alignment = {{ram_code_alignment}}
 {
 {%- for selection in code_classification_selections %}
 {%- if selection['component'] == component  %}
@@ -243,21 +248,21 @@ define block text_{{component}}_ram_init with alignment = 8
 {%- endif %}
 };
 
-initialize by copy
+initialize manually
 {
 {%- for selection in code_classification_selections %}
 {%- if selection['component'] == component  %}
-  section text_{{selection['component']}}_*{{selection['class']}}*,
+  readonly section text_{{selection['component']}}_*{{selection['class']}}*,
 {%- endif %}
 {%- endfor %}
 {%- if "timecritical" in code_classification_standard_selections %}
-  section text_{{component}}_*timecritical*,
+  readonly section text_{{component}}_*timecritical*,
 {%- endif %}
 };
 
 {%- endfor %}
 
-define block text_ram_objects with alignment = 8
+define block text_ram_objects with alignment = {{ram_code_alignment}}
 {
 {%- for lib in ram_libraries %}
   readwrite code object {{lib}}.a,
@@ -273,7 +278,7 @@ define block text_ram_objects with alignment = 8
 {%- endfor %}
 };
 
-define block text_ram_objects_init with alignment = 8
+define block text_ram_objects_init with alignment = {{ram_code_alignment}}
 {
 {%- for lib in ram_libraries %}
   readonly code section *_init object {{lib}}.a,
@@ -289,39 +294,61 @@ define block text_ram_objects_init with alignment = 8
 {%- endfor %}
 };
 
-initialize by copy
+initialize manually
 {
 {%- for lib in ram_libraries %}
-  object {{lib}}.a,
+  readonly object {{lib}}.a,
 {%- endfor %}
 {%- for object in iar_ram_objects %}
-  object {{object}}.o,
+  readonly object {{object}}.o,
 {%- endfor %}
 {%- for object in silabs_ram_objects %}
-  object {{object}}.o,
+  readonly object {{object}}.o,
 {%- endfor %}
 {%- for object in third_party_ram_objects %}
-  object {{object}}.o,
+  readonly object {{object}}.o,
 {%- endfor %}
 };
 
-{%- if linker_mpu is defined %}
-define block text_application_ram with alignment = 32
-{%- else %}
-define block text_application_ram with alignment = 8
-{%- endif %}
+define block text_application_ram with alignment = {{ram_code_alignment}}
 {
   readwrite code section text_application_ram,
 };
 
-define block text_application_ram_init with alignment = 8
+define block text_application_ram_init with alignment = {{ram_code_alignment}}
 {
   readonly code section text_application_ram_init,
 };
 
-initialize by copy
+{%- if linker_mpu is defined %}
+define block ram_alignment_padding with alignment = 32 {};
+keep { block ram_alignment_padding };
+{%- endif %}
+
+initialize manually
 {
-  section text_application_ram,
+  readonly section text_application_ram,
+};
+
+define block text_ram with alignment = {{ram_code_alignment}}, fixed order
+{
+  {%- for component in code_classification_components %}
+  block text_{{component}}_ram,
+  {%- endfor %}
+  block text_ram_objects,
+  block text_application_ram,
+{%- if linker_mpu is defined %}
+  block ram_alignment_padding,
+{%- endif %}
+};
+
+define block text_ram_init with alignment = {{ram_code_alignment}}
+{
+  {%- for component in code_classification_components %}
+  block text_{{component}}_ram_init,
+  {%- endfor %}
+  block text_ram_objects_init,
+  block text_application_ram_init,
 };
 
 {%- endif %}
@@ -391,22 +418,14 @@ place at start of ROM_region  { block apploader };
 place in ROM_region
 {
   block application,
-{%- for component in code_classification_components %}
-  block text_{{component}}_ram_init,
-{%- endfor %}
-  block text_ram_objects_init,
-  block text_application_ram_init,
+  block text_ram_init,
 };
 {%- else %}
 "application":
 place at start of ROM_region
 {
   block application,
-{%- for component in code_classification_components %}
-  block text_{{component}}_ram_init,
-{%- endfor %}
-  block text_ram_objects_init,
-  block text_application_ram_init,
+  block text_ram_init,
 };
 {%- endif %}
 {%- endif %}
@@ -433,11 +452,7 @@ place at start of RAM_region {
 {%- if not bootloader_enable %}
 "ram_code":
 place in RAM_region {
-{%- for component in code_classification_components %}
-  block text_{{component}}_ram,
-{%- endfor %}
-  block text_ram_objects,
-  block text_application_ram,
+  block text_ram,
 };
 {%- endif %}
 

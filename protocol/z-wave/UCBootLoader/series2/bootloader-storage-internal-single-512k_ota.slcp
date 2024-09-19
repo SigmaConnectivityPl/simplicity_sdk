@@ -72,6 +72,8 @@ configuration:
     value: 196608
   - name: BOOTLOADER_SE_UPGRADE_NO_STAGING
     value: 1
+  - name: BTL_STORAGE_BASE_ADDRESS
+    value: 0x8044000
 
 post_build:
   profile: bootloader

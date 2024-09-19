@@ -6,7 +6,9 @@ description: C SDK Static Memory Helper.
 
 package: amazon_platform
 quality: production
-
+metadata:
+  sbom:
+    reference: iot_sbom_freertos_common
 provides:
   - name: iot_static_memory
 

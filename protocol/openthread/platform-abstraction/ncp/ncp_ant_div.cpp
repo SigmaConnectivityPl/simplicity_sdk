@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Definitions for a spinel extension to support antenna diversity
  *******************************************************************************
@@ -29,8 +29,8 @@
  ******************************************************************************/
 
 #include "ncp_ant_div.hpp"
-#include "vendor_spinel.hpp"
 #include "radio_extension.h"
+#include "vendor_spinel.hpp"
 
 #include "common/code_utils.hpp"
 
@@ -54,17 +54,17 @@ otError getAntennaProperty(Spinel::Decoder &aDecoder, Spinel::Encoder &aEncoder)
 
     SuccessOrExit(aDecoder.ReadUint8(cmdKey));
 
-    switch(cmdKey)
+    switch (cmdKey)
     {
-        case AntennaCmd::ANT_TX_MODE_COMMAND:
-            error = getTxAntennaMode(aEncoder);
-            break;
-        case AntennaCmd::ANT_RX_MODE_COMMAND:
-            error = getRxAntennaMode(aEncoder);
-            break;
-        case AntennaCmd::ANT_ACTIVE_PHY_COMMAND:
-            error = getActivePhy(aEncoder);
-            break;
+    case AntennaCmd::ANT_TX_MODE_COMMAND:
+        error = getTxAntennaMode(aEncoder);
+        break;
+    case AntennaCmd::ANT_RX_MODE_COMMAND:
+        error = getRxAntennaMode(aEncoder);
+        break;
+    case AntennaCmd::ANT_ACTIVE_PHY_COMMAND:
+        error = getActivePhy(aEncoder);
+        break;
     }
 
 exit:
@@ -78,14 +78,14 @@ otError setAntennaProperty(Spinel::Decoder &aDecoder)
 
     SuccessOrExit(aDecoder.ReadUint8(cmdKey));
 
-    switch(cmdKey)
+    switch (cmdKey)
     {
-        case AntennaCmd::ANT_TX_MODE_COMMAND:
-            error = setTxAntennaMode(aDecoder);
-            break;
-        case AntennaCmd::ANT_RX_MODE_COMMAND:
-            error = setRxAntennaMode(aDecoder);
-            break;
+    case AntennaCmd::ANT_TX_MODE_COMMAND:
+        error = setTxAntennaMode(aDecoder);
+        break;
+    case AntennaCmd::ANT_RX_MODE_COMMAND:
+        error = setRxAntennaMode(aDecoder);
+        break;
     }
 
 exit:
@@ -107,7 +107,7 @@ otError setTxAntennaMode(Spinel::Decoder &aDecoder)
     otError error = OT_ERROR_NONE;
 
     SuccessOrExit(error = aDecoder.ReadUint8(mode));
-    
+
     error = otPlatRadioExtensionSetTxAntennaMode(mode);
 
 exit:
@@ -129,7 +129,7 @@ otError setRxAntennaMode(Spinel::Decoder &aDecoder)
     otError error = OT_ERROR_NONE;
 
     SuccessOrExit(error = aDecoder.ReadUint8(mode));
-    
+
     error = otPlatRadioExtensionSetRxAntennaMode(mode);
 
 exit:

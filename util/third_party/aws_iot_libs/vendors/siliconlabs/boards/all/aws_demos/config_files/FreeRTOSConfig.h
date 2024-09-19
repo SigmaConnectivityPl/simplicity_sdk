@@ -50,7 +50,6 @@
 #include CMSIS_device_header
 #endif
 
-#include "em_assert.h"
 #include "em_device.h"
 
 #if defined(SL_COMPONENT_CATALOG_PRESENT)

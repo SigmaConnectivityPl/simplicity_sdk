@@ -255,8 +255,12 @@
 #define INCLUDE_xResumeFromISR                        1
 
 /* FreeRTOS Secure Side Only and TrustZone Security Extension */
-#define configRUN_FREERTOS_SECURE_ONLY                1
-#define configENABLE_TRUSTZONE                        0
+#ifndef configRUN_FREERTOS_SECURE_ONLY
+  #define configRUN_FREERTOS_SECURE_ONLY                1
+#endif
+#ifndef configENABLE_TRUSTZONE
+  #define configENABLE_TRUSTZONE                        0
+#endif
 
 /* Thread local storage pointers used by the SDK */
 #ifndef configNUM_SDK_THREAD_LOCAL_STORAGE_POINTERS

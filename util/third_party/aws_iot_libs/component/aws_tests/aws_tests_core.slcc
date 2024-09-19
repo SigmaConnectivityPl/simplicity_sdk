@@ -6,6 +6,9 @@ description: Amazon AWS Tests Core Files
 
 package: amazon_platform
 quality: production
+metadata:
+  sbom:
+    reference: iot_sbom_lib_abstraction_common_io
 
 provides:
   - name: aws_tests_core

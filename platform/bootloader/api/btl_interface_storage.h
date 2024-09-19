@@ -208,9 +208,9 @@ typedef struct BootloaderStorageFunctions {
 #if defined(_SILICON_LABS_32B_SERIES_2)
 #if defined(SEMAILBOX_PRESENT)
 /// Context size(701) includes counter(16) plus stream_block(16 (block size) * 8 (Maximum blocks))
-#define BOOTLOADER_STORAGE_VERIFICATION_CONTEXT_SIZE            (701)
+#define BOOTLOADER_STORAGE_VERIFICATION_CONTEXT_SIZE            (705)
 #else
-#define BOOTLOADER_STORAGE_VERIFICATION_CONTEXT_SIZE            (589)
+#define BOOTLOADER_STORAGE_VERIFICATION_CONTEXT_SIZE            (593)
 #endif
 #else
 #define BOOTLOADER_STORAGE_VERIFICATION_CONTEXT_SIZE            (384)

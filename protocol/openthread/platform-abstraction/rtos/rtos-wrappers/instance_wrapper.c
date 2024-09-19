@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Instance APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,42 +29,46 @@
  *
  ******************************************************************************/
 
-#include <openthread/instance.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/instance.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern bool OT_API_REAL_NAME(otInstanceIsInitialized)(otInstance * aInstance);
-extern const char *OT_API_REAL_NAME(otGetRadioVersionString)(otInstance * aInstance);
+extern bool        OT_API_REAL_NAME(otInstanceIsInitialized)(otInstance *aInstance);
+extern const char *OT_API_REAL_NAME(otGetRadioVersionString)(otInstance *aInstance);
 extern const char *OT_API_REAL_NAME(otGetVersionString)(void);
-extern otError OT_API_REAL_NAME(otInstanceErasePersistentInfo)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otInstanceResetToBootloader)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otSetStateChangedCallback)(otInstance * aInstance,otStateChangedCallback aCallback,void * aContext);
-extern otInstance *OT_API_REAL_NAME(otInstanceInit)(void * aInstanceBuffer,size_t * aInstanceBufferSize);
+extern otError     OT_API_REAL_NAME(otInstanceErasePersistentInfo)(otInstance *aInstance);
+extern otError     OT_API_REAL_NAME(otInstanceResetToBootloader)(otInstance *aInstance);
+extern otError     OT_API_REAL_NAME(otSetStateChangedCallback)(otInstance            *aInstance,
+                                                           otStateChangedCallback aCallback,
+                                                           void                  *aContext);
+extern otInstance *OT_API_REAL_NAME(otInstanceInit)(void *aInstanceBuffer, size_t *aInstanceBufferSize);
 extern otInstance *OT_API_REAL_NAME(otInstanceInitMultiple)(uint8_t aIdx);
 extern otInstance *OT_API_REAL_NAME(otInstanceInitSingle)(void);
-extern uint32_t OT_API_REAL_NAME(otInstanceGetId)(otInstance * aInstance);
-extern uint64_t OT_API_REAL_NAME(otInstanceGetUptime)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otInstanceFactoryReset)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otInstanceFinalize)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otInstanceGetUptimeAsString)(otInstance * aInstance,char * aBuffer,uint16_t aSize);
-extern void OT_API_REAL_NAME(otInstanceReset)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otInstanceResetRadioStack)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otRemoveStateChangeCallback)(otInstance * aInstance,otStateChangedCallback aCallback,void * aContext);
+extern uint32_t    OT_API_REAL_NAME(otInstanceGetId)(otInstance *aInstance);
+extern uint64_t    OT_API_REAL_NAME(otInstanceGetUptime)(otInstance *aInstance);
+extern void        OT_API_REAL_NAME(otInstanceFactoryReset)(otInstance *aInstance);
+extern void        OT_API_REAL_NAME(otInstanceFinalize)(otInstance *aInstance);
+extern void        OT_API_REAL_NAME(otInstanceGetUptimeAsString)(otInstance *aInstance, char *aBuffer, uint16_t aSize);
+extern void        OT_API_REAL_NAME(otInstanceReset)(otInstance *aInstance);
+extern void        OT_API_REAL_NAME(otInstanceResetRadioStack)(otInstance *aInstance);
+extern void        OT_API_REAL_NAME(otRemoveStateChangeCallback)(otInstance            *aInstance,
+                                                          otStateChangedCallback aCallback,
+                                                          void                  *aContext);
 
-bool OT_API_WRAPPER_NAME(otInstanceIsInitialized)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otInstanceIsInitialized)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otInstanceIsInitialized)(aInstance);
@@ -72,7 +76,7 @@ bool OT_API_WRAPPER_NAME(otInstanceIsInitialized)(otInstance * aInstance)
     return ret;
 }
 
-const char *OT_API_WRAPPER_NAME(otGetRadioVersionString)(otInstance * aInstance)
+const char *OT_API_WRAPPER_NAME(otGetRadioVersionString)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const char *ret = OT_API_REAL_NAME(otGetRadioVersionString)(aInstance);
@@ -88,7 +92,7 @@ const char *OT_API_WRAPPER_NAME(otGetVersionString)(void)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otInstanceErasePersistentInfo)(otInstance * aInstance)
+otError OT_API_WRAPPER_NAME(otInstanceErasePersistentInfo)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otInstanceErasePersistentInfo)(aInstance);
@@ -96,7 +100,7 @@ otError OT_API_WRAPPER_NAME(otInstanceErasePersistentInfo)(otInstance * aInstanc
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otInstanceResetToBootloader)(otInstance * aInstance)
+otError OT_API_WRAPPER_NAME(otInstanceResetToBootloader)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otInstanceResetToBootloader)(aInstance);
@@ -104,7 +108,9 @@ otError OT_API_WRAPPER_NAME(otInstanceResetToBootloader)(otInstance * aInstance)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otSetStateChangedCallback)(otInstance * aInstance,otStateChangedCallback aCallback,void * aContext)
+otError OT_API_WRAPPER_NAME(otSetStateChangedCallback)(otInstance            *aInstance,
+                                                       otStateChangedCallback aCallback,
+                                                       void                  *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otSetStateChangedCallback)(aInstance, aCallback, aContext);
@@ -112,7 +118,7 @@ otError OT_API_WRAPPER_NAME(otSetStateChangedCallback)(otInstance * aInstance,ot
     return ret;
 }
 
-otInstance *OT_API_WRAPPER_NAME(otInstanceInit)(void * aInstanceBuffer,size_t * aInstanceBufferSize)
+otInstance *OT_API_WRAPPER_NAME(otInstanceInit)(void *aInstanceBuffer, size_t *aInstanceBufferSize)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otInstance *ret = OT_API_REAL_NAME(otInstanceInit)(aInstanceBuffer, aInstanceBufferSize);
@@ -136,7 +142,7 @@ otInstance *OT_API_WRAPPER_NAME(otInstanceInitSingle)(void)
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otInstanceGetId)(otInstance * aInstance)
+uint32_t OT_API_WRAPPER_NAME(otInstanceGetId)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otInstanceGetId)(aInstance);
@@ -144,7 +150,7 @@ uint32_t OT_API_WRAPPER_NAME(otInstanceGetId)(otInstance * aInstance)
     return ret;
 }
 
-uint64_t OT_API_WRAPPER_NAME(otInstanceGetUptime)(otInstance * aInstance)
+uint64_t OT_API_WRAPPER_NAME(otInstanceGetUptime)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint64_t ret = OT_API_REAL_NAME(otInstanceGetUptime)(aInstance);
@@ -152,45 +158,46 @@ uint64_t OT_API_WRAPPER_NAME(otInstanceGetUptime)(otInstance * aInstance)
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otInstanceFactoryReset)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otInstanceFactoryReset)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otInstanceFactoryReset)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otInstanceFinalize)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otInstanceFinalize)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otInstanceFinalize)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otInstanceGetUptimeAsString)(otInstance * aInstance,char * aBuffer,uint16_t aSize)
+void OT_API_WRAPPER_NAME(otInstanceGetUptimeAsString)(otInstance *aInstance, char *aBuffer, uint16_t aSize)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otInstanceGetUptimeAsString)(aInstance, aBuffer, aSize);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otInstanceReset)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otInstanceReset)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otInstanceReset)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otInstanceResetRadioStack)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otInstanceResetRadioStack)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otInstanceResetRadioStack)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otRemoveStateChangeCallback)(otInstance * aInstance,otStateChangedCallback aCallback,void * aContext)
+void OT_API_WRAPPER_NAME(otRemoveStateChangeCallback)(otInstance            *aInstance,
+                                                      otStateChangedCallback aCallback,
+                                                      void                  *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otRemoveStateChangeCallback)(aInstance, aCallback, aContext);
     sl_ot_rtos_release_stack_mutex();
 }
-

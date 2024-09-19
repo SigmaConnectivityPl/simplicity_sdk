@@ -468,6 +468,9 @@ char * sli_wisun_coap_rd_parser(const sl_wisun_coap_rhnd_resource_t * const reso
     // Get '\0' terminated uri querry str from packet
     uri_querry_str = _get_uri_querry_string(packet);
     if (uri_querry_str == NULL) {
+      _destroy_dir_list(&parsed);
+      _destroy_resources(&parsed);
+      sl_wisun_coap_destroy_uri_path_str(uri_path_str);
       return NULL;
     }
     // Parse and get matched list of resources

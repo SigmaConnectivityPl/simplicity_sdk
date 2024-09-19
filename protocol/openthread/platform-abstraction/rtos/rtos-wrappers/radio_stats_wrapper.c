@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Radio Stats APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,27 +29,27 @@
  *
  ******************************************************************************/
 
-#include <openthread/radio_stats.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/radio_stats.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern const otRadioTimeStats *OT_API_REAL_NAME(otRadioTimeStatsGet)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otRadioTimeStatsReset)(otInstance * aInstance);
+extern const otRadioTimeStats *OT_API_REAL_NAME(otRadioTimeStatsGet)(otInstance *aInstance);
+extern void                    OT_API_REAL_NAME(otRadioTimeStatsReset)(otInstance *aInstance);
 
-const otRadioTimeStats *OT_API_WRAPPER_NAME(otRadioTimeStatsGet)(otInstance * aInstance)
+const otRadioTimeStats *OT_API_WRAPPER_NAME(otRadioTimeStatsGet)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otRadioTimeStats *ret = OT_API_REAL_NAME(otRadioTimeStatsGet)(aInstance);
@@ -57,10 +57,9 @@ const otRadioTimeStats *OT_API_WRAPPER_NAME(otRadioTimeStatsGet)(otInstance * aI
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otRadioTimeStatsReset)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otRadioTimeStatsReset)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otRadioTimeStatsReset)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
-

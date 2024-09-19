@@ -6,12 +6,23 @@ description: FreeRTOS Plus CLI Utility.
 
 package: amazon_platform
 quality: production
+metadata:
+  sbom:
+    license: MIT
+    upstream:
+      name: FreeRTOS+CLI Library
+      version: 1.0.4
+      supplier: aws
+      url: https://github.com/aws/amazon-freertos
+      package_url: https://github.com/aws/amazon-freertos/tree/202107.00
+      comment: amazon-freertos tag is 202107.00 and FreeRTOS+CLI version is 1.0.4 with commit 441e02e
 
 provides:
   - name: freertos_cli
 
 requires:
   - name: iot_config_common
+  - name: iot_sbom_lib_abstraction_common_io
 
 root_path: util/third_party/aws_iot_libs
 

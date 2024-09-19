@@ -6195,11 +6195,14 @@ bool RAIL_IsVdetEnabled(RAIL_Handle_t genericRailHandle);
  * @return \ref RAIL_Status_t
  *   \retval RAIL_STATUS_NO_ERROR - All went well, value in *pVdetMv is valid.
  *   \retval RAIL_STATUS_INVALID_CALL - VDET is in progress, wait until
-       VDET capture is complete and try again.
- *   \retval RAIL_STATUS_INVALID_STATE - VDET is not enabled or valid,
-       or VDET was cancelled due to AuxADC contention.\n
+ *     VDET capture is complete and try again.
+ *   \retval RAIL_STATUS_INVALID_STATE - VDET is not enabled or valid. Wait until next packet
+       and try reading again.\n
  *       \ref RAIL_VDET_MODE_AUTOMATIC - Wait until next packet and try reading again.\n
- *       \ref RAIL_VDET_MODE_IMMEDIATE - Resend measurement request.
+ *       \ref RAIL_VDET_MODE_IMMEDIATE - Resend \ref RAIL_EnableVdet().\n
+ *   \retval RAIL_STATUS_INVALID_PARAMETER - In \ref RAIL_VDET_MODE_IMMEDIATE, resend \ref RAIL_EnableVdet().\n
+ *   \retval RAIL_STATUS_SUSPENDED - Blocked by AuxADC contention. Wait until next packet
+       and try reading again.
  */
 RAIL_Status_t RAIL_GetVdet(RAIL_Handle_t genericRailHandle,
                            uint32_t *pVdetMv);

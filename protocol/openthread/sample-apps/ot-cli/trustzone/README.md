@@ -1,13 +1,13 @@
 # TrustZone OpenThread CLI (Workspace and Non-Secure Application)
 
-The Simplicity IDE uses the `ot-cli-ftd-tz` and `ot-cli-mtd-tz` workspaces to create the 
+The Simplicity IDE uses the `ot-cli-ftd-tz` and `ot-cli-mtd-tz` workspaces to create the
 secure and non-secure applications for the TrustZone OpenThread CLI example solutions.
 Additionally, these workspaces include the `bootloader-storage-internal-single` bootloader
 application, which will allow the following post-build actions to process:
 
-* Combine the secure and non-secure binaries into an `app-only` image.
-* Combine the bootloader binary with the previous artifacts into a `full` image.
-* Generate a GBL file of the `app-only` image to be used for firmware upgrades.
+- Combine the secure and non-secure binaries into an `app-only` image.
+- Combine the bootloader binary with the previous artifacts into a `full` image.
+- Generate a GBL file of the `app-only` image to be used for firmware upgrades.
 
 ## Getting Started
 

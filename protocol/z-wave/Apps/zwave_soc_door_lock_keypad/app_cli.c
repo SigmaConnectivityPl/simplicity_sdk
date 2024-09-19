@@ -129,7 +129,7 @@ void cli_set_doorhandle_state(sl_cli_command_arg_t *arguments)
 
 static void send_user_code_for_validation(char* user_code)
 {
-  static char user_code_buffer[USERCODE_MAX_LEN];
+  static uint8_t user_code_buffer[USERCODE_MAX_LEN];
   static cc_user_code_event_validate_data_t user_code_event_validate_data;
   uint8_t user_code_length = strlen(user_code);
 

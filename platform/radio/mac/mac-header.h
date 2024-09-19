@@ -319,31 +319,16 @@ sl_status_t sli_mac_get_pan_id(uint8_t *rawMacHeader, bool hasPhyHeader, uint16_
 
 // Appended Info
 // Stored as Big endian fields in a byte array.
-#ifdef ZIGBEE_STACK_ON_HOST
-#define SL_ZIGBEE_APPENED_INFO_SYNC_TIMESTAMP_LENGTH 8
-#else
-#define SL_ZIGBEE_APPENED_INFO_SYNC_TIMESTAMP_LENGTH 0
-#endif
 
-#define NUM_APPENDED_INFO_BYTES (8 + SL_ZIGBEE_APPENED_INFO_SYNC_TIMESTAMP_LENGTH)
+#define NUM_APPENDED_INFO_BYTES                 8
 #define APPENDED_INFO_FRAME_STATUS_BYTE_1_INDEX 0 // MSByte
 #define APPENDED_INFO_FRAME_STATUS_BYTE_0_INDEX 1 // LSByte
 #define APPENDED_INFO_RSSI_BYTE_INDEX           2
 #define APPENDED_INFO_LQI_BYTE_INDEX            3
-#define APPENDED_INFO_GAIN_BYTE_INDEX           4
-#define APPENDED_INFO_MAC_TIMER_BYTE_2_INDEX    5 // MSByte
+#define APPENDED_INFO_MAC_TIMER_BYTE_3_INDEX    4 // MSByte Timestamp packet rx
+#define APPENDED_INFO_MAC_TIMER_BYTE_2_INDEX    5
 #define APPENDED_INFO_MAC_TIMER_BYTE_1_INDEX    6
-#define APPENDED_INFO_MAC_TIMER_BYTE_0_INDEX    7 // LSByte
-
-// Appened Infor bytes for the sync rx time stamp
-#define APPENDED_INFO_SYNC_RX_TIME_BYTE_7_INDEX 8
-#define APPENDED_INFO_SYNC_RX_TIME_BYTE_6_INDEX 9
-#define APPENDED_INFO_SYNC_RX_TIME_BYTE_5_INDEX 10
-#define APPENDED_INFO_SYNC_RX_TIME_BYTE_4_INDEX 11
-#define APPENDED_INFO_SYNC_RX_TIME_BYTE_3_INDEX 12
-#define APPENDED_INFO_SYNC_RX_TIME_BYTE_2_INDEX 13
-#define APPENDED_INFO_SYNC_RX_TIME_BYTE_1_INDEX 14
-#define APPENDED_INFO_SYNC_RX_TIME_BYTE_0_INDEX 15
+#define APPENDED_INFO_MAC_TIMER_BYTE_0_INDEX    7 // LSByte Timestamp packet rx
 
 // After the frame status word has been examined, the RX ISR partially
 // overwrites it with the channel that the packet was received on.

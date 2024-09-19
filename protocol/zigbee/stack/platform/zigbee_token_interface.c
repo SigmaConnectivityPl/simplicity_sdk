@@ -174,7 +174,7 @@ void sl_zigbee_get_restored_eui64(sl_802154_long_addr_t eui64)
 #include "platform/service/legacy_host/inc/token.h"
 #include <syslog.h>
 
-extern const uint16_t tokenCreators[];
+extern const uint32_t tokenNvm3Keys[];
 extern const bool tokenIsCnt[];
 extern const uint8_t tokenSize[];
 extern const uint8_t tokenArraySize[];
@@ -192,7 +192,7 @@ sl_status_t sli_zigbee_stack_get_token_info(uint8_t index,
   if (index >= (TOKEN_COUNT)) {
     return SL_STATUS_INVALID_INDEX;
   }
-  tokenInfo->nvm3Key = tokenCreators[index];
+  tokenInfo->nvm3Key = tokenNvm3Keys[index];
   tokenInfo->isIdx = 1;
   tokenInfo->isCnt = tokenIsCnt[index];
   tokenInfo->size = tokenSize[index];
@@ -207,7 +207,7 @@ sl_status_t sli_zigbee_stack_get_token_data(uint32_t token,
   // Look up the token size from the token key because
   // sl_token_get_data needs the size to be passed.
   for (uint16_t i = 0; i < sli_zigbee_stack_get_token_count(); i++) {
-    if (token == tokenCreators[i]) {
+    if (token == tokenNvm3Keys[i]) {
       tokenData->size = tokenSize[i];
       //syslog(LOG_INFO, "Getting : Creator = %04X Token = %d index = %d tokenData->size = %d",token, i, index, tokenData->size);
       halInternalGetTokenData(tokenData->data, i, index, tokenData->size);
@@ -223,7 +223,7 @@ sl_status_t sli_zigbee_stack_set_token_data(uint32_t token,
                                             sl_zigbee_token_data_t *tokenData)
 {
   for (uint8_t i = 0; i < sli_zigbee_stack_get_token_count(); i++) {
-    if (token == tokenCreators[i]) {
+    if (token == tokenNvm3Keys[i]) {
       //syslog(LOG_INFO, "Setting : Creator = %04X Token = %d index = %d tokenData->size = %d",token, i, index, tokenData->size);
       halInternalSetTokenData(i, index, tokenData->data, tokenData->size);
       return SL_STATUS_OK;
@@ -240,7 +240,7 @@ void sl_zigbee_get_restored_eui64(sl_802154_long_addr_t eui64)
   sl_zigbee_token_data_t tokenData;
   tokenData.size = 0;
   tokenData.data = (void *)restoredEui64;
-  sl_status_t status = sli_zigbee_stack_get_token_data(CREATOR_STACK_RESTORED_EUI64,
+  sl_status_t status = sli_zigbee_stack_get_token_data(NVM3KEY_STACK_RESTORED_EUI64,
                                                        0,
                                                        &tokenData);
   if (status == SL_STATUS_OK

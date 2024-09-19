@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Netdiag APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,36 +29,46 @@
  *
  ******************************************************************************/
 
-#include <openthread/netdiag.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/netdiag.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern const char *OT_API_REAL_NAME(otThreadGetVendorAppUrl)(otInstance * aInstance);
-extern const char *OT_API_REAL_NAME(otThreadGetVendorModel)(otInstance * aInstance);
-extern const char *OT_API_REAL_NAME(otThreadGetVendorName)(otInstance * aInstance);
-extern const char *OT_API_REAL_NAME(otThreadGetVendorSwVersion)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otThreadGetNextDiagnosticTlv)(const otMessage * aMessage,otNetworkDiagIterator * aIterator,otNetworkDiagTlv * aNetworkDiagTlv);
-extern otError OT_API_REAL_NAME(otThreadSendDiagnosticGet)(otInstance * aInstance,const otIp6Address * aDestination,const uint8_t aTlvTypes[],uint8_t aCount,otReceiveDiagnosticGetCallback aCallback,void * aCallbackContext);
-extern otError OT_API_REAL_NAME(otThreadSendDiagnosticReset)(otInstance * aInstance,const otIp6Address * aDestination,const uint8_t aTlvTypes[],uint8_t aCount);
-extern otError OT_API_REAL_NAME(otThreadSetVendorAppUrl)(otInstance * aInstance,const char * aVendorAppUrl);
-extern otError OT_API_REAL_NAME(otThreadSetVendorModel)(otInstance * aInstance,const char * aVendorModel);
-extern otError OT_API_REAL_NAME(otThreadSetVendorName)(otInstance * aInstance,const char * aVendorName);
-extern otError OT_API_REAL_NAME(otThreadSetVendorSwVersion)(otInstance * aInstance,const char * aVendorSwVersion);
+extern const char *OT_API_REAL_NAME(otThreadGetVendorAppUrl)(otInstance *aInstance);
+extern const char *OT_API_REAL_NAME(otThreadGetVendorModel)(otInstance *aInstance);
+extern const char *OT_API_REAL_NAME(otThreadGetVendorName)(otInstance *aInstance);
+extern const char *OT_API_REAL_NAME(otThreadGetVendorSwVersion)(otInstance *aInstance);
+extern otError     OT_API_REAL_NAME(otThreadGetNextDiagnosticTlv)(const otMessage       *aMessage,
+                                                              otNetworkDiagIterator *aIterator,
+                                                              otNetworkDiagTlv      *aNetworkDiagTlv);
+extern otError     OT_API_REAL_NAME(otThreadSendDiagnosticGet)(otInstance                    *aInstance,
+                                                           const otIp6Address            *aDestination,
+                                                           const uint8_t                  aTlvTypes[],
+                                                           uint8_t                        aCount,
+                                                           otReceiveDiagnosticGetCallback aCallback,
+                                                           void                          *aCallbackContext);
+extern otError     OT_API_REAL_NAME(otThreadSendDiagnosticReset)(otInstance         *aInstance,
+                                                             const otIp6Address *aDestination,
+                                                             const uint8_t       aTlvTypes[],
+                                                             uint8_t             aCount);
+extern otError     OT_API_REAL_NAME(otThreadSetVendorAppUrl)(otInstance *aInstance, const char *aVendorAppUrl);
+extern otError     OT_API_REAL_NAME(otThreadSetVendorModel)(otInstance *aInstance, const char *aVendorModel);
+extern otError     OT_API_REAL_NAME(otThreadSetVendorName)(otInstance *aInstance, const char *aVendorName);
+extern otError     OT_API_REAL_NAME(otThreadSetVendorSwVersion)(otInstance *aInstance, const char *aVendorSwVersion);
 
-const char *OT_API_WRAPPER_NAME(otThreadGetVendorAppUrl)(otInstance * aInstance)
+const char *OT_API_WRAPPER_NAME(otThreadGetVendorAppUrl)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const char *ret = OT_API_REAL_NAME(otThreadGetVendorAppUrl)(aInstance);
@@ -66,7 +76,7 @@ const char *OT_API_WRAPPER_NAME(otThreadGetVendorAppUrl)(otInstance * aInstance)
     return ret;
 }
 
-const char *OT_API_WRAPPER_NAME(otThreadGetVendorModel)(otInstance * aInstance)
+const char *OT_API_WRAPPER_NAME(otThreadGetVendorModel)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const char *ret = OT_API_REAL_NAME(otThreadGetVendorModel)(aInstance);
@@ -74,7 +84,7 @@ const char *OT_API_WRAPPER_NAME(otThreadGetVendorModel)(otInstance * aInstance)
     return ret;
 }
 
-const char *OT_API_WRAPPER_NAME(otThreadGetVendorName)(otInstance * aInstance)
+const char *OT_API_WRAPPER_NAME(otThreadGetVendorName)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const char *ret = OT_API_REAL_NAME(otThreadGetVendorName)(aInstance);
@@ -82,7 +92,7 @@ const char *OT_API_WRAPPER_NAME(otThreadGetVendorName)(otInstance * aInstance)
     return ret;
 }
 
-const char *OT_API_WRAPPER_NAME(otThreadGetVendorSwVersion)(otInstance * aInstance)
+const char *OT_API_WRAPPER_NAME(otThreadGetVendorSwVersion)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const char *ret = OT_API_REAL_NAME(otThreadGetVendorSwVersion)(aInstance);
@@ -90,7 +100,9 @@ const char *OT_API_WRAPPER_NAME(otThreadGetVendorSwVersion)(otInstance * aInstan
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadGetNextDiagnosticTlv)(const otMessage * aMessage,otNetworkDiagIterator * aIterator,otNetworkDiagTlv * aNetworkDiagTlv)
+otError OT_API_WRAPPER_NAME(otThreadGetNextDiagnosticTlv)(const otMessage       *aMessage,
+                                                          otNetworkDiagIterator *aIterator,
+                                                          otNetworkDiagTlv      *aNetworkDiagTlv)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadGetNextDiagnosticTlv)(aMessage, aIterator, aNetworkDiagTlv);
@@ -98,15 +110,24 @@ otError OT_API_WRAPPER_NAME(otThreadGetNextDiagnosticTlv)(const otMessage * aMes
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSendDiagnosticGet)(otInstance * aInstance,const otIp6Address * aDestination,const uint8_t aTlvTypes[],uint8_t aCount,otReceiveDiagnosticGetCallback aCallback,void * aCallbackContext)
+otError OT_API_WRAPPER_NAME(otThreadSendDiagnosticGet)(otInstance                    *aInstance,
+                                                       const otIp6Address            *aDestination,
+                                                       const uint8_t                  aTlvTypes[],
+                                                       uint8_t                        aCount,
+                                                       otReceiveDiagnosticGetCallback aCallback,
+                                                       void                          *aCallbackContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otThreadSendDiagnosticGet)(aInstance, aDestination, aTlvTypes, aCount, aCallback, aCallbackContext);
+    otError ret = OT_API_REAL_NAME(
+        otThreadSendDiagnosticGet)(aInstance, aDestination, aTlvTypes, aCount, aCallback, aCallbackContext);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSendDiagnosticReset)(otInstance * aInstance,const otIp6Address * aDestination,const uint8_t aTlvTypes[],uint8_t aCount)
+otError OT_API_WRAPPER_NAME(otThreadSendDiagnosticReset)(otInstance         *aInstance,
+                                                         const otIp6Address *aDestination,
+                                                         const uint8_t       aTlvTypes[],
+                                                         uint8_t             aCount)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSendDiagnosticReset)(aInstance, aDestination, aTlvTypes, aCount);
@@ -114,7 +135,7 @@ otError OT_API_WRAPPER_NAME(otThreadSendDiagnosticReset)(otInstance * aInstance,
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetVendorAppUrl)(otInstance * aInstance,const char * aVendorAppUrl)
+otError OT_API_WRAPPER_NAME(otThreadSetVendorAppUrl)(otInstance *aInstance, const char *aVendorAppUrl)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetVendorAppUrl)(aInstance, aVendorAppUrl);
@@ -122,7 +143,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetVendorAppUrl)(otInstance * aInstance,cons
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetVendorModel)(otInstance * aInstance,const char * aVendorModel)
+otError OT_API_WRAPPER_NAME(otThreadSetVendorModel)(otInstance *aInstance, const char *aVendorModel)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetVendorModel)(aInstance, aVendorModel);
@@ -130,7 +151,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetVendorModel)(otInstance * aInstance,const
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetVendorName)(otInstance * aInstance,const char * aVendorName)
+otError OT_API_WRAPPER_NAME(otThreadSetVendorName)(otInstance *aInstance, const char *aVendorName)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetVendorName)(aInstance, aVendorName);
@@ -138,11 +159,10 @@ otError OT_API_WRAPPER_NAME(otThreadSetVendorName)(otInstance * aInstance,const 
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetVendorSwVersion)(otInstance * aInstance,const char * aVendorSwVersion)
+otError OT_API_WRAPPER_NAME(otThreadSetVendorSwVersion)(otInstance *aInstance, const char *aVendorSwVersion)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetVendorSwVersion)(aInstance, aVendorSwVersion);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
-

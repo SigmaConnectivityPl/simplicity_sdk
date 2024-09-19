@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Dns Client APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,41 +29,88 @@
  *
  ******************************************************************************/
 
-#include <openthread/dns_client.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/dns_client.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern const otDnsQueryConfig *OT_API_REAL_NAME(otDnsClientGetDefaultConfig)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otDnsAddressResponseGetAddress)(const otDnsAddressResponse * aResponse,uint16_t aIndex,otIp6Address * aAddress,uint32_t * aTtl);
-extern otError OT_API_REAL_NAME(otDnsAddressResponseGetHostName)(const otDnsAddressResponse * aResponse,char * aNameBuffer,uint16_t aNameBufferSize);
-extern otError OT_API_REAL_NAME(otDnsBrowseResponseGetHostAddress)(const otDnsBrowseResponse * aResponse,const char * aHostName,uint16_t aIndex,otIp6Address * aAddress,uint32_t * aTtl);
-extern otError OT_API_REAL_NAME(otDnsBrowseResponseGetServiceInfo)(const otDnsBrowseResponse * aResponse,const char * aInstanceLabel,otDnsServiceInfo * aServiceInfo);
-extern otError OT_API_REAL_NAME(otDnsBrowseResponseGetServiceInstance)(const otDnsBrowseResponse * aResponse,uint16_t aIndex,char * aLabelBuffer,uint8_t aLabelBufferSize);
-extern otError OT_API_REAL_NAME(otDnsBrowseResponseGetServiceName)(const otDnsBrowseResponse * aResponse,char * aNameBuffer,uint16_t aNameBufferSize);
-extern otError OT_API_REAL_NAME(otDnsClientBrowse)(otInstance * aInstance,const char * aServiceName,otDnsBrowseCallback aCallback,void * aContext,const otDnsQueryConfig * aConfig);
-extern otError OT_API_REAL_NAME(otDnsClientResolveAddress)(otInstance * aInstance,const char * aHostName,otDnsAddressCallback aCallback,void * aContext,const otDnsQueryConfig * aConfig);
-extern otError OT_API_REAL_NAME(otDnsClientResolveIp4Address)(otInstance * aInstance,const char * aHostName,otDnsAddressCallback aCallback,void * aContext,const otDnsQueryConfig * aConfig);
-extern otError OT_API_REAL_NAME(otDnsClientResolveService)(otInstance * aInstance,const char * aInstanceLabel,const char * aServiceName,otDnsServiceCallback aCallback,void * aContext,const otDnsQueryConfig * aConfig);
-extern otError OT_API_REAL_NAME(otDnsClientResolveServiceAndHostAddress)(otInstance * aInstance,const char * aInstanceLabel,const char * aServiceName,otDnsServiceCallback aCallback,void * aContext,const otDnsQueryConfig * aConfig);
-extern otError OT_API_REAL_NAME(otDnsServiceResponseGetHostAddress)(const otDnsServiceResponse * aResponse,const char * aHostName,uint16_t aIndex,otIp6Address * aAddress,uint32_t * aTtl);
-extern otError OT_API_REAL_NAME(otDnsServiceResponseGetServiceInfo)(const otDnsServiceResponse * aResponse,otDnsServiceInfo * aServiceInfo);
-extern otError OT_API_REAL_NAME(otDnsServiceResponseGetServiceName)(const otDnsServiceResponse * aResponse,char * aLabelBuffer,uint8_t aLabelBufferSize,char * aNameBuffer,uint16_t aNameBufferSize);
-extern void OT_API_REAL_NAME(otDnsClientSetDefaultConfig)(otInstance * aInstance,const otDnsQueryConfig * aConfig);
+extern const otDnsQueryConfig *OT_API_REAL_NAME(otDnsClientGetDefaultConfig)(otInstance *aInstance);
+extern otError                 OT_API_REAL_NAME(otDnsAddressResponseGetAddress)(const otDnsAddressResponse *aResponse,
+                                                                uint16_t                    aIndex,
+                                                                otIp6Address               *aAddress,
+                                                                uint32_t                   *aTtl);
+extern otError                 OT_API_REAL_NAME(otDnsAddressResponseGetHostName)(const otDnsAddressResponse *aResponse,
+                                                                 char                       *aNameBuffer,
+                                                                 uint16_t                    aNameBufferSize);
+extern otError                 OT_API_REAL_NAME(otDnsBrowseResponseGetHostAddress)(const otDnsBrowseResponse *aResponse,
+                                                                   const char                *aHostName,
+                                                                   uint16_t                   aIndex,
+                                                                   otIp6Address              *aAddress,
+                                                                   uint32_t                  *aTtl);
+extern otError                 OT_API_REAL_NAME(otDnsBrowseResponseGetServiceInfo)(const otDnsBrowseResponse *aResponse,
+                                                                   const char                *aInstanceLabel,
+                                                                   otDnsServiceInfo          *aServiceInfo);
+extern otError OT_API_REAL_NAME(otDnsBrowseResponseGetServiceInstance)(const otDnsBrowseResponse *aResponse,
+                                                                       uint16_t                   aIndex,
+                                                                       char                      *aLabelBuffer,
+                                                                       uint8_t                    aLabelBufferSize);
+extern otError OT_API_REAL_NAME(otDnsBrowseResponseGetServiceName)(const otDnsBrowseResponse *aResponse,
+                                                                   char                      *aNameBuffer,
+                                                                   uint16_t                   aNameBufferSize);
+extern otError OT_API_REAL_NAME(otDnsClientBrowse)(otInstance             *aInstance,
+                                                   const char             *aServiceName,
+                                                   otDnsBrowseCallback     aCallback,
+                                                   void                   *aContext,
+                                                   const otDnsQueryConfig *aConfig);
+extern otError OT_API_REAL_NAME(otDnsClientResolveAddress)(otInstance             *aInstance,
+                                                           const char             *aHostName,
+                                                           otDnsAddressCallback    aCallback,
+                                                           void                   *aContext,
+                                                           const otDnsQueryConfig *aConfig);
+extern otError OT_API_REAL_NAME(otDnsClientResolveIp4Address)(otInstance             *aInstance,
+                                                              const char             *aHostName,
+                                                              otDnsAddressCallback    aCallback,
+                                                              void                   *aContext,
+                                                              const otDnsQueryConfig *aConfig);
+extern otError OT_API_REAL_NAME(otDnsClientResolveService)(otInstance             *aInstance,
+                                                           const char             *aInstanceLabel,
+                                                           const char             *aServiceName,
+                                                           otDnsServiceCallback    aCallback,
+                                                           void                   *aContext,
+                                                           const otDnsQueryConfig *aConfig);
+extern otError OT_API_REAL_NAME(otDnsClientResolveServiceAndHostAddress)(otInstance             *aInstance,
+                                                                         const char             *aInstanceLabel,
+                                                                         const char             *aServiceName,
+                                                                         otDnsServiceCallback    aCallback,
+                                                                         void                   *aContext,
+                                                                         const otDnsQueryConfig *aConfig);
+extern otError OT_API_REAL_NAME(otDnsServiceResponseGetHostAddress)(const otDnsServiceResponse *aResponse,
+                                                                    const char                 *aHostName,
+                                                                    uint16_t                    aIndex,
+                                                                    otIp6Address               *aAddress,
+                                                                    uint32_t                   *aTtl);
+extern otError OT_API_REAL_NAME(otDnsServiceResponseGetServiceInfo)(const otDnsServiceResponse *aResponse,
+                                                                    otDnsServiceInfo           *aServiceInfo);
+extern otError OT_API_REAL_NAME(otDnsServiceResponseGetServiceName)(const otDnsServiceResponse *aResponse,
+                                                                    char                       *aLabelBuffer,
+                                                                    uint8_t                     aLabelBufferSize,
+                                                                    char                       *aNameBuffer,
+                                                                    uint16_t                    aNameBufferSize);
+extern void    OT_API_REAL_NAME(otDnsClientSetDefaultConfig)(otInstance *aInstance, const otDnsQueryConfig *aConfig);
 
-const otDnsQueryConfig *OT_API_WRAPPER_NAME(otDnsClientGetDefaultConfig)(otInstance * aInstance)
+const otDnsQueryConfig *OT_API_WRAPPER_NAME(otDnsClientGetDefaultConfig)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otDnsQueryConfig *ret = OT_API_REAL_NAME(otDnsClientGetDefaultConfig)(aInstance);
@@ -71,7 +118,10 @@ const otDnsQueryConfig *OT_API_WRAPPER_NAME(otDnsClientGetDefaultConfig)(otInsta
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsAddressResponseGetAddress)(const otDnsAddressResponse * aResponse,uint16_t aIndex,otIp6Address * aAddress,uint32_t * aTtl)
+otError OT_API_WRAPPER_NAME(otDnsAddressResponseGetAddress)(const otDnsAddressResponse *aResponse,
+                                                            uint16_t                    aIndex,
+                                                            otIp6Address               *aAddress,
+                                                            uint32_t                   *aTtl)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDnsAddressResponseGetAddress)(aResponse, aIndex, aAddress, aTtl);
@@ -79,7 +129,9 @@ otError OT_API_WRAPPER_NAME(otDnsAddressResponseGetAddress)(const otDnsAddressRe
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsAddressResponseGetHostName)(const otDnsAddressResponse * aResponse,char * aNameBuffer,uint16_t aNameBufferSize)
+otError OT_API_WRAPPER_NAME(otDnsAddressResponseGetHostName)(const otDnsAddressResponse *aResponse,
+                                                             char                       *aNameBuffer,
+                                                             uint16_t                    aNameBufferSize)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDnsAddressResponseGetHostName)(aResponse, aNameBuffer, aNameBufferSize);
@@ -87,7 +139,11 @@ otError OT_API_WRAPPER_NAME(otDnsAddressResponseGetHostName)(const otDnsAddressR
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsBrowseResponseGetHostAddress)(const otDnsBrowseResponse * aResponse,const char * aHostName,uint16_t aIndex,otIp6Address * aAddress,uint32_t * aTtl)
+otError OT_API_WRAPPER_NAME(otDnsBrowseResponseGetHostAddress)(const otDnsBrowseResponse *aResponse,
+                                                               const char                *aHostName,
+                                                               uint16_t                   aIndex,
+                                                               otIp6Address              *aAddress,
+                                                               uint32_t                  *aTtl)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDnsBrowseResponseGetHostAddress)(aResponse, aHostName, aIndex, aAddress, aTtl);
@@ -95,7 +151,9 @@ otError OT_API_WRAPPER_NAME(otDnsBrowseResponseGetHostAddress)(const otDnsBrowse
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsBrowseResponseGetServiceInfo)(const otDnsBrowseResponse * aResponse,const char * aInstanceLabel,otDnsServiceInfo * aServiceInfo)
+otError OT_API_WRAPPER_NAME(otDnsBrowseResponseGetServiceInfo)(const otDnsBrowseResponse *aResponse,
+                                                               const char                *aInstanceLabel,
+                                                               otDnsServiceInfo          *aServiceInfo)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDnsBrowseResponseGetServiceInfo)(aResponse, aInstanceLabel, aServiceInfo);
@@ -103,15 +161,21 @@ otError OT_API_WRAPPER_NAME(otDnsBrowseResponseGetServiceInfo)(const otDnsBrowse
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsBrowseResponseGetServiceInstance)(const otDnsBrowseResponse * aResponse,uint16_t aIndex,char * aLabelBuffer,uint8_t aLabelBufferSize)
+otError OT_API_WRAPPER_NAME(otDnsBrowseResponseGetServiceInstance)(const otDnsBrowseResponse *aResponse,
+                                                                   uint16_t                   aIndex,
+                                                                   char                      *aLabelBuffer,
+                                                                   uint8_t                    aLabelBufferSize)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otDnsBrowseResponseGetServiceInstance)(aResponse, aIndex, aLabelBuffer, aLabelBufferSize);
+    otError ret =
+        OT_API_REAL_NAME(otDnsBrowseResponseGetServiceInstance)(aResponse, aIndex, aLabelBuffer, aLabelBufferSize);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsBrowseResponseGetServiceName)(const otDnsBrowseResponse * aResponse,char * aNameBuffer,uint16_t aNameBufferSize)
+otError OT_API_WRAPPER_NAME(otDnsBrowseResponseGetServiceName)(const otDnsBrowseResponse *aResponse,
+                                                               char                      *aNameBuffer,
+                                                               uint16_t                   aNameBufferSize)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDnsBrowseResponseGetServiceName)(aResponse, aNameBuffer, aNameBufferSize);
@@ -119,7 +183,11 @@ otError OT_API_WRAPPER_NAME(otDnsBrowseResponseGetServiceName)(const otDnsBrowse
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsClientBrowse)(otInstance * aInstance,const char * aServiceName,otDnsBrowseCallback aCallback,void * aContext,const otDnsQueryConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otDnsClientBrowse)(otInstance             *aInstance,
+                                               const char             *aServiceName,
+                                               otDnsBrowseCallback     aCallback,
+                                               void                   *aContext,
+                                               const otDnsQueryConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDnsClientBrowse)(aInstance, aServiceName, aCallback, aContext, aConfig);
@@ -127,7 +195,11 @@ otError OT_API_WRAPPER_NAME(otDnsClientBrowse)(otInstance * aInstance,const char
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsClientResolveAddress)(otInstance * aInstance,const char * aHostName,otDnsAddressCallback aCallback,void * aContext,const otDnsQueryConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otDnsClientResolveAddress)(otInstance             *aInstance,
+                                                       const char             *aHostName,
+                                                       otDnsAddressCallback    aCallback,
+                                                       void                   *aContext,
+                                                       const otDnsQueryConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDnsClientResolveAddress)(aInstance, aHostName, aCallback, aContext, aConfig);
@@ -135,7 +207,11 @@ otError OT_API_WRAPPER_NAME(otDnsClientResolveAddress)(otInstance * aInstance,co
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsClientResolveIp4Address)(otInstance * aInstance,const char * aHostName,otDnsAddressCallback aCallback,void * aContext,const otDnsQueryConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otDnsClientResolveIp4Address)(otInstance             *aInstance,
+                                                          const char             *aHostName,
+                                                          otDnsAddressCallback    aCallback,
+                                                          void                   *aContext,
+                                                          const otDnsQueryConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDnsClientResolveIp4Address)(aInstance, aHostName, aCallback, aContext, aConfig);
@@ -143,23 +219,39 @@ otError OT_API_WRAPPER_NAME(otDnsClientResolveIp4Address)(otInstance * aInstance
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsClientResolveService)(otInstance * aInstance,const char * aInstanceLabel,const char * aServiceName,otDnsServiceCallback aCallback,void * aContext,const otDnsQueryConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otDnsClientResolveService)(otInstance             *aInstance,
+                                                       const char             *aInstanceLabel,
+                                                       const char             *aServiceName,
+                                                       otDnsServiceCallback    aCallback,
+                                                       void                   *aContext,
+                                                       const otDnsQueryConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otDnsClientResolveService)(aInstance, aInstanceLabel, aServiceName, aCallback, aContext, aConfig);
+    otError ret = OT_API_REAL_NAME(
+        otDnsClientResolveService)(aInstance, aInstanceLabel, aServiceName, aCallback, aContext, aConfig);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsClientResolveServiceAndHostAddress)(otInstance * aInstance,const char * aInstanceLabel,const char * aServiceName,otDnsServiceCallback aCallback,void * aContext,const otDnsQueryConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otDnsClientResolveServiceAndHostAddress)(otInstance             *aInstance,
+                                                                     const char             *aInstanceLabel,
+                                                                     const char             *aServiceName,
+                                                                     otDnsServiceCallback    aCallback,
+                                                                     void                   *aContext,
+                                                                     const otDnsQueryConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otDnsClientResolveServiceAndHostAddress)(aInstance, aInstanceLabel, aServiceName, aCallback, aContext, aConfig);
+    otError ret = OT_API_REAL_NAME(
+        otDnsClientResolveServiceAndHostAddress)(aInstance, aInstanceLabel, aServiceName, aCallback, aContext, aConfig);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsServiceResponseGetHostAddress)(const otDnsServiceResponse * aResponse,const char * aHostName,uint16_t aIndex,otIp6Address * aAddress,uint32_t * aTtl)
+otError OT_API_WRAPPER_NAME(otDnsServiceResponseGetHostAddress)(const otDnsServiceResponse *aResponse,
+                                                                const char                 *aHostName,
+                                                                uint16_t                    aIndex,
+                                                                otIp6Address               *aAddress,
+                                                                uint32_t                   *aTtl)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDnsServiceResponseGetHostAddress)(aResponse, aHostName, aIndex, aAddress, aTtl);
@@ -167,7 +259,8 @@ otError OT_API_WRAPPER_NAME(otDnsServiceResponseGetHostAddress)(const otDnsServi
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsServiceResponseGetServiceInfo)(const otDnsServiceResponse * aResponse,otDnsServiceInfo * aServiceInfo)
+otError OT_API_WRAPPER_NAME(otDnsServiceResponseGetServiceInfo)(const otDnsServiceResponse *aResponse,
+                                                                otDnsServiceInfo           *aServiceInfo)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDnsServiceResponseGetServiceInfo)(aResponse, aServiceInfo);
@@ -175,18 +268,22 @@ otError OT_API_WRAPPER_NAME(otDnsServiceResponseGetServiceInfo)(const otDnsServi
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsServiceResponseGetServiceName)(const otDnsServiceResponse * aResponse,char * aLabelBuffer,uint8_t aLabelBufferSize,char * aNameBuffer,uint16_t aNameBufferSize)
+otError OT_API_WRAPPER_NAME(otDnsServiceResponseGetServiceName)(const otDnsServiceResponse *aResponse,
+                                                                char                       *aLabelBuffer,
+                                                                uint8_t                     aLabelBufferSize,
+                                                                char                       *aNameBuffer,
+                                                                uint16_t                    aNameBufferSize)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otDnsServiceResponseGetServiceName)(aResponse, aLabelBuffer, aLabelBufferSize, aNameBuffer, aNameBufferSize);
+    otError ret = OT_API_REAL_NAME(
+        otDnsServiceResponseGetServiceName)(aResponse, aLabelBuffer, aLabelBufferSize, aNameBuffer, aNameBufferSize);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otDnsClientSetDefaultConfig)(otInstance * aInstance,const otDnsQueryConfig * aConfig)
+void OT_API_WRAPPER_NAME(otDnsClientSetDefaultConfig)(otInstance *aInstance, const otDnsQueryConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otDnsClientSetDefaultConfig)(aInstance, aConfig);
     sl_ot_rtos_release_stack_mutex();
 }
-

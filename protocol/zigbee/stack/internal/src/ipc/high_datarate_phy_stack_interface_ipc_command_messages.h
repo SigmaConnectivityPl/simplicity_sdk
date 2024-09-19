@@ -52,6 +52,21 @@ typedef struct {
 } sli_mac_stack_send_raw_high_datarate_phy_message_ipc_msg_t;
 
 typedef struct {
+  uint8_t nwk_index;
+  uint8_t payload[MAX_HIGH_DATARATE_PHY_PACKET_LENGTH];
+  RAIL_Time_t timestamp;
+} sli_mac_stack_send_raw_high_datarate_phy_scheduled_message_ipc_req_t;
+
+typedef struct {
+  sl_status_t result;
+} sli_mac_stack_send_raw_high_datarate_phy_scheduled_message_ipc_rsp_t;
+
+typedef struct {
+  sli_mac_stack_send_raw_high_datarate_phy_scheduled_message_ipc_req_t request;
+  sli_mac_stack_send_raw_high_datarate_phy_scheduled_message_ipc_rsp_t response;
+} sli_mac_stack_send_raw_high_datarate_phy_scheduled_message_ipc_msg_t;
+
+typedef struct {
   bool enable_f;
 } sli_mac_stack_set_mode_switch_sync_detect_ipc_req_t;
 

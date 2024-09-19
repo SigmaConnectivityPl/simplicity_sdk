@@ -3,7 +3,7 @@
  * @brief User Interface core logic for throughput test UI.
  *******************************************************************************
  * # License
- * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -213,7 +213,7 @@ void throughput_ui_set_rssi(throughput_rssi_t rssi)
 void throughput_ui_set_connection_interval(throughput_time_t interval)
 {
   char buffer[BUFFER_SIZE];
-  snprintf(buffer, BUFFER_SIZE, THROUGHPUT_UI_INTERVAL_FORMAT, (int)((float) interval * 1.25) );
+  snprintf(buffer, BUFFER_SIZE, THROUGHPUT_UI_INTERVAL_FORMAT, (int)((float) interval * 1.25f) );
   clear_row(ROW_INTERVAL);
   write_row(buffer, ROW_INTERVAL);
   LOG(buffer);

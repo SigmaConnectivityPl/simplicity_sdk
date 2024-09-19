@@ -797,6 +797,7 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
   uint8_t idx;
   sl_wisun_keychain_entry_t *trustedca = NULL;
   sl_wisun_keychain_credential_t *credential = NULL;
+  uint16_t certificate_options;
 
   app_wisun_cli_mutex_lock();
 
@@ -940,6 +941,7 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
     goto cleanup;
   }
 
+  certificate_options = SL_WISUN_CERTIFICATE_OPTION_IS_REF;
   for (idx = 0; idx < trustedca_count; ++idx) {
     trustedca = sl_wisun_keychain_get_trustedca(idx);
     if (!trustedca) {
@@ -947,14 +949,17 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
       goto cleanup;
     }
 
-    ret = sl_wisun_set_trusted_certificate(SL_WISUN_CERTIFICATE_OPTION_IS_REF,
+    ret = sl_wisun_set_trusted_certificate(certificate_options,
                                            trustedca->data_length,
                                            trustedca->data);
-    if (ret != SL_STATUS_OK)
-    {
+    if (ret != SL_STATUS_OK) {
       printf("[Failed: unable to set the trusted certificate: %lu]\r\n", ret);
       goto cleanup;
     }
+
+    free(trustedca);
+    trustedca = NULL;
+    certificate_options |= SL_WISUN_CERTIFICATE_OPTION_APPEND;
   }
 
   credential = sl_wisun_keychain_get_credential((sl_wisun_keychain_t)app_settings_wisun.keychain, app_settings_wisun.keychain_index);
@@ -2264,6 +2269,24 @@ void app_set_lfn_support(sl_cli_command_arg_t *arguments)
   app_wisun_cli_mutex_unlock();
 }
 
+void app_set_leaf(sl_cli_command_arg_t *arguments)
+{
+  sl_status_t ret;
+  bool is_leaf;
+
+  app_wisun_cli_mutex_lock();
+
+  is_leaf = (bool)sl_cli_get_argument_uint8(arguments, 0);
+
+  ret = sl_wisun_set_leaf(is_leaf);
+  if (ret == SL_STATUS_OK) {
+    printf("[Leaf behavior set]\r\n");
+  } else {
+    printf("[Failed: unable to set leaf behavior: %lu]\r\n", ret);
+  }
+
+  app_wisun_cli_mutex_unlock();
+}
 
 void app_rftest_start_stream(sl_cli_command_arg_t *arguments)
 {

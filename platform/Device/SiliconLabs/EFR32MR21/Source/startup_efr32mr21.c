@@ -85,12 +85,6 @@ extern int  __START(void) __attribute__((noreturn));    /* main entry point */
 void Copy_Table();
 void Zero_Table();
 #endif // __START
-#if !defined(SL_LEGACY_LINKER)
-#if defined (__GNUC__)
-// Function to copy RAM functions from Flash to RAM at startup time
-void CopyRamFuncs();
-#endif
-#endif
 
 /*---------------------------------------------------------------------------
  * Internal References
@@ -330,15 +324,40 @@ void Zero_Table()
 
 #if !defined(SL_LEGACY_LINKER) && !defined(SL_RAM_LINKER)
 #if defined (__GNUC__)
-void CopyRamFuncs()
+__attribute__((optimize("no-tree-loop-distribute-patterns")))
+#endif
+void CopyBlock(const uint32_t *from, uint32_t *to, uint32_t size)
+{
+  if (size != 0) {
+    while (size--) {
+      *to++ = *from++;
+    }
+  }
+}
+#if defined (__GNUC__)
+void CopyToRam()
 {
   extern uint32_t __lma_ramfuncs_start__;
   extern uint32_t __lma_ramfuncs_end__;
   extern uint32_t __ramfuncs_start__;
   uint32_t        size = &__lma_ramfuncs_end__ - &__lma_ramfuncs_start__;
 
-  FlashToRamCopy(&__lma_ramfuncs_start__, &__ramfuncs_start__, size);
+  CopyBlock(&__lma_ramfuncs_start__, &__ramfuncs_start__, size);
 }
+#elif defined (__ICCARM__)
+#pragma language=save
+#pragma language=extended
+#pragma section="text_ram"
+#pragma section="text_ram_init"
+void CopyToRam(void)
+{
+  uint32_t size   = __section_size("text_ram");
+  uint32_t * from = __section_begin("text_ram_init");
+  uint32_t * to   = __section_begin("text_ram");
+
+  CopyBlock(from, to, size);
+}
+#pragma language=restore
 #endif
 #endif
 
@@ -363,9 +382,7 @@ __NO_RETURN void Reset_Handler(void)
   SystemInit2();
 #endif // BOOTLOADER_ENABLE
 #if !defined(SL_LEGACY_LINKER) && !defined(SL_RAM_LINKER)
-#if defined (__GNUC__)
-  CopyRamFuncs();
-#endif
+  CopyToRam();
 #endif
 #if defined (__GNUC__) && defined (__START)
   Copy_Table();

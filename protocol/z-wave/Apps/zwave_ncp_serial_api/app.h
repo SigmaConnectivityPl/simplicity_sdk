@@ -27,6 +27,9 @@
 #ifdef ZW_SLAVE
 #include <ZW_slave_api.h>
 #endif
+#ifdef ZW_SECURITY_PROTOCOL
+#include <ZW_TransportSecProtocol.h>
+#endif
 
 #ifdef ZW_CONTROLLER
 #include <ZW_controller_api.h>
@@ -78,7 +81,6 @@ typedef enum
   NVMBackupRestoreOperationClose
 } eNVMBackupRestoreOperation;
 
-
 /* Return values for FUNC_ID_NVM_BACKUP_RESTORE operation */
 typedef enum
 {
@@ -89,8 +91,10 @@ typedef enum
   NVMBackupRestoreReturnValueEOF = EOF                  /* Not really an error. Just an indication of EndOfFile */
 } eNVMBackupRestoreReturnValue;
 
+#ifndef ZW_SECURITY_PROTOCOL
 /* params used by ApplicationNodeInformation */
 #define APPL_NODEPARM_MAX       35
+#endif
 #define APPL_SLAVENODEPARM_MAX  APPL_NODEPARM_MAX
 
 
@@ -122,14 +126,32 @@ typedef enum
   SERIALAPI_CONFIG_UNDEFINED = 0xFE
 } SERIALAPI_CONFIG_T;
 
+#ifdef PORT_STATUS
+#define SUPPORT_ZW_PORT_STATUS                          1
+#else
+#define SUPPORT_ZW_PORT_STATUS                          0
+#endif
 #define SUPPORT_ZW_SET_SECURITY_S0_NETWORK_KEY          0  /*deprecated*/
 /* Enable support for SerialAPI Startup Notification */
 #define SUPPORT_SERIAL_API_STARTUP_NOTIFICATION         1
 
 /* Security in Protocol SerialAPI functionality support definitions */
+#ifdef ZW_SECURITY_PROTOCOL
+#define SUPPORT_APPLICATION_SECURITY_EVENT              0
+#define SUPPORT_SERIAL_API_APPL_NODE_INFORMATION_CMD_CLASSES  1
+#if (SUPPORT_ZW_GET_SECURITY_KEYS | \
+     SUPPORT_ZW_SET_SECURITY_S0_NETWORK_KEY | \
+     SUPPORT_ZW_GET_SECURITY_S2_PUBLIC_DSK | \
+     SUPPORT_ZW_SET_SECURITY_S2_CRITICAL_NODE_ID)
+#define SUPPORT_ZW_SECURITY_SETUP                       1
+#else
+#define SUPPORT_ZW_SECURITY_SETUP                       0
+#endif
+#else  /*#ifdef ZW_SECURITY_PROTOCOL*/
 #define SUPPORT_SERIAL_API_APPL_NODE_INFORMATION_CMD_CLASSES  0
 #define SUPPORT_ZW_SECURITY_SETUP                       0
 #define SUPPORT_APPLICATION_SECURITY_EVENT              0
+#endif
 
 /* Common SerialAPI functionality support definitions */
 #define SUPPORT_SERIAL_API_APPL_NODE_INFORMATION        1
@@ -141,7 +163,12 @@ typedef enum
 #define SUPPORT_SERIAL_API_READY                        0
 
 #define SUPPORT_SERIAL_API_EXT                          1
+#ifdef ZW_SECURITY_PROTOCOL
+/* Only libraries with SECURITY buildin should supports this (slave_enhanced_232) */
+#define SUPPORT_SERIAL_API_APPL_NODE_INFORMATION_CMD_CLASSES  1
+#else
 #define SUPPORT_SERIAL_API_APPL_NODE_INFORMATION_CMD_CLASSES  0
+#endif
 
 #ifdef ZW_ENABLE_RTC
 #define SUPPORT_CLOCK_SET                               1
@@ -175,6 +202,11 @@ typedef enum
 #define SUPPORT_TIMER_CALL                              0
 #endif
 
+#ifdef PORT_STATUS
+#define SUPPORT_ZW_PORT_STATUS                          1
+#else
+#define SUPPORT_ZW_PORT_STATUS                          0
+#endif
 /* ZW_EnableSUC() no longer exists in the library */
 
 /* */

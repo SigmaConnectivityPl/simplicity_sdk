@@ -122,7 +122,7 @@ static int32_t installImageFromSlot(int32_t slotId)
     return BOOTLOADER_ERROR_STORAGE_BOOTLOAD;
   }
 #if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
-  deltaGBLLength = parseContext.parserContext.deltaGBLLength;
+  deltaGBLLength = parseContext.parserContext.gblLength;
   if ((parseContext.imageProperties.contents & BTL_IMAGE_CONTENT_DELTA)
       && ((parseContext.imageProperties.contents & BTL_IMAGE_CONTENT_SE)
           || (parseContext.imageProperties.contents & BTL_IMAGE_CONTENT_BOOTLOADER))) {

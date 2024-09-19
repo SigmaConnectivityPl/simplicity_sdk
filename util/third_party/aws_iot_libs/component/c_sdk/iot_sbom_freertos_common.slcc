@@ -1,0 +1,21 @@
+id: iot_sbom_freertos_common
+category: Third Party|Amazon FreeRTOS - AWS Libraries|C SDK
+label: All Lib Abstraction Common I/O Module API's SBOM
+description: >
+  Silicon Labs' Implementation of Amazon Library c_sdk API's
+package: amazon_platform
+quality: production
+ui_hints:
+  visibility: never
+provides:
+  - name: iot_sbom_freertos_common
+metadata:
+  sbom:
+    license: MIT
+    upstream:
+      name: FreeRTOS Common
+      version: 1.2.0
+      supplier: aws
+      url: https://github.com/aws/amazon-freertos
+      package_url: https://github.com/aws/amazon-freertos/tree/6644ec6
+      comment: Updated library versions for 202011.00 release

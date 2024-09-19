@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Core application logic.
  *******************************************************************************
@@ -37,8 +37,8 @@
 #include <openthread/tasklet.h>
 #include <openthread/thread.h>
 
-#include "openthread-system.h"
 #include "app.h"
+#include "openthread-system.h"
 
 #include "sl_component_catalog.h"
 #include "sl_memory_manager.h"
@@ -59,7 +59,7 @@ extern void otAppCliInit(otInstance *aInstance);
 #if OPENTHREAD_CONFIG_MULTIPLE_INSTANCE_ENABLE
 static uint8_t *sOtInstanceBuffer = NULL;
 #endif
-static otInstance* sInstance = NULL;
+static otInstance *sInstance = NULL;
 
 otInstance *otGetInstance(void)
 {
@@ -85,7 +85,7 @@ void otPlatLog(otLogLevel aLogLevel, otLogRegion aLogRegion, const char *aFormat
 void sl_ot_create_instance(void)
 {
 #if OPENTHREAD_CONFIG_MULTIPLE_INSTANCE_ENABLE
-    size_t   otInstanceBufferLength = 0;
+    size_t otInstanceBufferLength = 0;
 
     // Call to query the buffer size
     (void)otInstanceInit(NULL, &otInstanceBufferLength);
@@ -107,7 +107,7 @@ void sl_ot_cli_init(void)
     otAppCliInit(sInstance);
 }
 
-/**************************************************************************//**
+/******************************************************************************
  * Application Init.
  *****************************************************************************/
 
@@ -120,7 +120,7 @@ void app_init(void)
     assert(otThreadSetEnabled(sInstance, true) == OT_ERROR_NONE);
 }
 
-/**************************************************************************//**
+/******************************************************************************
  * Application Process Action.
  *****************************************************************************/
 void app_process_action(void)
@@ -130,7 +130,7 @@ void app_process_action(void)
     applicationTick();
 }
 
-/**************************************************************************//**
+/******************************************************************************
  * Application Exit.
  *****************************************************************************/
 void app_exit(void)

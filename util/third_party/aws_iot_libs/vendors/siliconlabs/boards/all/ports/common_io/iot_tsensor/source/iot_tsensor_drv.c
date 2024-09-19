@@ -33,7 +33,7 @@
  ******************************************************************************/
 
 /* SDK emlib layer */
-#include "em_core.h"
+#include "sl_core.h"
 #include "em_device.h"
 
 /* Temp sensor config layer */

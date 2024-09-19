@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread History Tracker APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,118 +29,172 @@
  *
  ******************************************************************************/
 
-#include <openthread/history_tracker.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/history_tracker.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern const otHistoryTrackerExternalRouteInfo *OT_API_REAL_NAME(otHistoryTrackerIterateExternalRouteHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge);
-extern const otHistoryTrackerMessageInfo *OT_API_REAL_NAME(otHistoryTrackerIterateRxHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge);
-extern const otHistoryTrackerMessageInfo *OT_API_REAL_NAME(otHistoryTrackerIterateTxHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge);
-extern const otHistoryTrackerMulticastAddressInfo *OT_API_REAL_NAME(otHistoryTrackerIterateMulticastAddressHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge);
-extern const otHistoryTrackerNeighborInfo *OT_API_REAL_NAME(otHistoryTrackerIterateNeighborHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge);
-extern const otHistoryTrackerNetworkInfo *OT_API_REAL_NAME(otHistoryTrackerIterateNetInfoHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge);
-extern const otHistoryTrackerOnMeshPrefixInfo *OT_API_REAL_NAME(otHistoryTrackerIterateOnMeshPrefixHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge);
-extern const otHistoryTrackerRouterInfo *OT_API_REAL_NAME(otHistoryTrackerIterateRouterHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge);
-extern const otHistoryTrackerUnicastAddressInfo *OT_API_REAL_NAME(otHistoryTrackerIterateUnicastAddressHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge);
-extern void OT_API_REAL_NAME(otHistoryTrackerEntryAgeToString)(uint32_t aEntryAge,char * aBuffer,uint16_t aSize);
-extern void OT_API_REAL_NAME(otHistoryTrackerInitIterator)(otHistoryTrackerIterator * aIterator);
+extern const otHistoryTrackerExternalRouteInfo *OT_API_REAL_NAME(otHistoryTrackerIterateExternalRouteHistory)(
+    otInstance               *aInstance,
+    otHistoryTrackerIterator *aIterator,
+    uint32_t                 *aEntryAge);
+extern const otHistoryTrackerMessageInfo *OT_API_REAL_NAME(
+    otHistoryTrackerIterateRxHistory)(otInstance *aInstance, otHistoryTrackerIterator *aIterator, uint32_t *aEntryAge);
+extern const otHistoryTrackerMessageInfo *OT_API_REAL_NAME(
+    otHistoryTrackerIterateTxHistory)(otInstance *aInstance, otHistoryTrackerIterator *aIterator, uint32_t *aEntryAge);
+extern const otHistoryTrackerMulticastAddressInfo *OT_API_REAL_NAME(otHistoryTrackerIterateMulticastAddressHistory)(
+    otInstance               *aInstance,
+    otHistoryTrackerIterator *aIterator,
+    uint32_t                 *aEntryAge);
+extern const otHistoryTrackerNeighborInfo *OT_API_REAL_NAME(otHistoryTrackerIterateNeighborHistory)(
+    otInstance               *aInstance,
+    otHistoryTrackerIterator *aIterator,
+    uint32_t                 *aEntryAge);
+extern const otHistoryTrackerNetworkInfo *OT_API_REAL_NAME(otHistoryTrackerIterateNetInfoHistory)(
+    otInstance               *aInstance,
+    otHistoryTrackerIterator *aIterator,
+    uint32_t                 *aEntryAge);
+extern const otHistoryTrackerOnMeshPrefixInfo *OT_API_REAL_NAME(otHistoryTrackerIterateOnMeshPrefixHistory)(
+    otInstance               *aInstance,
+    otHistoryTrackerIterator *aIterator,
+    uint32_t                 *aEntryAge);
+extern const otHistoryTrackerRouterInfo *OT_API_REAL_NAME(otHistoryTrackerIterateRouterHistory)(
+    otInstance               *aInstance,
+    otHistoryTrackerIterator *aIterator,
+    uint32_t                 *aEntryAge);
+extern const otHistoryTrackerUnicastAddressInfo *OT_API_REAL_NAME(otHistoryTrackerIterateUnicastAddressHistory)(
+    otInstance               *aInstance,
+    otHistoryTrackerIterator *aIterator,
+    uint32_t                 *aEntryAge);
+extern void OT_API_REAL_NAME(otHistoryTrackerEntryAgeToString)(uint32_t aEntryAge, char *aBuffer, uint16_t aSize);
+extern void OT_API_REAL_NAME(otHistoryTrackerInitIterator)(otHistoryTrackerIterator *aIterator);
 
-const otHistoryTrackerExternalRouteInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateExternalRouteHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge)
+const otHistoryTrackerExternalRouteInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateExternalRouteHistory)(
+    otInstance               *aInstance,
+    otHistoryTrackerIterator *aIterator,
+    uint32_t                 *aEntryAge)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    const otHistoryTrackerExternalRouteInfo *ret = OT_API_REAL_NAME(otHistoryTrackerIterateExternalRouteHistory)(aInstance, aIterator, aEntryAge);
+    const otHistoryTrackerExternalRouteInfo *ret =
+        OT_API_REAL_NAME(otHistoryTrackerIterateExternalRouteHistory)(aInstance, aIterator, aEntryAge);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-const otHistoryTrackerMessageInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateRxHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge)
+const otHistoryTrackerMessageInfo *OT_API_WRAPPER_NAME(
+    otHistoryTrackerIterateRxHistory)(otInstance *aInstance, otHistoryTrackerIterator *aIterator, uint32_t *aEntryAge)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    const otHistoryTrackerMessageInfo *ret = OT_API_REAL_NAME(otHistoryTrackerIterateRxHistory)(aInstance, aIterator, aEntryAge);
+    const otHistoryTrackerMessageInfo *ret =
+        OT_API_REAL_NAME(otHistoryTrackerIterateRxHistory)(aInstance, aIterator, aEntryAge);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-const otHistoryTrackerMessageInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateTxHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge)
+const otHistoryTrackerMessageInfo *OT_API_WRAPPER_NAME(
+    otHistoryTrackerIterateTxHistory)(otInstance *aInstance, otHistoryTrackerIterator *aIterator, uint32_t *aEntryAge)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    const otHistoryTrackerMessageInfo *ret = OT_API_REAL_NAME(otHistoryTrackerIterateTxHistory)(aInstance, aIterator, aEntryAge);
+    const otHistoryTrackerMessageInfo *ret =
+        OT_API_REAL_NAME(otHistoryTrackerIterateTxHistory)(aInstance, aIterator, aEntryAge);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-const otHistoryTrackerMulticastAddressInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateMulticastAddressHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge)
+const otHistoryTrackerMulticastAddressInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateMulticastAddressHistory)(
+    otInstance               *aInstance,
+    otHistoryTrackerIterator *aIterator,
+    uint32_t                 *aEntryAge)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    const otHistoryTrackerMulticastAddressInfo *ret = OT_API_REAL_NAME(otHistoryTrackerIterateMulticastAddressHistory)(aInstance, aIterator, aEntryAge);
+    const otHistoryTrackerMulticastAddressInfo *ret =
+        OT_API_REAL_NAME(otHistoryTrackerIterateMulticastAddressHistory)(aInstance, aIterator, aEntryAge);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-const otHistoryTrackerNeighborInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateNeighborHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge)
+const otHistoryTrackerNeighborInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateNeighborHistory)(
+    otInstance               *aInstance,
+    otHistoryTrackerIterator *aIterator,
+    uint32_t                 *aEntryAge)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    const otHistoryTrackerNeighborInfo *ret = OT_API_REAL_NAME(otHistoryTrackerIterateNeighborHistory)(aInstance, aIterator, aEntryAge);
+    const otHistoryTrackerNeighborInfo *ret =
+        OT_API_REAL_NAME(otHistoryTrackerIterateNeighborHistory)(aInstance, aIterator, aEntryAge);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-const otHistoryTrackerNetworkInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateNetInfoHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge)
+const otHistoryTrackerNetworkInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateNetInfoHistory)(
+    otInstance               *aInstance,
+    otHistoryTrackerIterator *aIterator,
+    uint32_t                 *aEntryAge)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    const otHistoryTrackerNetworkInfo *ret = OT_API_REAL_NAME(otHistoryTrackerIterateNetInfoHistory)(aInstance, aIterator, aEntryAge);
+    const otHistoryTrackerNetworkInfo *ret =
+        OT_API_REAL_NAME(otHistoryTrackerIterateNetInfoHistory)(aInstance, aIterator, aEntryAge);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-const otHistoryTrackerOnMeshPrefixInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateOnMeshPrefixHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge)
+const otHistoryTrackerOnMeshPrefixInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateOnMeshPrefixHistory)(
+    otInstance               *aInstance,
+    otHistoryTrackerIterator *aIterator,
+    uint32_t                 *aEntryAge)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    const otHistoryTrackerOnMeshPrefixInfo *ret = OT_API_REAL_NAME(otHistoryTrackerIterateOnMeshPrefixHistory)(aInstance, aIterator, aEntryAge);
+    const otHistoryTrackerOnMeshPrefixInfo *ret =
+        OT_API_REAL_NAME(otHistoryTrackerIterateOnMeshPrefixHistory)(aInstance, aIterator, aEntryAge);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-const otHistoryTrackerRouterInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateRouterHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge)
+const otHistoryTrackerRouterInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateRouterHistory)(
+    otInstance               *aInstance,
+    otHistoryTrackerIterator *aIterator,
+    uint32_t                 *aEntryAge)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    const otHistoryTrackerRouterInfo *ret = OT_API_REAL_NAME(otHistoryTrackerIterateRouterHistory)(aInstance, aIterator, aEntryAge);
+    const otHistoryTrackerRouterInfo *ret =
+        OT_API_REAL_NAME(otHistoryTrackerIterateRouterHistory)(aInstance, aIterator, aEntryAge);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-const otHistoryTrackerUnicastAddressInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateUnicastAddressHistory)(otInstance * aInstance,otHistoryTrackerIterator * aIterator,uint32_t * aEntryAge)
+const otHistoryTrackerUnicastAddressInfo *OT_API_WRAPPER_NAME(otHistoryTrackerIterateUnicastAddressHistory)(
+    otInstance               *aInstance,
+    otHistoryTrackerIterator *aIterator,
+    uint32_t                 *aEntryAge)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    const otHistoryTrackerUnicastAddressInfo *ret = OT_API_REAL_NAME(otHistoryTrackerIterateUnicastAddressHistory)(aInstance, aIterator, aEntryAge);
+    const otHistoryTrackerUnicastAddressInfo *ret =
+        OT_API_REAL_NAME(otHistoryTrackerIterateUnicastAddressHistory)(aInstance, aIterator, aEntryAge);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otHistoryTrackerEntryAgeToString)(uint32_t aEntryAge,char * aBuffer,uint16_t aSize)
+void OT_API_WRAPPER_NAME(otHistoryTrackerEntryAgeToString)(uint32_t aEntryAge, char *aBuffer, uint16_t aSize)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otHistoryTrackerEntryAgeToString)(aEntryAge, aBuffer, aSize);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otHistoryTrackerInitIterator)(otHistoryTrackerIterator * aIterator)
+void OT_API_WRAPPER_NAME(otHistoryTrackerInitIterator)(otHistoryTrackerIterator *aIterator)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otHistoryTrackerInitIterator)(aIterator);
     sl_ot_rtos_release_stack_mutex();
 }
-

@@ -1,8 +1,2 @@
-Platform 5.0.1
-- Added missing EFR32xG26 devices to pintool.
-- Added support for EFR32BG27C320F768IJ39.
-- Gecko Bootloader
-  - Added Delta DFU for Application upgrade.
-- RAIL 5.0.1
-  - Added support of automatic LNA bypass on the EFR32xG25 parts.
-
+Platform 5.0.2
+- Targeted quality improvements and bug fixes.

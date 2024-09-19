@@ -29,6 +29,8 @@ requires:
 
   - name: fem_util
     condition: [device_is_module]
+  - name: fem_util
+    condition: [hardware_board_has_fem]
   - name: rail_util_sequencer
     condition: [device_sdid_215]
   - name: rail_util_sequencer

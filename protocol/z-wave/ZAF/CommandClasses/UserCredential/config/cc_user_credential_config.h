@@ -30,11 +30,11 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MAX_USER_UNIQUE_IDENTIFIERS) */
 
 /**
- * Maximum length of User Name <1..255:1>
+ * Maximum length of User Name <1..255:2>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MAX_LENGTH_USER_NAME)
-#define CC_USER_CREDENTIAL_MAX_LENGTH_USER_NAME  15
+#define CC_USER_CREDENTIAL_MAX_LENGTH_USER_NAME  16
 #endif /* !defined(CC_USER_CREDENTIAL_MAX_LENGTH_USER_NAME) */
 
 /**
@@ -137,15 +137,103 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MAX_CREDENTIAL_SLOTS_UNSPECIFIED_BIOMETRIC) */
 
 /**
- * Minimum length of PIN Code data <1..65535:1>
+ * Maximum length of PIN Code hash <1..255:1>
+ *
+ */
+#if !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_PIN_CODE)
+#define CC_USER_CREDENTIAL_MAX_HASH_LENGTH_PIN_CODE  4
+#endif /* !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_PIN_CODE) */
+
+/**
+ * Maximum length of password hash <1..255:1>
+ *
+ */
+#if !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_PASSWORD)
+#define CC_USER_CREDENTIAL_MAX_HASH_LENGTH_PASSWORD  4
+#endif /* !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_PASSWORD) */
+
+/**
+ * Maximum length of RFID Code hash <1..255:1>
+ *
+ */
+#if !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_RFID_CODE)
+#define CC_USER_CREDENTIAL_MAX_HASH_LENGTH_RFID_CODE  4
+#endif /* !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_RFID_CODE) */
+
+/**
+ * Maximum length of BLE data hash <1..255:1>
+ *
+ */
+#if !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_BLE)
+#define CC_USER_CREDENTIAL_MAX_HASH_LENGTH_BLE  4
+#endif /* !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_BLE) */
+
+/**
+ * Maximum length of NFC data hash <1..255:1>
+ *
+ */
+#if !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_NFC)
+#define CC_USER_CREDENTIAL_MAX_HASH_LENGTH_NFC  4
+#endif /* !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_NFC) */
+
+/**
+ * Maximum length of UWB data hash <1..255:1>
+ *
+ */
+#if !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_UWB)
+#define CC_USER_CREDENTIAL_MAX_HASH_LENGTH_UWB  4
+#endif /* !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_UWB) */
+
+/**
+ * Maximum length of Eye Biometric data hash <1..255:1>
+ *
+ */
+#if !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_EYE_BIOMETRIC)
+#define CC_USER_CREDENTIAL_MAX_HASH_LENGTH_EYE_BIOMETRIC  4
+#endif /* !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_EYE_BIOMETRIC) */
+
+/**
+ * Maximum length of Face Biometric data hash <1..255:1>
+ *
+ */
+#if !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_FACE_BIOMETRIC)
+#define CC_USER_CREDENTIAL_MAX_HASH_LENGTH_FACE_BIOMETRIC  4
+#endif /* !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_FACE_BIOMETRIC) */
+
+/**
+ * Maximum length of Finger Biometric data hash <1..255:1>
+ *
+ */
+#if !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_FINGER_BIOMETRIC)
+#define CC_USER_CREDENTIAL_MAX_HASH_LENGTH_FINGER_BIOMETRIC  4
+#endif /* !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_FINGER_BIOMETRIC) */
+
+/**
+ * Maximum length of Hand Biometric data hash <1..255:1>
+ *
+ */
+#if !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_HAND_BIOMETRIC)
+#define CC_USER_CREDENTIAL_MAX_HASH_LENGTH_HAND_BIOMETRIC  4
+#endif /* !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_HAND_BIOMETRIC) */
+
+/**
+ * Maximum length of Unspecified Biometric data hash <1..255:1>
+ *
+ */
+#if !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_UNSPECIFIED_BIOMETRIC)
+#define CC_USER_CREDENTIAL_MAX_HASH_LENGTH_UNSPECIFIED_BIOMETRIC  4
+#endif /* !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_UNSPECIFIED_BIOMETRIC) */
+
+/**
+ * Minimum length of PIN Code data. This MUST NOT be less than 4. <4..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_PIN_CODE)
-#define CC_USER_CREDENTIAL_MIN_DATA_LENGTH_PIN_CODE  1
+#define CC_USER_CREDENTIAL_MIN_DATA_LENGTH_PIN_CODE  4
 #endif /* !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_PIN_CODE) */
 
 /**
- * Minimum length of Password data <1..65535:2>
+ * Minimum length of Password data <1..255:2>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_PASSWORD)
@@ -153,7 +241,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_PASSWORD) */
 
 /**
- * Minimum length of RFID Code data <1..65535:1>
+ * Minimum length of RFID Code data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_RFID_CODE)
@@ -161,7 +249,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_RFID_CODE) */
 
 /**
- * Minimum length of BLE data <1..65535:1>
+ * Minimum length of BLE data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_BLE)
@@ -169,7 +257,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_BLE) */
 
 /**
- * Minimum length of NFC data <1..65535:1>
+ * Minimum length of NFC data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_NFC)
@@ -177,7 +265,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_NFC) */
 
 /**
- * Minimum length of UWB data <1..65535:1>
+ * Minimum length of UWB data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_UWB)
@@ -185,7 +273,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_UWB) */
 
 /**
- * Minimum length of Eye Biometric data <1..65535:1>
+ * Minimum length of Eye Biometric data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_EYE_BIOMETRIC)
@@ -193,7 +281,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_EYE_BIOMETRIC) */
 
 /**
- * Minimum length of Face Biometric data <1..65535:1>
+ * Minimum length of Face Biometric data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_FACE_BIOMETRIC)
@@ -201,7 +289,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_FACE_BIOMETRIC) */
 
 /**
- * Minimum length of Finger Biometric data <1..65535:1>
+ * Minimum length of Finger Biometric data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_FINGER_BIOMETRIC)
@@ -209,7 +297,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_FINGER_BIOMETRIC) */
 
 /**
- * Minimum length of Hand Biometric data <1..65535:1>
+ * Minimum length of Hand Biometric data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_HAND_BIOMETRIC)
@@ -217,7 +305,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_HAND_BIOMETRIC) */
 
 /**
- * Minimum length of Unspecified Biometric data <1..65535:1>
+ * Minimum length of Unspecified Biometric data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_UNSPECIFIED_BIOMETRIC)
@@ -225,7 +313,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_UNSPECIFIED_BIOMETRIC) */
 
 /**
- * Maximum length of PIN Code data <1..65535:1>
+ * Maximum length of PIN Code data. If the end device also supports CC User Code, this MUST NOT be greater than 10. <4..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_PIN_CODE)
@@ -233,7 +321,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_PIN_CODE) */
 
 /**
- * Maximum length of Password data <1..65535:2>
+ * Maximum length of Password data <1..255:2>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_PASSWORD)
@@ -241,7 +329,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_PASSWORD) */
 
 /**
- * Maximum length of RFID Code data <1..65535:1>
+ * Maximum length of RFID Code data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_RFID_CODE)
@@ -249,7 +337,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_RFID_CODE) */
 
 /**
- * Maximum length of BLE data <1..65535:1>
+ * Maximum length of BLE data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_BLE)
@@ -257,7 +345,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_BLE) */
 
 /**
- * Maximum length of NFC data <1..65535:1>
+ * Maximum length of NFC data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_NFC)
@@ -265,7 +353,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_NFC) */
 
 /**
- * Maximum length of UWB data <1..65535:1>
+ * Maximum length of UWB data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_UWB)
@@ -273,7 +361,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_UWB) */
 
 /**
- * Maximum length of Eye Biometric data <1..65535:1>
+ * Maximum length of Eye Biometric data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_EYE_BIOMETRIC)
@@ -281,7 +369,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_EYE_BIOMETRIC) */
 
 /**
- * Maximum length of Face Biometric data <1..65535:1>
+ * Maximum length of Face Biometric data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_FACE_BIOMETRIC)
@@ -289,7 +377,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_FACE_BIOMETRIC) */
 
 /**
- * Maximum length of Finger Biometric data <1..65535:1>
+ * Maximum length of Finger Biometric data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_FINGER_BIOMETRIC)
@@ -297,7 +385,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_FINGER_BIOMETRIC) */
 
 /**
- * Maximum length of Hand Biometric data <1..65535:1>
+ * Maximum length of Hand Biometric data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_HAND_BIOMETRIC)
@@ -305,7 +393,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_HAND_BIOMETRIC) */
 
 /**
- * Maximum length of Unspecified Biometric data <1..65535:1>
+ * Maximum length of Unspecified Biometric data <1..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_UNSPECIFIED_BIOMETRIC)
@@ -686,6 +774,22 @@
 #if !defined(CC_USER_CREDENTIAL_CREDENTIAL_CHECKSUM_SUPPORTED)
 #define CC_USER_CREDENTIAL_CREDENTIAL_CHECKSUM_SUPPORTED  1
 #endif /* !defined(CC_USER_CREDENTIAL_CREDENTIAL_CHECKSUM_SUPPORTED) */
+
+/**
+ * Support for Admin Code
+ *
+ */
+#if !defined(CC_USER_CREDENTIAL_ADMIN_CODE_SUPPORTED)
+#define CC_USER_CREDENTIAL_ADMIN_CODE_SUPPORTED  1
+#endif /* !defined(CC_USER_CREDENTIAL_ADMIN_CODE_SUPPORTED) */
+
+/**
+ * Support for Admin Code Deactivation
+ *
+ */
+#if !defined(CC_USER_CREDENTIAL_ADMIN_CODE_DEACTIVATE_SUPPORTED)
+#define CC_USER_CREDENTIAL_ADMIN_CODE_DEACTIVATE_SUPPORTED  1
+#endif /* !defined(CC_USER_CREDENTIAL_ADMIN_CODE_DEACTIVATE_SUPPORTED) */
 
 /**@}*/ /* \addtogroup command_class_user_credential_configuration */
 

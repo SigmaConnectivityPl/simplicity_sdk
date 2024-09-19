@@ -1,6 +1,6 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
- * @brief phy select support for OpenThread. 
+ * @brief phy select support for OpenThread.
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>

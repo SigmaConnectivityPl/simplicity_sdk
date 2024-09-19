@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Core application logic.
  *******************************************************************************
@@ -32,12 +32,12 @@
 #include <openthread-core-config.h>
 #include <openthread/config.h>
 
-#include <openthread/ncp.h>
 #include <openthread/diag.h>
+#include <openthread/ncp.h>
 #include <openthread/tasklet.h>
 
-#include "openthread-system.h"
 #include "app.h"
+#include "openthread-system.h"
 
 #include "reset_util.h"
 
@@ -66,7 +66,7 @@ extern void otAppNcpInit(otInstance *aInstance);
 #if OPENTHREAD_CONFIG_MULTIPLE_INSTANCE_ENABLE && !OPENTHREAD_CONFIG_MULTIPAN_RCP_ENABLE
 static uint8_t *sOtInstanceBuffer = NULL;
 #endif
-static otInstance* sInstance = NULL;
+static otInstance *sInstance = NULL;
 
 otInstance *otGetInstance(void)
 {
@@ -84,7 +84,7 @@ void sl_ot_create_instance(void)
     }
     sInstance = sInstances[0];
 #elif OPENTHREAD_CONFIG_MULTIPLE_INSTANCE_ENABLE && !OPENTHREAD_CONFIG_MULTIPAN_RCP_ENABLE
-    size_t   otInstanceBufferLength = 0;
+    size_t otInstanceBufferLength = 0;
 
     // Call to query the buffer size
     (void)otInstanceInit(NULL, &otInstanceBufferLength);
@@ -110,7 +110,7 @@ void sl_ot_ncp_init(void)
 #endif
 }
 
-/**************************************************************************//**
+/******************************************************************************
  * Application Init.
  *****************************************************************************/
 
@@ -119,7 +119,7 @@ void app_init(void)
     OT_SETUP_RESET_JUMP(argv);
 }
 
-/**************************************************************************//**
+/******************************************************************************
  * Application Process Action.
  *****************************************************************************/
 void app_process_action(void)
@@ -128,7 +128,7 @@ void app_process_action(void)
     otSysProcessDrivers(sInstance);
 }
 
-/**************************************************************************//**
+/******************************************************************************
  * Application Exit.
  *****************************************************************************/
 void app_exit(void)

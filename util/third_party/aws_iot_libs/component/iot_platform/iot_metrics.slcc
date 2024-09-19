@@ -6,6 +6,16 @@ description: IoT Platform - Metrics API for FreeRTOS.
 
 package: amazon_platform
 quality: experimental
+metadata:
+  sbom:
+    license: MIT
+    upstream:
+      name: amazon-freertos
+      version: v202011.00
+      supplier: aws
+      url: https://github.com/aws/amazon-freertos
+      package_url: https://github.com/aws/amazon-freertos/tree/10f10964
+      comment: FreeRTOS Platform V1.1.2 with the tag 202011 and commit 10f10964
 
 provides:
   - name: iot_metrics

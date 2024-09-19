@@ -16,6 +16,8 @@ include:
     file_list:
     - path: "sl_hal_keyscan.h"
     - path: "sl_hal_keyscan_compat.h"
+    - path: "peripheral_keyscan.h"
+    - path: "peripheral_keyscan_compat.h"
 provides:
   - name: hal_keyscan
 requires:

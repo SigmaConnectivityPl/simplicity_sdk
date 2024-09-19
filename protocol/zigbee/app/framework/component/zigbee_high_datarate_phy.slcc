@@ -83,6 +83,20 @@ template_contribution:
   - name: cli_command
     value:
       group: high_datarate_phy
+      name: txsched
+      handler: sl_high_datarate_phy_tx_sched_command
+      argument:
+        - type: uint16
+          help: length
+        - type: uint32
+          help: timestamp relative to current time
+      help: Transmits HDR phy packet timestamp microseconds after current time
+    condition:
+      - cli
+
+  - name: cli_command
+    value:
+      group: high_datarate_phy
       name: clr_stats
       handler: sl_high_datarate_phy_clr_stats_command
       help: Clear high datarate phy statistics

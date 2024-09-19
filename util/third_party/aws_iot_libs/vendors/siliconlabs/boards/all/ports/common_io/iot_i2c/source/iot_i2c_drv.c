@@ -36,7 +36,7 @@
 #include "sl_status.h"
 
 /* SDK emlib layer */
-#include "em_core.h"
+#include "sl_core.h"
 #include "em_device.h"
 #include "em_cmu.h"
 #include "em_gpio.h"

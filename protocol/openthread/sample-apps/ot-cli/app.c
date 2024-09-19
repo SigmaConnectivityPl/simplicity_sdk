@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Core application logic.
  *******************************************************************************
@@ -29,7 +29,7 @@
  ******************************************************************************/
 
 // Define module name for Power Manager debuging feature.
-#define CURRENT_MODULE_NAME    "OPENTHREAD_SAMPLE_APP"
+#define CURRENT_MODULE_NAME "OPENTHREAD_SAMPLE_APP"
 
 #include <assert.h>
 #include <openthread-core-config.h>
@@ -39,8 +39,8 @@
 #include <openthread/diag.h>
 #include <openthread/tasklet.h>
 
-#include "openthread-system.h"
 #include "app.h"
+#include "openthread-system.h"
 
 #include "reset_util.h"
 
@@ -70,9 +70,9 @@ extern void otAppCliInit(otInstance *aInstance);
 #if OPENTHREAD_CONFIG_MULTIPLE_INSTANCE_ENABLE
 static uint8_t *sOtInstanceBuffer = NULL;
 #endif
-static otInstance *    sInstance       = NULL;
-static bool            sButtonPressed  = false;
-static bool            sStayAwake      = true;
+static otInstance *sInstance      = NULL;
+static bool        sButtonPressed = false;
+static bool        sStayAwake     = true;
 
 otInstance *otGetInstance(void)
 {
@@ -134,7 +134,7 @@ void otPlatLog(otLogLevel aLogLevel, otLogRegion aLogRegion, const char *aFormat
 void sl_ot_create_instance(void)
 {
 #if OPENTHREAD_CONFIG_MULTIPLE_INSTANCE_ENABLE
-    size_t   otInstanceBufferLength = 0;
+    size_t otInstanceBufferLength = 0;
 
     // Call to query the buffer size
     (void)otInstanceInit(NULL, &otInstanceBufferLength);
@@ -156,7 +156,7 @@ void sl_ot_cli_init(void)
     otAppCliInit(sInstance);
 }
 
-/**************************************************************************//**
+/******************************************************************************
  * Application Init.
  *****************************************************************************/
 
@@ -165,7 +165,7 @@ void app_init(void)
     OT_SETUP_RESET_JUMP(argv);
 }
 
-/**************************************************************************//**
+/******************************************************************************
  * Application Process Action.
  *****************************************************************************/
 void app_process_action(void)
@@ -174,7 +174,7 @@ void app_process_action(void)
     otSysProcessDrivers(sInstance);
 }
 
-/**************************************************************************//**
+/******************************************************************************
  * Application Exit.
  *****************************************************************************/
 void app_exit(void)

@@ -35,6 +35,10 @@
 #include "sl_icm20648_config.h"
 #define  SL_IMU_INT_PORT SL_ICM20648_INT_PORT
 #define  SL_IMU_INT_PIN  SL_ICM20648_INT_PIN
+#elif defined (SL_CATALOG_ICM40627_DRIVER_PRESENT)
+#include "sl_icm40627_config.h"
+#define  SL_IMU_INT_PORT SL_ICM40627_INT_PORT
+#define  SL_IMU_INT_PIN  SL_ICM40627_INT_PIN
 #else
 #error "No IMU driver defined"
 #endif

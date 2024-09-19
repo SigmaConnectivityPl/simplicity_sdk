@@ -32,7 +32,6 @@
  *
  */
 
-
 #include <openthread-system.h>
 #include <openthread/link.h>
 #include <openthread/platform/radio.h>
@@ -40,13 +39,13 @@
 #include <openthread/platform/multipan.h>
 #endif
 
+#include "board_config.h"
+#include "platform-efr32.h"
+#include "sl_common.h"
 #include "common/code_utils.hpp"
 #include "common/debug.hpp"
 #include "common/logging.hpp"
 #include "utils/code_utils.h"
-#include "board_config.h"
-#include "platform-efr32.h"
-#include "sl_common.h"
 
 #define SL_INVALID_TX_POWER (127)
 
@@ -67,7 +66,6 @@
 #define SL_CHANNEL_MIN OT_RADIO_915MHZ_OQPSK_CHANNEL_MIN
 #define SL_MAX_CHANNELS_SUPPORTED ((OT_RADIO_915MHZ_OQPSK_CHANNEL_MAX - OT_RADIO_915MHZ_OQPSK_CHANNEL_MIN) + 1)
 #endif
-
 
 /**
  * Set the radio's max tx power for the given channel. THis value is maintained in the device
@@ -123,12 +121,12 @@ otError sli_set_default_tx_power(otInstance *instance, int8_t tx_power);
 /**
  * Get the operating Tx power based on all Openthread configurations.
  *
- * @note  When @p OPENTHREAD_CONFIG_POWER_CALIBRATION_ENABLE is enabled, the device reads the 
+ * @note  When @p OPENTHREAD_CONFIG_POWER_CALIBRATION_ENABLE is enabled, the device reads the
  *        calibrated power values from power calibration module in Openthread.
- *        
+ *
  *        When disabled, the device will look up Max Tx power table and default power configured and select
- *        the minimum of these values. 
- * 
+ *        the minimum of these values.
+ *
  *        In multiprotocol the above operation happens for all IIDs and minimum value of those will be selected.
  *
  * @param[in]   instance    The OpenThread instance structure.
@@ -140,8 +138,8 @@ int8_t sl_get_tx_power_for_current_channel(otInstance *instance);
 
 /**
  * This is a callback to parse the Raw Power calibration value received from the Openthread stack. A weak
- * default implementation is provided in the PAL, which picks the 0th byte of @p raw_power_setting as the 
- * operating tx power. Application can implement its own parser but the callback is expected to return the 
+ * default implementation is provided in the PAL, which picks the 0th byte of @p raw_power_setting as the
+ * operating tx power. Application can implement its own parser but the callback is expected to return the
  * radio power in dbm and the FEM configuration if any in respective output pointers.
  *
  * @note  This callback is available when @p OPENTHREAD_CONFIG_POWER_CALIBRATION_ENABLE is enabled.
@@ -156,14 +154,14 @@ int8_t sl_get_tx_power_for_current_channel(otInstance *instance);
  * @retval OT_ERROR_PARSE            There was a parsing error.
  *
  */
-otError sl_parse_raw_power_calibration_cb(uint8_t   *raw_power_calibration, 
-                                          uint16_t  raw_setting_length, 
-                                          int8_t    *radio_power,
-                                          uint8_t   *fem_setting,
-                                          uint16_t  *fem_setting_length);
+otError sl_parse_raw_power_calibration_cb(uint8_t  *raw_power_calibration,
+                                          uint16_t  raw_setting_length,
+                                          int8_t   *radio_power,
+                                          uint8_t  *fem_setting,
+                                          uint16_t *fem_setting_length);
 
 /**
- * This is a callback to con figure the FEM as required. A weak default implementation is provided in the PAL, 
+ * This is a callback to con figure the FEM as required. A weak default implementation is provided in the PAL,
  * Application can use its own implementation to configure the FEM based on the values provided.
  *
  * @note  This callback is available when @p OPENTHREAD_CONFIG_POWER_CALIBRATION_ENABLE is enabled.

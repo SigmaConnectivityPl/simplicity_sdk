@@ -38,6 +38,8 @@
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
+// <h> General settings
+
 // <o SL_NCP_CMD_BUF_SIZE> Command buffer size (bytes) <260-1024>
 // <i> Default: 260
 // <i> Define the size of Bluetooth NCP command buffer in bytes.
@@ -52,6 +54,19 @@
 // <i> Default: 500
 // <i> Allowed timeout in ms for command reception before triggering error.
 #define SL_NCP_CMD_TIMEOUT_MS   (500)
+
+// </h>
+
+// <h> Debug settings
+
+// <q SL_NCP_EMIT_SYSTEM_ERROR_EVT> System error event on incomplete command reception
+// <i> Enable sending of a system error event with SL_STATUS_COMMAND_INCOMPLETE status on incomplete command reception.
+// <i> The system error data may contain full or partial BGAPI message header data for analysis by the application.
+// <i> Default: off
+#define SL_NCP_EMIT_SYSTEM_ERROR_EVT  0
+
+// </h>
+
 // <<< end of configuration section >>>
 
 /** @} (end addtogroup ncp) */

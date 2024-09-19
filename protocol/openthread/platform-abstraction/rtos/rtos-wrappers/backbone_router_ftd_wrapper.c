@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Backbone Router Ftd APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,42 +29,60 @@
  *
  ******************************************************************************/
 
-#include <openthread/backbone_router_ftd.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/backbone_router_ftd.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern otBackboneRouterState OT_API_REAL_NAME(otBackboneRouterGetState)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otBackboneRouterGetDomainPrefix)(otInstance * aInstance,otBorderRouterConfig * aConfig);
-extern otError OT_API_REAL_NAME(otBackboneRouterGetNdProxyInfo)(otInstance * aInstance,const otIp6Address * aDua,otBackboneRouterNdProxyInfo * aNdProxyInfo);
-extern otError OT_API_REAL_NAME(otBackboneRouterMulticastListenerAdd)(otInstance * aInstance,const otIp6Address * aAddress,uint32_t aTimeout);
-extern otError OT_API_REAL_NAME(otBackboneRouterMulticastListenerGetNext)(otInstance * aInstance,otBackboneRouterMulticastListenerIterator * aIterator,otBackboneRouterMulticastListenerInfo * aListenerInfo);
-extern otError OT_API_REAL_NAME(otBackboneRouterRegister)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otBackboneRouterSetConfig)(otInstance * aInstance,const otBackboneRouterConfig * aConfig);
-extern uint8_t OT_API_REAL_NAME(otBackboneRouterGetRegistrationJitter)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otBackboneRouterConfigNextDuaRegistrationResponse)(otInstance * aInstance,const otIp6InterfaceIdentifier * aMlIid,uint8_t aStatus);
-extern void OT_API_REAL_NAME(otBackboneRouterConfigNextMulticastListenerRegistrationResponse)(otInstance * aInstance,uint8_t aStatus);
-extern void OT_API_REAL_NAME(otBackboneRouterGetConfig)(otInstance * aInstance,otBackboneRouterConfig * aConfig);
-extern void OT_API_REAL_NAME(otBackboneRouterMulticastListenerClear)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otBackboneRouterSetDomainPrefixCallback)(otInstance * aInstance,otBackboneRouterDomainPrefixCallback aCallback,void * aContext);
-extern void OT_API_REAL_NAME(otBackboneRouterSetEnabled)(otInstance * aInstance,bool aEnable);
-extern void OT_API_REAL_NAME(otBackboneRouterSetMulticastListenerCallback)(otInstance * aInstance,otBackboneRouterMulticastListenerCallback aCallback,void * aContext);
-extern void OT_API_REAL_NAME(otBackboneRouterSetNdProxyCallback)(otInstance * aInstance,otBackboneRouterNdProxyCallback aCallback,void * aContext);
-extern void OT_API_REAL_NAME(otBackboneRouterSetRegistrationJitter)(otInstance * aInstance,uint8_t aJitter);
+extern otBackboneRouterState OT_API_REAL_NAME(otBackboneRouterGetState)(otInstance *aInstance);
+extern otError OT_API_REAL_NAME(otBackboneRouterGetDomainPrefix)(otInstance *aInstance, otBorderRouterConfig *aConfig);
+extern otError OT_API_REAL_NAME(otBackboneRouterGetNdProxyInfo)(otInstance                  *aInstance,
+                                                                const otIp6Address          *aDua,
+                                                                otBackboneRouterNdProxyInfo *aNdProxyInfo);
+extern otError OT_API_REAL_NAME(otBackboneRouterMulticastListenerAdd)(otInstance         *aInstance,
+                                                                      const otIp6Address *aAddress,
+                                                                      uint32_t            aTimeout);
+extern otError OT_API_REAL_NAME(otBackboneRouterMulticastListenerGetNext)(
+    otInstance                                *aInstance,
+    otBackboneRouterMulticastListenerIterator *aIterator,
+    otBackboneRouterMulticastListenerInfo     *aListenerInfo);
+extern otError OT_API_REAL_NAME(otBackboneRouterRegister)(otInstance *aInstance);
+extern otError OT_API_REAL_NAME(otBackboneRouterSetConfig)(otInstance                   *aInstance,
+                                                           const otBackboneRouterConfig *aConfig);
+extern uint8_t OT_API_REAL_NAME(otBackboneRouterGetRegistrationJitter)(otInstance *aInstance);
+extern void    OT_API_REAL_NAME(otBackboneRouterConfigNextDuaRegistrationResponse)(otInstance *aInstance,
+                                                                                const otIp6InterfaceIdentifier *aMlIid,
+                                                                                uint8_t aStatus);
+extern void    OT_API_REAL_NAME(otBackboneRouterConfigNextMulticastListenerRegistrationResponse)(otInstance *aInstance,
+                                                                                              uint8_t     aStatus);
+extern void    OT_API_REAL_NAME(otBackboneRouterGetConfig)(otInstance *aInstance, otBackboneRouterConfig *aConfig);
+extern void    OT_API_REAL_NAME(otBackboneRouterMulticastListenerClear)(otInstance *aInstance);
+extern void    OT_API_REAL_NAME(otBackboneRouterSetDomainPrefixCallback)(otInstance                          *aInstance,
+                                                                      otBackboneRouterDomainPrefixCallback aCallback,
+                                                                      void                                *aContext);
+extern void    OT_API_REAL_NAME(otBackboneRouterSetEnabled)(otInstance *aInstance, bool aEnable);
+extern void    OT_API_REAL_NAME(otBackboneRouterSetMulticastListenerCallback)(
+    otInstance                               *aInstance,
+    otBackboneRouterMulticastListenerCallback aCallback,
+    void                                     *aContext);
+extern void OT_API_REAL_NAME(otBackboneRouterSetNdProxyCallback)(otInstance                     *aInstance,
+                                                                 otBackboneRouterNdProxyCallback aCallback,
+                                                                 void                           *aContext);
+extern void OT_API_REAL_NAME(otBackboneRouterSetRegistrationJitter)(otInstance *aInstance, uint8_t aJitter);
 
-otBackboneRouterState OT_API_WRAPPER_NAME(otBackboneRouterGetState)(otInstance * aInstance)
+otBackboneRouterState OT_API_WRAPPER_NAME(otBackboneRouterGetState)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otBackboneRouterState ret = OT_API_REAL_NAME(otBackboneRouterGetState)(aInstance);
@@ -72,7 +90,7 @@ otBackboneRouterState OT_API_WRAPPER_NAME(otBackboneRouterGetState)(otInstance *
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBackboneRouterGetDomainPrefix)(otInstance * aInstance,otBorderRouterConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otBackboneRouterGetDomainPrefix)(otInstance *aInstance, otBorderRouterConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBackboneRouterGetDomainPrefix)(aInstance, aConfig);
@@ -80,7 +98,9 @@ otError OT_API_WRAPPER_NAME(otBackboneRouterGetDomainPrefix)(otInstance * aInsta
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBackboneRouterGetNdProxyInfo)(otInstance * aInstance,const otIp6Address * aDua,otBackboneRouterNdProxyInfo * aNdProxyInfo)
+otError OT_API_WRAPPER_NAME(otBackboneRouterGetNdProxyInfo)(otInstance                  *aInstance,
+                                                            const otIp6Address          *aDua,
+                                                            otBackboneRouterNdProxyInfo *aNdProxyInfo)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBackboneRouterGetNdProxyInfo)(aInstance, aDua, aNdProxyInfo);
@@ -88,7 +108,9 @@ otError OT_API_WRAPPER_NAME(otBackboneRouterGetNdProxyInfo)(otInstance * aInstan
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBackboneRouterMulticastListenerAdd)(otInstance * aInstance,const otIp6Address * aAddress,uint32_t aTimeout)
+otError OT_API_WRAPPER_NAME(otBackboneRouterMulticastListenerAdd)(otInstance         *aInstance,
+                                                                  const otIp6Address *aAddress,
+                                                                  uint32_t            aTimeout)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBackboneRouterMulticastListenerAdd)(aInstance, aAddress, aTimeout);
@@ -96,7 +118,10 @@ otError OT_API_WRAPPER_NAME(otBackboneRouterMulticastListenerAdd)(otInstance * a
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBackboneRouterMulticastListenerGetNext)(otInstance * aInstance,otBackboneRouterMulticastListenerIterator * aIterator,otBackboneRouterMulticastListenerInfo * aListenerInfo)
+otError OT_API_WRAPPER_NAME(otBackboneRouterMulticastListenerGetNext)(
+    otInstance                                *aInstance,
+    otBackboneRouterMulticastListenerIterator *aIterator,
+    otBackboneRouterMulticastListenerInfo     *aListenerInfo)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBackboneRouterMulticastListenerGetNext)(aInstance, aIterator, aListenerInfo);
@@ -104,7 +129,7 @@ otError OT_API_WRAPPER_NAME(otBackboneRouterMulticastListenerGetNext)(otInstance
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBackboneRouterRegister)(otInstance * aInstance)
+otError OT_API_WRAPPER_NAME(otBackboneRouterRegister)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBackboneRouterRegister)(aInstance);
@@ -112,7 +137,7 @@ otError OT_API_WRAPPER_NAME(otBackboneRouterRegister)(otInstance * aInstance)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBackboneRouterSetConfig)(otInstance * aInstance,const otBackboneRouterConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otBackboneRouterSetConfig)(otInstance *aInstance, const otBackboneRouterConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBackboneRouterSetConfig)(aInstance, aConfig);
@@ -120,7 +145,7 @@ otError OT_API_WRAPPER_NAME(otBackboneRouterSetConfig)(otInstance * aInstance,co
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otBackboneRouterGetRegistrationJitter)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otBackboneRouterGetRegistrationJitter)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otBackboneRouterGetRegistrationJitter)(aInstance);
@@ -128,66 +153,75 @@ uint8_t OT_API_WRAPPER_NAME(otBackboneRouterGetRegistrationJitter)(otInstance * 
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otBackboneRouterConfigNextDuaRegistrationResponse)(otInstance * aInstance,const otIp6InterfaceIdentifier * aMlIid,uint8_t aStatus)
+void OT_API_WRAPPER_NAME(otBackboneRouterConfigNextDuaRegistrationResponse)(otInstance                     *aInstance,
+                                                                            const otIp6InterfaceIdentifier *aMlIid,
+                                                                            uint8_t                         aStatus)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBackboneRouterConfigNextDuaRegistrationResponse)(aInstance, aMlIid, aStatus);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otBackboneRouterConfigNextMulticastListenerRegistrationResponse)(otInstance * aInstance,uint8_t aStatus)
+void OT_API_WRAPPER_NAME(otBackboneRouterConfigNextMulticastListenerRegistrationResponse)(otInstance *aInstance,
+                                                                                          uint8_t     aStatus)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBackboneRouterConfigNextMulticastListenerRegistrationResponse)(aInstance, aStatus);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otBackboneRouterGetConfig)(otInstance * aInstance,otBackboneRouterConfig * aConfig)
+void OT_API_WRAPPER_NAME(otBackboneRouterGetConfig)(otInstance *aInstance, otBackboneRouterConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBackboneRouterGetConfig)(aInstance, aConfig);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otBackboneRouterMulticastListenerClear)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otBackboneRouterMulticastListenerClear)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBackboneRouterMulticastListenerClear)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otBackboneRouterSetDomainPrefixCallback)(otInstance * aInstance,otBackboneRouterDomainPrefixCallback aCallback,void * aContext)
+void OT_API_WRAPPER_NAME(otBackboneRouterSetDomainPrefixCallback)(otInstance                          *aInstance,
+                                                                  otBackboneRouterDomainPrefixCallback aCallback,
+                                                                  void                                *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBackboneRouterSetDomainPrefixCallback)(aInstance, aCallback, aContext);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otBackboneRouterSetEnabled)(otInstance * aInstance,bool aEnable)
+void OT_API_WRAPPER_NAME(otBackboneRouterSetEnabled)(otInstance *aInstance, bool aEnable)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBackboneRouterSetEnabled)(aInstance, aEnable);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otBackboneRouterSetMulticastListenerCallback)(otInstance * aInstance,otBackboneRouterMulticastListenerCallback aCallback,void * aContext)
+void OT_API_WRAPPER_NAME(otBackboneRouterSetMulticastListenerCallback)(
+    otInstance                               *aInstance,
+    otBackboneRouterMulticastListenerCallback aCallback,
+    void                                     *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBackboneRouterSetMulticastListenerCallback)(aInstance, aCallback, aContext);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otBackboneRouterSetNdProxyCallback)(otInstance * aInstance,otBackboneRouterNdProxyCallback aCallback,void * aContext)
+void OT_API_WRAPPER_NAME(otBackboneRouterSetNdProxyCallback)(otInstance                     *aInstance,
+                                                             otBackboneRouterNdProxyCallback aCallback,
+                                                             void                           *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBackboneRouterSetNdProxyCallback)(aInstance, aCallback, aContext);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otBackboneRouterSetRegistrationJitter)(otInstance * aInstance,uint8_t aJitter)
+void OT_API_WRAPPER_NAME(otBackboneRouterSetRegistrationJitter)(otInstance *aInstance, uint8_t aJitter)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBackboneRouterSetRegistrationJitter)(aInstance, aJitter);
     sl_ot_rtos_release_stack_mutex();
 }
-

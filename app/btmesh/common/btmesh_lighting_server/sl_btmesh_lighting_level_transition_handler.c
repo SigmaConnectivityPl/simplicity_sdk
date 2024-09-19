@@ -128,7 +128,7 @@ static void transition_timer_cb(app_timer_t *handle,
       // Trigger a UI update in order to provide the target values at the end
       // of the current transition
       sl_btmesh_lighting_server_on_ui_update(current_level);
-      sl_btmesh_update_lightness(current_level, level_transtime_ms - level_transtime_elapsed);
+      sl_btmesh_update_lightness(current_level, IMMEDIATE);
     } else {
       // calculate current PWM duty cycle based on elapsed transition time
       if (target_level >= start_level) {

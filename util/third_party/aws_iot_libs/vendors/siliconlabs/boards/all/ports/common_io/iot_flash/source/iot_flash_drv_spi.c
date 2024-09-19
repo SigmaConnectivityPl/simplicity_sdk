@@ -33,7 +33,7 @@
  ******************************************************************************/
 
 /* SDK emlib layer */
-#include "em_core.h"
+#include "sl_core.h"
 #include "em_device.h"
 #include "em_cmu.h"
 #include "em_gpio.h"
@@ -237,7 +237,7 @@ static void iot_flash_drv_spi_driver_cs_disable(void *pvHndl)
 static uint32_t iot_flash_drv_spi_driver_transfer_async(void *pvHndl,
                                                   iot_flash_drv_spi_td_t *pxTd)
 {
-	
+
   IotFlashDescriptor_t *pvDesc = pvHndl;
   Ecode_t  xEcode   = ECODE_EMDRV_SPIDRV_OK;
 
@@ -768,7 +768,7 @@ sl_status_t iot_flash_drv_spi_driver_init(void *pvHndl)
 
   /* enable hardware */
   xEcode = SPIDRV_Init(&pvDesc->xHandleData, &pvDesc->xInit);
-  
+
     /* initialize semaphore */
   iot_flash_drv_spi_driver_sem =
        xSemaphoreCreateBinaryStatic(&iot_flash_drv_spi_driver_sembuf);
@@ -799,7 +799,7 @@ sl_status_t iot_flash_drv_spi_driver_deinit(void *pvHndl)
  *                   iot_flash_drv_spi_get_flash_base()
  ******************************************************************************/
 
-sl_status_t iot_flash_drv_spi_get_flash_base(uint32_t *ulFlashBase)                                            
+sl_status_t iot_flash_drv_spi_get_flash_base(uint32_t *ulFlashBase)
 {
   /* return flash base address */
   *ulFlashBase =  iot_flash_desc_get_external_flash_base();

@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Channel Monitor APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,32 +29,32 @@
  *
  ******************************************************************************/
 
-#include <openthread/channel_monitor.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/channel_monitor.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern bool OT_API_REAL_NAME(otChannelMonitorIsEnabled)(otInstance * aInstance);
-extern int8_t OT_API_REAL_NAME(otChannelMonitorGetRssiThreshold)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otChannelMonitorSetEnabled)(otInstance * aInstance,bool aEnabled);
-extern uint16_t OT_API_REAL_NAME(otChannelMonitorGetChannelOccupancy)(otInstance * aInstance,uint8_t aChannel);
-extern uint32_t OT_API_REAL_NAME(otChannelMonitorGetSampleCount)(otInstance * aInstance);
-extern uint32_t OT_API_REAL_NAME(otChannelMonitorGetSampleInterval)(otInstance * aInstance);
-extern uint32_t OT_API_REAL_NAME(otChannelMonitorGetSampleWindow)(otInstance * aInstance);
+extern bool     OT_API_REAL_NAME(otChannelMonitorIsEnabled)(otInstance *aInstance);
+extern int8_t   OT_API_REAL_NAME(otChannelMonitorGetRssiThreshold)(otInstance *aInstance);
+extern otError  OT_API_REAL_NAME(otChannelMonitorSetEnabled)(otInstance *aInstance, bool aEnabled);
+extern uint16_t OT_API_REAL_NAME(otChannelMonitorGetChannelOccupancy)(otInstance *aInstance, uint8_t aChannel);
+extern uint32_t OT_API_REAL_NAME(otChannelMonitorGetSampleCount)(otInstance *aInstance);
+extern uint32_t OT_API_REAL_NAME(otChannelMonitorGetSampleInterval)(otInstance *aInstance);
+extern uint32_t OT_API_REAL_NAME(otChannelMonitorGetSampleWindow)(otInstance *aInstance);
 
-bool OT_API_WRAPPER_NAME(otChannelMonitorIsEnabled)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otChannelMonitorIsEnabled)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otChannelMonitorIsEnabled)(aInstance);
@@ -62,7 +62,7 @@ bool OT_API_WRAPPER_NAME(otChannelMonitorIsEnabled)(otInstance * aInstance)
     return ret;
 }
 
-int8_t OT_API_WRAPPER_NAME(otChannelMonitorGetRssiThreshold)(otInstance * aInstance)
+int8_t OT_API_WRAPPER_NAME(otChannelMonitorGetRssiThreshold)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     int8_t ret = OT_API_REAL_NAME(otChannelMonitorGetRssiThreshold)(aInstance);
@@ -70,7 +70,7 @@ int8_t OT_API_WRAPPER_NAME(otChannelMonitorGetRssiThreshold)(otInstance * aInsta
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otChannelMonitorSetEnabled)(otInstance * aInstance,bool aEnabled)
+otError OT_API_WRAPPER_NAME(otChannelMonitorSetEnabled)(otInstance *aInstance, bool aEnabled)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otChannelMonitorSetEnabled)(aInstance, aEnabled);
@@ -78,7 +78,7 @@ otError OT_API_WRAPPER_NAME(otChannelMonitorSetEnabled)(otInstance * aInstance,b
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otChannelMonitorGetChannelOccupancy)(otInstance * aInstance,uint8_t aChannel)
+uint16_t OT_API_WRAPPER_NAME(otChannelMonitorGetChannelOccupancy)(otInstance *aInstance, uint8_t aChannel)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otChannelMonitorGetChannelOccupancy)(aInstance, aChannel);
@@ -86,7 +86,7 @@ uint16_t OT_API_WRAPPER_NAME(otChannelMonitorGetChannelOccupancy)(otInstance * a
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otChannelMonitorGetSampleCount)(otInstance * aInstance)
+uint32_t OT_API_WRAPPER_NAME(otChannelMonitorGetSampleCount)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otChannelMonitorGetSampleCount)(aInstance);
@@ -94,7 +94,7 @@ uint32_t OT_API_WRAPPER_NAME(otChannelMonitorGetSampleCount)(otInstance * aInsta
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otChannelMonitorGetSampleInterval)(otInstance * aInstance)
+uint32_t OT_API_WRAPPER_NAME(otChannelMonitorGetSampleInterval)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otChannelMonitorGetSampleInterval)(aInstance);
@@ -102,11 +102,10 @@ uint32_t OT_API_WRAPPER_NAME(otChannelMonitorGetSampleInterval)(otInstance * aIn
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otChannelMonitorGetSampleWindow)(otInstance * aInstance)
+uint32_t OT_API_WRAPPER_NAME(otChannelMonitorGetSampleWindow)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otChannelMonitorGetSampleWindow)(aInstance);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
-

@@ -49,7 +49,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include CMSIS_device_header
 #endif
 
-#include "em_assert.h"
 #include "em_device.h"
 
 #if defined(SL_COMPONENT_CATALOG_PRESENT)

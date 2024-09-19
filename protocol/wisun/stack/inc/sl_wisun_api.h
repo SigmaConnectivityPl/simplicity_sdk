@@ -764,8 +764,6 @@ sl_status_t sl_wisun_get_excluded_channel_mask(sl_wisun_channel_mask_type_t type
                                                sl_wisun_channel_mask_t *channel_mask,
                                                uint8_t *channel_count);
 
-/** @} (end SL_WISUN_API) */
-
 /**************************************************************************//**
  * Set the maximum TX power.
  *
@@ -780,6 +778,23 @@ sl_status_t sl_wisun_get_excluded_channel_mask(sl_wisun_channel_mask_type_t type
  * @note Available in libraries: Full, FFN, LFN (see @ref API_AVAILABILITY)
  *****************************************************************************/
 sl_status_t sl_wisun_set_tx_power_ddbm(int16_t tx_power_ddbm);
+
+/**************************************************************************//**
+ * Set the RPL leaf mode.
+ *
+ * @param[in] is_leaf RPL leaf mode
+ *   - **true**: RPL leaf mode is enabled
+ *   - **false**: RPL leaf mode is disabled
+ * @return SL_STATUS_OK if successful, an error code otherwise
+ *
+ * This function configures RPL leaf mode on FFNs. When enabled, it prevents
+ * the FFN from parenting other nodes (FFN or LFN).
+ *
+ * @note Available in libraries: Full, FFN (see @ref API_AVAILABILITY)
+ *****************************************************************************/
+sl_status_t sl_wisun_set_leaf(bool is_leaf);
+
+/** @} (end SL_WISUN_API) */
 
 #ifdef __cplusplus
 }

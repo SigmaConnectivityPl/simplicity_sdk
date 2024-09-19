@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Definitions for an extended NCP spinel interface to the OpenThread stack
  *******************************************************************************
@@ -28,8 +28,8 @@
  *
  ******************************************************************************/
 
-#include "ncp/ncp_base.hpp"
 #include "vendor_spinel.hpp"
+#include "ncp/ncp_base.hpp"
 
 #ifdef SL_COMPONENT_CATALOG_PRESENT
 #include "sl_component_catalog.h"
@@ -53,7 +53,7 @@
 
 #if OPENTHREAD_ENABLE_NCP_VENDOR_HOOK
 
-namespace SpinelProp    = ot::Spinel::Vendor;
+namespace SpinelProp = ot::Spinel::Vendor;
 
 namespace ot {
 namespace Ncp {
@@ -104,29 +104,29 @@ otError NcpBase::VendorGetPropertyHandler(spinel_prop_key_t aPropKey)
         // write a `LAST_STATUS` with the error status into the NCP buffer. `OT_ERROR_NO_BUFS`
         // should be returned if NCP buffer is full and response cannot be written.
 
-    #ifdef SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
+#ifdef SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
     case SpinelProp::SPINEL_PROP_VENDOR_ANTENNA:
         error = Vendor::Antenna::getAntennaProperty(mDecoder, mEncoder);
         break;
-    #endif // SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
+#endif // SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
 
-    #ifdef SL_CATALOG_RAIL_UTIL_COEX_PRESENT
+#ifdef SL_CATALOG_RAIL_UTIL_COEX_PRESENT
     case SpinelProp::SPINEL_PROP_VENDOR_COEX:
         error = Vendor::Coex::getCoexProperty(mDecoder, mEncoder);
         break;
-    #endif // SL_CATALOG_RAIL_UTIL_COEX_PRESENT
+#endif // SL_CATALOG_RAIL_UTIL_COEX_PRESENT
 
-    #ifdef SL_CATALOG_OPENTHREAD_TEST_CLI_PRESENT
+#ifdef SL_CATALOG_OPENTHREAD_TEST_CLI_PRESENT
     case SpinelProp::SPINEL_PROP_VENDOR_TEST:
         error = Vendor::Test::getTestProperty(mDecoder, mEncoder);
         break;
-    #endif // SL_CATALOG_OPENTHREAD_TEST_CLI_PRESENT
+#endif // SL_CATALOG_OPENTHREAD_TEST_CLI_PRESENT
 
-    #ifdef SL_CATALOG_OPENTHREAD_EFR32_CLI_PRESENT
+#ifdef SL_CATALOG_OPENTHREAD_EFR32_CLI_PRESENT
     case SpinelProp::SPINEL_PROP_VENDOR_EFR32:
         error = Vendor::Efr32::getEfr32Property(mDecoder, mEncoder);
         break;
-    #endif // SL_CATALOG_OPENTHREAD_EFR32_CLI_PRESENT
+#endif // SL_CATALOG_OPENTHREAD_EFR32_CLI_PRESENT
     default:
         error = OT_ERROR_NOT_FOUND;
         break;
@@ -154,29 +154,29 @@ otError NcpBase::VendorSetPropertyHandler(spinel_prop_key_t aPropKey)
         // of a successful "set", `NcpBase` set command handler will invoke the
         // `VendorGetPropertyHandler()` for the same property key to prepare the response.
 
-    #ifdef SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
+#ifdef SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
     case SpinelProp::SPINEL_PROP_VENDOR_ANTENNA:
         error = Vendor::Antenna::setAntennaProperty(mDecoder);
         break;
-    #endif // SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
+#endif // SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
 
-    #ifdef SL_CATALOG_RAIL_UTIL_COEX_PRESENT
+#ifdef SL_CATALOG_RAIL_UTIL_COEX_PRESENT
     case SpinelProp::SPINEL_PROP_VENDOR_COEX:
         error = Vendor::Coex::setCoexProperty(mDecoder);
         break;
-    #endif // SL_CATALOG_RAIL_UTIL_COEX_PRESENT
+#endif // SL_CATALOG_RAIL_UTIL_COEX_PRESENT
 
-    #ifdef SL_CATALOG_OPENTHREAD_TEST_CLI_PRESENT
+#ifdef SL_CATALOG_OPENTHREAD_TEST_CLI_PRESENT
     case SpinelProp::SPINEL_PROP_VENDOR_TEST:
         error = Vendor::Test::setTestProperty(mDecoder);
         break;
-    #endif // SL_CATALOG_OPENTHREAD_TEST_CLI_PRESENT
+#endif // SL_CATALOG_OPENTHREAD_TEST_CLI_PRESENT
 
-    #ifdef SL_CATALOG_OPENTHREAD_EFR32_CLI_PRESENT
+#ifdef SL_CATALOG_OPENTHREAD_EFR32_CLI_PRESENT
     case SpinelProp::SPINEL_PROP_VENDOR_EFR32:
         error = Vendor::Efr32::setEfr32Property(mDecoder);
         break;
-    #endif // SL_CATALOG_OPENTHREAD_EFR32_CLI_PRESENT
+#endif // SL_CATALOG_OPENTHREAD_EFR32_CLI_PRESENT
     default:
         error = OT_ERROR_NOT_FOUND;
         break;

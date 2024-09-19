@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief This file defines the vendor posix cli command lists that are registered
  *        with the OpenThread CLI library as user commands.

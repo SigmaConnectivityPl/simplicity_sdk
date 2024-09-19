@@ -303,9 +303,12 @@ sli_block_metadata_t *sli_memory_find_head_free_block(sl_memory_block_type_t typ
 {
   sli_block_metadata_t *current_block_metadata = NULL;
   sli_block_metadata_t *free_block_metadata = NULL;
-
   bool search = true;
-  bool failed_search = false;
+
+  if (sli_free_blocks_number == 0) {
+    // No more free blocks.
+    return NULL;
+  }
 
   if (block_start_from != NULL) {
     // Start searching from the given block.
@@ -330,42 +333,10 @@ sli_block_metadata_t *sli_memory_find_head_free_block(sl_memory_block_type_t typ
     } else if ((type == BLOCK_TYPE_SHORT_TERM) && (current_block_metadata->offset_neighbour_prev != 0)) {
       current_block_metadata = (sli_block_metadata_t *)((uint64_t *)current_block_metadata - (current_block_metadata->offset_neighbour_prev));
     } else {
-      // Search from current allocation failed. Scanning whole heap.
-      search = false;
-      failed_search = true;
+      free_block_metadata = NULL;
+      break;
     }
   } while (search);
-
-  // Re-try search from the start of the heap.
-  if (failed_search) {
-    sl_memory_region_t heap_region = sl_memory_get_heap_region();
-    search = true;
-    current_block_metadata = (sli_block_metadata_t *)heap_region.addr;
-
-    do {
-      if (current_block_metadata->block_in_use == 0) {
-        free_block_metadata = current_block_metadata;
-
-        // LT free head points to the first block found.
-        // ST tries to find the last free block.
-        if (type == BLOCK_TYPE_LONG_TERM) {
-          search = false;
-        } else if (current_block_metadata->offset_neighbour_next != 0) {
-          current_block_metadata = (sli_block_metadata_t *)((uint64_t *)current_block_metadata + (current_block_metadata->offset_neighbour_next));
-        } else {
-          search = false;
-        }
-      } else if (current_block_metadata->offset_neighbour_next != 0) {
-        current_block_metadata = (sli_block_metadata_t *)((uint64_t *)current_block_metadata + (current_block_metadata->offset_neighbour_next));
-      } else if (free_block_metadata != NULL) {
-        // free_block_metadata contains ST free list head pointer
-        search = false;
-      } else {
-        // LT or ST search should never reach this path as this function is called if there is at least 1 block free.
-        EFM_ASSERT(0);
-      }
-    } while (search);
-  }
 
   return free_block_metadata;
 }
@@ -384,6 +355,28 @@ void *sli_memory_get_longterm_head_ptr(void)
 void *sli_memory_get_shortterm_head_ptr(void)
 {
   return (void *)sli_free_st_list_head;
+}
+
+/***************************************************************************//**
+ * Update free lists heads (short and long terms).
+ ******************************************************************************/
+void sli_update_free_list_heads(sli_block_metadata_t *free_head, const sli_block_metadata_t *condition_block, bool search)
+{
+  if (search) {
+    if ((sli_free_lt_list_head == condition_block) || (condition_block == NULL)) {
+      sli_free_lt_list_head = sli_memory_find_head_free_block(BLOCK_TYPE_LONG_TERM, free_head);
+    }
+    if ((sli_free_st_list_head == condition_block) || (condition_block == NULL)) {
+      sli_free_st_list_head = sli_memory_find_head_free_block(BLOCK_TYPE_SHORT_TERM, free_head);
+    }
+  } else {
+    if (sli_free_lt_list_head == condition_block) {
+      sli_free_lt_list_head = free_head;
+    }
+    if (sli_free_st_list_head == condition_block) {
+      sli_free_st_list_head = free_head;
+    }
+  }
 }
 
 #ifdef SLI_MEMORY_MANAGER_ENABLE_TEST_UTILITIES

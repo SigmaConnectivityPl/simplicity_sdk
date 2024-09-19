@@ -204,24 +204,20 @@ sl_status_t sl_zigbee_sec_man_aes_128_crypt_block(bool encrypt,
   sli_zigbee_ipc_cmd_t msg;
   msg.data.sec_man_aes_128_crypt_block.request.encrypt = encrypt;
 
-  if ((16) > (16)) {
-    assert(false); // "vector input length exceeds expected maximum
+  if (input != NULL) {
+    memmove(msg.data.sec_man_aes_128_crypt_block.request.input, input, sizeof(uint8_t) * (16));
   }
 
-  memmove(msg.data.sec_man_aes_128_crypt_block.request.input, input, sizeof(uint8_t) * (16));
-
-  if ((16) > (16)) {
-    assert(false); // "vector output length exceeds expected maximum
+  if (output != NULL) {
+    memmove(msg.data.sec_man_aes_128_crypt_block.request.output, output, sizeof(uint8_t) * (16));
   }
 
-  memmove(msg.data.sec_man_aes_128_crypt_block.request.output, output, sizeof(uint8_t) * (16));
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_sec_man_aes_128_crypt_block_process_ipc_command, &msg);
 
-  if ((16) > (16)) {
-    assert(false); // "vector output length exceeds expected maximum
+  if (output != NULL) {
+    memmove(output, msg.data.sec_man_aes_128_crypt_block.request.output, sizeof(uint8_t) * (16));
   }
 
-  memmove(output, msg.data.sec_man_aes_128_crypt_block.request.output, sizeof(uint8_t) * (16));
   return msg.data.sec_man_aes_128_crypt_block.response.result;
 }
 
@@ -235,11 +231,10 @@ sl_status_t sl_zigbee_sec_man_aes_ccm_extended(uint8_t *nonce,
 {
   sli_zigbee_ipc_cmd_t msg;
 
-  if ((NONCE_LENGTH) > (NONCE_LENGTH)) {
-    assert(false); // "vector nonce length exceeds expected maximum
+  if (nonce != NULL) {
+    memmove(msg.data.sec_man_aes_ccm_extended.request.nonce, nonce, sizeof(uint8_t) * (NONCE_LENGTH));
   }
 
-  memmove(msg.data.sec_man_aes_ccm_extended.request.nonce, nonce, sizeof(uint8_t) * (NONCE_LENGTH));
   msg.data.sec_man_aes_ccm_extended.request.encrypt = encrypt;
 
   if ((length) > (MAX_IPC_VEC_ARG_CAPACITY)) {
@@ -258,11 +253,9 @@ sl_status_t sl_zigbee_sec_man_aes_ccm_extended(uint8_t *nonce,
   memmove(msg.data.sec_man_aes_ccm_extended.request.output, output, sizeof(uint8_t) * (length + mic_length));
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_sec_man_aes_ccm_extended_process_ipc_command, &msg);
 
-  if ((NONCE_LENGTH) > (NONCE_LENGTH)) {
-    assert(false); // "vector nonce length exceeds expected maximum
+  if (nonce != NULL) {
+    memmove(nonce, msg.data.sec_man_aes_ccm_extended.request.nonce, sizeof(uint8_t) * (NONCE_LENGTH));
   }
-
-  memmove(nonce, msg.data.sec_man_aes_ccm_extended.request.nonce, sizeof(uint8_t) * (NONCE_LENGTH));
 
   if ((length + mic_length) > (MAX_IPC_VEC_ARG_CAPACITY)) {
     assert(false); // "vector output length exceeds expected maximum

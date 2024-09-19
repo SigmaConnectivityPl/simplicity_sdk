@@ -44,6 +44,10 @@ enum {
 #define SL_802154_INFO_STACK_PRIVATE_MASK        ((uint16_t)(BIT(4)))              // 0x0010
 
 #define SL_802154_INFO_MAC_SECURITY_MASK         ((uint16_t)(BIT(5)))              // 0x0020
+
+// This macInfo field is used to transmit messages using the high bandwidth PHY
+#define SL_802154_INFO_HIGH_DATARATE_PHY_SCHED_TX ((uint16_t)(BIT(6)))            // 0x0040
+
 #define SL_802154_INFO_FRAME_PENDING_MASK        ((uint16_t)(BIT(7)))              // 0x0080
 
 // If set on an outgoing unicast to a sleepy child, this causes the
@@ -120,10 +124,6 @@ typedef struct {
   uint8_t channel;
   // The value of the MAC timer when the SFD was received for this packet
   uint32_t timestamp;
-#ifdef ZIGBEE_STACK_ON_HOST
-  // The value of the RAIL timer when the SFD was received for this packet
-  uint64_t sync_rx_timestamp;
-#endif
 } sl_mac_in_memory_queue_info_t;
 
 // When in shortIndirectPool or longIndirectPool (in indirect-queue.c).
@@ -136,6 +136,7 @@ typedef struct {
 typedef union {
   sl_mac_in_memory_queue_info_t queue_info;
   sl_mac_in_memory_indirect_queue_info_t indirect_queue_info;
+  uint32_t scheduled_tx_abs_timestamp;
 } sl_mac_in_memory_appended_info_t;
 
 //--------------------------------------
@@ -175,10 +176,6 @@ uint8_t sli_mac_lqi(sli_zigbee_packet_header_t header);
 int8_t sli_mac_rssi(sli_zigbee_packet_header_t header);
 uint8_t sli_mac_channel(sli_zigbee_packet_header_t header);
 uint32_t sli_mac_timestamp(sli_zigbee_packet_header_t header);
-
-#ifdef ZIGBEE_STACK_ON_HOST
-uint64_t sli_mac_sync_rx_timestamp(sli_zigbee_packet_header_t header);
-#endif
 
 void sli_mac_set_lqi(sli_zigbee_packet_header_t header, uint8_t lqi);
 void sli_mac_set_rssi(sli_zigbee_packet_header_t header, int8_t rssi);

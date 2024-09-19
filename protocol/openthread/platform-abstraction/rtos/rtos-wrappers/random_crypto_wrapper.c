@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Random Crypto APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,30 +29,29 @@
  *
  ******************************************************************************/
 
-#include <openthread/random_crypto.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/random_crypto.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern otError OT_API_REAL_NAME(otRandomCryptoFillBuffer)(uint8_t * aBuffer,uint16_t aSize);
+extern otError OT_API_REAL_NAME(otRandomCryptoFillBuffer)(uint8_t *aBuffer, uint16_t aSize);
 
-otError OT_API_WRAPPER_NAME(otRandomCryptoFillBuffer)(uint8_t * aBuffer,uint16_t aSize)
+otError OT_API_WRAPPER_NAME(otRandomCryptoFillBuffer)(uint8_t *aBuffer, uint16_t aSize)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otRandomCryptoFillBuffer)(aBuffer, aSize);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
-

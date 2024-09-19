@@ -81,22 +81,20 @@ sl_status_t sl_zigbee_get_symmetric_passphrase(sl_802154_long_addr_t eui64,
 
   msg.data.get_symmetric_passphrase.request.short_id = short_id;
 
-  if ((16) > (16)) {
-    assert(false); // "vector passphrase length exceeds expected maximum
+  if (passphrase != NULL) {
+    memmove(msg.data.get_symmetric_passphrase.request.passphrase, passphrase, sizeof(uint8_t) * (16));
   }
 
-  memmove(msg.data.get_symmetric_passphrase.request.passphrase, passphrase, sizeof(uint8_t) * (16));
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_symmetric_passphrase_process_ipc_command, &msg);
 
   if (eui64 != NULL) {
     memmove(eui64, msg.data.get_symmetric_passphrase.request.eui64, sizeof(sl_802154_long_addr_t));
   }
 
-  if ((16) > (16)) {
-    assert(false); // "vector passphrase length exceeds expected maximum
+  if (passphrase != NULL) {
+    memmove(passphrase, msg.data.get_symmetric_passphrase.request.passphrase, sizeof(uint8_t) * (16));
   }
 
-  memmove(passphrase, msg.data.get_symmetric_passphrase.request.passphrase, sizeof(uint8_t) * (16));
   return msg.data.get_symmetric_passphrase.response.result;
 }
 

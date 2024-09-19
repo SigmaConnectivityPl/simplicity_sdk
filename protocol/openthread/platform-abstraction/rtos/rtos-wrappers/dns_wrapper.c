@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Dns APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,28 +29,33 @@
  *
  ******************************************************************************/
 
-#include <openthread/dns.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/dns.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern bool OT_API_REAL_NAME(otDnsIsNameCompressionEnabled)(void);
-extern otError OT_API_REAL_NAME(otDnsEncodeTxtData)(const otDnsTxtEntry * aTxtEntries,uint16_t aNumTxtEntries,uint8_t * aTxtData,uint16_t * aTxtDataLength);
-extern otError OT_API_REAL_NAME(otDnsGetNextTxtEntry)(otDnsTxtEntryIterator * aIterator,otDnsTxtEntry * aEntry);
-extern void OT_API_REAL_NAME(otDnsInitTxtEntryIterator)(otDnsTxtEntryIterator * aIterator,const uint8_t * aTxtData,uint16_t aTxtDataLength);
-extern void OT_API_REAL_NAME(otDnsSetNameCompressionEnabled)(bool aEnabled);
+extern bool    OT_API_REAL_NAME(otDnsIsNameCompressionEnabled)(void);
+extern otError OT_API_REAL_NAME(otDnsEncodeTxtData)(const otDnsTxtEntry *aTxtEntries,
+                                                    uint16_t             aNumTxtEntries,
+                                                    uint8_t             *aTxtData,
+                                                    uint16_t            *aTxtDataLength);
+extern otError OT_API_REAL_NAME(otDnsGetNextTxtEntry)(otDnsTxtEntryIterator *aIterator, otDnsTxtEntry *aEntry);
+extern void    OT_API_REAL_NAME(otDnsInitTxtEntryIterator)(otDnsTxtEntryIterator *aIterator,
+                                                        const uint8_t         *aTxtData,
+                                                        uint16_t               aTxtDataLength);
+extern void    OT_API_REAL_NAME(otDnsSetNameCompressionEnabled)(bool aEnabled);
 
 bool OT_API_WRAPPER_NAME(otDnsIsNameCompressionEnabled)(void)
 {
@@ -60,7 +65,10 @@ bool OT_API_WRAPPER_NAME(otDnsIsNameCompressionEnabled)(void)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsEncodeTxtData)(const otDnsTxtEntry * aTxtEntries,uint16_t aNumTxtEntries,uint8_t * aTxtData,uint16_t * aTxtDataLength)
+otError OT_API_WRAPPER_NAME(otDnsEncodeTxtData)(const otDnsTxtEntry *aTxtEntries,
+                                                uint16_t             aNumTxtEntries,
+                                                uint8_t             *aTxtData,
+                                                uint16_t            *aTxtDataLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDnsEncodeTxtData)(aTxtEntries, aNumTxtEntries, aTxtData, aTxtDataLength);
@@ -68,7 +76,7 @@ otError OT_API_WRAPPER_NAME(otDnsEncodeTxtData)(const otDnsTxtEntry * aTxtEntrie
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDnsGetNextTxtEntry)(otDnsTxtEntryIterator * aIterator,otDnsTxtEntry * aEntry)
+otError OT_API_WRAPPER_NAME(otDnsGetNextTxtEntry)(otDnsTxtEntryIterator *aIterator, otDnsTxtEntry *aEntry)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDnsGetNextTxtEntry)(aIterator, aEntry);
@@ -76,7 +84,9 @@ otError OT_API_WRAPPER_NAME(otDnsGetNextTxtEntry)(otDnsTxtEntryIterator * aItera
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otDnsInitTxtEntryIterator)(otDnsTxtEntryIterator * aIterator,const uint8_t * aTxtData,uint16_t aTxtDataLength)
+void OT_API_WRAPPER_NAME(otDnsInitTxtEntryIterator)(otDnsTxtEntryIterator *aIterator,
+                                                    const uint8_t         *aTxtData,
+                                                    uint16_t               aTxtDataLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otDnsInitTxtEntryIterator)(aIterator, aTxtData, aTxtDataLength);
@@ -89,4 +99,3 @@ void OT_API_WRAPPER_NAME(otDnsSetNameCompressionEnabled)(bool aEnabled)
     OT_API_REAL_NAME(otDnsSetNameCompressionEnabled)(aEnabled);
     sl_ot_rtos_release_stack_mutex();
 }
-

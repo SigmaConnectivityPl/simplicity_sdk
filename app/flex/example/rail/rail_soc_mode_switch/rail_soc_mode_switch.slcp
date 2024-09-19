@@ -22,6 +22,7 @@ component:
       - inst0
   - id: rail_util_recommended
   - id: radio_config_simple_rail_singlephy
+  - id: sl_flex_rail_sleep
   - id: power_manager
   - id: app_log
   - id: app_assert

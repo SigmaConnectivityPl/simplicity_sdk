@@ -84,7 +84,7 @@ static uint8_t notification_data[THROUGHPUT_CENTRAL_DATA_SIZE_MAX] = { 0 };
 static uint8_t indication_data[THROUGHPUT_CENTRAL_DATA_SIZE_MAX] = { 0 };
 
 /// Internal state
-static throughput_t central_state = { .allowlist.next = NULL };
+static throughput_t central_state = { .allowlist.next = NULL, .pdu_size = THROUGHPUT_DEFAULT_PDU_SIZE };
 
 /// Bit counter variable
 static throughput_count_t bytes_received = 0;
@@ -558,12 +558,14 @@ void bt_on_event_central(sl_bt_msg_t *evt)
       central_state.interval = evt->data.evt_connection_parameters.interval;
       central_state.connection_responder_latency = evt->data.evt_connection_parameters.latency;
       central_state.connection_timeout = evt->data.evt_connection_parameters.timeout;
-      central_state.pdu_size = evt->data.evt_connection_parameters.txsize;
 
       throughput_central_on_connection_timings_change(central_state.interval,
                                                       central_state.connection_responder_latency,
                                                       central_state.connection_timeout);
+      break;
 
+    case sl_bt_evt_connection_data_length_id:
+      central_state.pdu_size = evt->data.evt_connection_data_length.tx_data_len;
       throughput_central_on_connection_settings_change(central_state.pdu_size,
                                                        central_state.mtu_size);
       break;

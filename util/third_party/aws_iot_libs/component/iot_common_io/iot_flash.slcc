@@ -6,6 +6,9 @@ description: >
   Doc: https://docs.aws.amazon.com/freertos/latest/lib-ref/common-io/files.html
 package: amazon_platform
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 instantiable:
   prefix: inst
 provides:
@@ -17,11 +20,12 @@ requires:
   - name: spidrv_core
   - name: freertos
   - name: device_init
-  - name: emlib_core
+  - name: sl_core
   - name: emlib_msc
   - name: emlib_usart
   - name: status
   - name: common_io_validation_lib
+  - name: iot_sbom_lib_abstraction_common_io
 root_path: util/third_party/aws_iot_libs
 config_file:
   - path: vendors/siliconlabs/boards/all/ports/common_io/iot_flash/config/iot_flash_cfg_{{instance}}.h

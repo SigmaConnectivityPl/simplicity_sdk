@@ -54,19 +54,19 @@
 #ifdef SL_CATALOG_UARTDRV_USART_PRESENT
 #include "sl_uartdrv_usart_vcom_config.h"
 #define VCOM_TX_PORT SL_UARTDRV_USART_VCOM_TX_PORT
-#define VCOM_TX_PIN  SL_UARTDRV_USART_VCOM_TX_PIN
-#elif defined (SL_CATALOG_UARTDRV_EUSART_PRESENT)
+#define VCOM_TX_PIN SL_UARTDRV_USART_VCOM_TX_PIN
+#elif defined(SL_CATALOG_UARTDRV_EUSART_PRESENT)
 #include "sl_uartdrv_eusart_vcom_config.h"
 #define VCOM_TX_PORT SL_UARTDRV_EUSART_VCOM_TX_PORT
-#define VCOM_TX_PIN  SL_UARTDRV_EUSART_VCOM_TX_PIN
-#elif defined (SL_CATALOG_UARTDRV_LEUART_PRESENT)
+#define VCOM_TX_PIN SL_UARTDRV_EUSART_VCOM_TX_PIN
+#elif defined(SL_CATALOG_UARTDRV_LEUART_PRESENT)
 #include "sl_uartdrv_leuart_vcom_config.h"
 #define VCOM_TX_PORT SL_UARTDRV_LEUART_VCOM_TX_PORT
-#define VCOM_TX_PIN  SL_UARTDRV_LEUART_VCOM_TX_PIN
-#elif defined (SL_CATALOG_CPC_DRIVER_UART_PRESENT)
+#define VCOM_TX_PIN SL_UARTDRV_LEUART_VCOM_TX_PIN
+#elif defined(SL_CATALOG_CPC_DRIVER_UART_PRESENT)
 #include "sl_cpc_drv_uart_config.h"
 #define VCOM_TX_PORT SL_CPC_DRV_UART_VCOM_TX_PORT
-#define VCOM_TX_PIN  SL_CPC_DRV_UART_VCOM_TX_PIN
+#define VCOM_TX_PIN SL_CPC_DRV_UART_VCOM_TX_PIN
 #endif
 
 // Power manager transition events of interest.
@@ -83,7 +83,7 @@
 //------------------------------------------------------------------------------
 // Forward declarations
 
-#if (defined(SL_CATALOG_POWER_MANAGER_PRESENT) && !defined(SL_CATALOG_KERNEL_PRESENT))
+#if (defined(SL_CATALOG_POWER_MANAGER_PRESENT))
 
 static void energy_mode_transition_callback(sl_power_manager_em_t from, sl_power_manager_em_t to);
 
@@ -96,7 +96,7 @@ static sl_power_manager_em_transition_event_handle_t pm_handle;
 static sl_power_manager_em_transition_event_info_t   pm_event_info = {POWER_MANAGER_EVENTS_OF_INTEREST,
                                                                       energy_mode_transition_callback};
 
-#endif // SL_CATALOG_POWER_MANAGER_PRESENT && !SL_CATALOG_KERNEL_PRESENT
+#endif // SL_CATALOG_POWER_MANAGER_PRESENT
 
 extern otInstance *sInstance;
 
@@ -107,9 +107,7 @@ void sl_ot_sleep_init(void)
 {
 #if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
 
-#ifndef SL_CATALOG_KERNEL_PRESENT
     sl_power_manager_subscribe_em_transition_event(&pm_handle, &pm_event_info);
-#endif
 
     // Ensure EM2 is the lowest low power mode
     sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM2);
@@ -117,9 +115,7 @@ void sl_ot_sleep_init(void)
     // Set initial power requirement to EM1
     sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
 
-#ifndef SL_CATALOG_KERNEL_PRESENT
     em1_requirement_set = true;
-#endif
 
 #endif // SL_CATALOG_POWER_MANAGER_PRESENT
 }
@@ -130,13 +126,13 @@ __WEAK bool efr32AllowSleepCallback(void)
     return true;
 }
 
-#if (defined(SL_CATALOG_POWER_MANAGER_PRESENT) && !defined(SL_CATALOG_KERNEL_PRESENT))
+#if (defined(SL_CATALOG_POWER_MANAGER_PRESENT))
 
 // This is invoked only the bare metal case.
 bool sl_ot_is_ok_to_sleep(void)
 {
-    // If the application does not permit sleep, we don't sleep.
-    if (!efr32AllowSleepCallback())
+    // If the application does not permit sleep, or if an alarm is ready to handle, we don't sleep.
+    if (!efr32AllowSleepCallback() || (efr32AlarmSleepOnISRExit() == SL_POWER_MANAGER_WAKEUP))
     {
         return false;
     }
@@ -152,7 +148,7 @@ bool sl_ot_is_ok_to_sleep(void)
     {
         // Compute sleep/idle duration. we will never sleep/idle longer than the
         // duration to our next event.
-        duration_ms = efr32AlarmPendingTime();
+        duration_ms = efr32AlarmPendingTime(sInstance);
 
         // If the sleep duration is below our minimum threshold, we dont bother sleeping.
         // If so, we can try to idle instead.
@@ -204,20 +200,16 @@ static void energy_mode_transition_callback(sl_power_manager_em_t from, sl_power
     {
         // Leaving EM2
         // Reset the USART Tx pin
-        GPIO_PinModeSet(VCOM_TX_PORT,
-                        VCOM_TX_PIN,
-                        vcom_tx_pin_state, 1);
+        GPIO_PinModeSet(VCOM_TX_PORT, VCOM_TX_PIN, vcom_tx_pin_state, 1);
     }
     else if (to == SL_POWER_MANAGER_EM2)
     {
         // Going to EM2
         // Sleep the USART Tx pin on series 2 devices to save energy
         vcom_tx_pin_state = GPIO_PinModeGet(VCOM_TX_PORT, VCOM_TX_PIN);
-        GPIO_PinModeSet(VCOM_TX_PORT,
-                        VCOM_TX_PIN,
-                        gpioModeDisabled, 1);
+        GPIO_PinModeSet(VCOM_TX_PORT, VCOM_TX_PIN, gpioModeDisabled, 1);
     }
 #endif
 }
 
-#endif // SL_CATALOG_POWER_MANAGER_PRESENT && !SL_CATALOG_KERNEL_PRESENT
+#endif // SL_CATALOG_POWER_MANAGER_PRESENT

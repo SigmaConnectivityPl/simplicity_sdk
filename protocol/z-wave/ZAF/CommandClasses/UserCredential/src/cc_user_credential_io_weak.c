@@ -114,3 +114,15 @@ ZW_WEAK u3c_db_operation_result CC_UserCredential_move_credential(
 {
   return U3C_DB_OPERATION_RESULT_ERROR;
 }
+
+ZW_WEAK u3c_db_operation_result CC_UserCredential_get_admin_code_info(
+  __attribute__((unused)) u3c_admin_code_metadata_t *code)
+{
+  return U3C_DB_OPERATION_RESULT_ERROR;
+}
+
+ZW_WEAK u3c_db_operation_result CC_UserCredential_set_admin_code(
+  __attribute__((unused)) u3c_admin_code_metadata_t *code)
+{
+  return U3C_DB_OPERATION_RESULT_ERROR;
+}

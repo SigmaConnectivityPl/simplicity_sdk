@@ -6,7 +6,9 @@ description: C SDK Definitions for Network Types.
 
 package: amazon_platform
 quality: production
-
+metadata:
+  sbom:
+    reference: iot_sbom_freertos_common
 provides:
   - name: iot_network_types
 

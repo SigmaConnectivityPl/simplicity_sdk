@@ -3,8 +3,8 @@
 The EFR32 Sleepy applications demonstrate Sleepy End Device behavior using the EFR32's low power EM2 mode.
 
 Note that a Sleepy End Device can be demonstrated in two ways.
-***sleepy-demo-mtd***:  Demonstrates Sleepy End Device (SED) behaviour with polling.
-***sleepy-demo-ssed***: Demonstrates Synchronous Sleepy End Device (SSED) behaviour with CSL.
+**_sleepy-demo-mtd_**: Demonstrates Sleepy End Device (SED) behaviour with polling.
+**_sleepy-demo-ssed_**: Demonstrates Synchronous Sleepy End Device (SSED) behaviour with CSL.
 
 The following are the steps to run the demo.
 
@@ -12,13 +12,15 @@ The following are the steps to run the demo.
 
 For demonstration purposes the network settings are hardcoded within the source files. The devices start Thread and form a network within a few seconds of powering on. In a real-life application the devices should implement and go through a commissioning process to create a network and add devices.
 
-When the ***sleepy-demo-ftd*** device is started, the CLI should show:
+When the **_sleepy-demo-ftd_** device is started, the CLI should show:
+
 ```
 sleepy-demo-ftd started
 sleepy-demo-ftd changed to leader
 ```
 
-When the ***sleepy-demo-mtd*** device is started, the CLI should show:
+When the **_sleepy-demo-mtd_** device is started, the CLI should show:
+
 ```
 sleepy-demo-mtd started
 [poll period: 2000 ms.]
@@ -37,7 +39,8 @@ Issue the command `child table` in the FTD console and observe that the R (Rx-on
 Done
 ```
 
-When the ***sleepy-demo-ssed*** device is started, the CLI should show:
+When the **_sleepy-demo-ssed_** device is started, the CLI should show:
+
 ```
 sleepy-demo-ssed started
 [csl period: 500000 us.] [csl timeout: 30 sec.]

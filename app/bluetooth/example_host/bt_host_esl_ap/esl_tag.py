@@ -634,7 +634,12 @@ class Tag():
                 for ix, (tlv, value) in enumerate(evt.tlv_data.items()):
                     if len(value) == 0: # According to the ESL Service Specification, none of the ESL Information Characteristics can be valid without data!
                         self.block(elw.ESL_LIB_STATUS_CONN_DISCOVERY_FAILED)
-                        self.log.error("ESL at address %s blocked due to invalid zero length characteristic data for TLV type %d at data index %d", self.ble_address, tlv, ix)
+                        self.log.error(
+                            "Tag at address %s blocked due to invalid zero length characteristic data for TLV type %d at data index %d",
+                            self.ble_address,
+                            tlv,
+                            ix,
+                        )
                         self.close_connection(force_close=True)
                 self.gatt_values.update(evt.tlv_data)
                 if elw.ESL_LIB_DATA_TYPE_GATT_PNP_ID in evt.tlv_data:
@@ -667,7 +672,12 @@ class Tag():
                     else:
                         self._associated = False
                 if self.provisioned:
-                    self.log.info("ESL Tag fully provisioned at address %s", self.ble_address)
+                    self.log.info(
+                        "Tag fully provisioned at address %s as ESL ID %d in group %d.",
+                        self.ble_address,
+                        self.esl_id,
+                        self.group_id,
+                    )
                 self.busy = False
         elif isinstance(evt, esl_lib.EventImageType):
             if evt.connection_handle == self.connection_handle:
@@ -702,7 +712,10 @@ class Tag():
                 if self.advertising:
                     if self.esl_state == EslState.SYNCHRONIZED:
                         self.log.warning(
-                            "ESL at address %s lost sync!", self.ble_address
+                            "ESL ID %d in group %d at address %s lost sync!",
+                            self.esl_id,
+                            self.group_id,
+                            self.ble_address,
                         )
                         self.reset()  # reset will clear _advertising state, too
                         self._advertising = True  # set _advertising back - since it is indeed advertising
@@ -714,7 +727,10 @@ class Tag():
             elif evt.lib_status == elw.ESL_LIB_STATUS_CONN_SUBSCRIBE_FAILED:
                 if evt.sl_status == elw.SL_STATUS_BT_ATT_CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_IMPROPERLY_CONFIGURED and not self.blocked:
                     self.block(evt.lib_status)
-                    self.log.error("ESL at address %s blocked due to violation of ESL Profile / Service specification!", self.ble_address)
+                    self.log.error(
+                        "Tag at address %s blocked due to violation of ESL Profile / Service specification!",
+                        self.ble_address,
+                    )
                 else:
                     self.log.warning("Failed subscription attempt to the ESL Control Point at address %s - connection will be terminated!", self.ble_address)
             elif evt.lib_status == elw.ESL_LIB_STATUS_CONN_FAILED:
@@ -735,8 +751,13 @@ class Tag():
                     self._past_timer.cancel()
                 self._past_initiated = False
                 self.connection_handle = None
-                if evt.data in [elw.ESL_LIB_CONNECTION_STATE_PAST_CLOSE_CONNECTION, elw.ESL_LIB_CONNECTION_STATE_PAST_INIT]:
-                    self.log.warning("ESL at address %s failed to sync!", self.ble_address)
+                if evt.data in [
+                    elw.ESL_LIB_CONNECTION_STATE_PAST_CLOSE_CONNECTION,
+                    elw.ESL_LIB_CONNECTION_STATE_PAST_INIT,
+                ]:
+                    self.log.warning(
+                        "Tag at address %s failed to sync!", self.ble_address
+                    )
                     self.reset()
             elif evt.lib_status == elw.ESL_LIB_STATUS_OTS_GOTO_FAILED:
                 if evt.sl_status == elw.SL_STATUS_NOT_FOUND:

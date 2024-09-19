@@ -3335,6 +3335,34 @@ typedef enum
 /** @} */ // end Event Type Flags of Advertisement Reports
 
 /**
+ * @addtogroup sl_bt_scanner_option_flags Option Flags to Specify Scanning Options
+ * @{
+ *
+ * Defines the scanning option flags that can be set with the command @ref
+ * sl_bt_scanner_set_parameters_and_filter.
+ */
+
+/**
+ *
+ * If the built-in bonding database is used (the component
+ * bluetooth_feature_builtin_bonding_database is included in the application),
+ * the scanner component by default tries to search for or resolve the
+ * advertiser addresses to find if a bonding has been created with the
+ * advertiser device. The bonding handle is then reported in the @p bonding
+ * field of @ref sl_bt_evt_scanner_legacy_advertisement_report and @ref
+ * sl_bt_evt_scanner_extended_advertisement_report events.
+ *
+ * If the application does not need the bonding information in advertisement
+ * reports, set this scanner option to disable the search for the bonding. When
+ * this option is set the @p bonding field in advertisement reports will always
+ * be set to SL_BT_INVALID_BONDING_HANDLE (0xff).
+ *
+ * */
+#define SL_BT_SCANNER_IGNORE_BONDING 0x1       
+
+/** @} */ // end Option Flags to Specify Scanning Options
+
+/**
  * @addtogroup sl_bt_evt_scanner_legacy_advertisement_report sl_bt_evt_scanner_legacy_advertisement_report
  * @{
  * @brief Reports an advertising data or scan response packet from an
@@ -3740,7 +3768,8 @@ sl_status_t sl_bt_scanner_set_parameters(uint8_t mode,
  *   Note that the packet reception is aborted if it's started just before the
  *   scan window ends.
  *   @endparblock
- * @param[in] flags No flags are currently defined. Set this parameter to 0.
+ * @param[in] flags Additional scanner options. Value: 0 or bitmask of @ref
+ *   sl_bt_scanner_option_flags.
  * @param[in] filter_policy @parblock
  *   Enum @ref sl_bt_scanner_filter_policy_t.
  *

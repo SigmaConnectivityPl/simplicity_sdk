@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Ip6 APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,66 +29,78 @@
  *
  ******************************************************************************/
 
-#include <openthread/ip6.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/ip6.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern bool OT_API_REAL_NAME(otIp6ArePrefixesEqual)(const otIp6Prefix * aFirst,const otIp6Prefix * aSecond);
-extern bool OT_API_REAL_NAME(otIp6HasUnicastAddress)(otInstance * aInstance,const otIp6Address * aAddress);
-extern bool OT_API_REAL_NAME(otIp6IsAddressEqual)(const otIp6Address * aFirst,const otIp6Address * aSecond);
-extern bool OT_API_REAL_NAME(otIp6IsAddressUnspecified)(const otIp6Address * aAddress);
-extern bool OT_API_REAL_NAME(otIp6IsEnabled)(otInstance * aInstance);
-extern bool OT_API_REAL_NAME(otIp6IsMulticastPromiscuousEnabled)(otInstance * aInstance);
-extern bool OT_API_REAL_NAME(otIp6IsReceiveFilterEnabled)(otInstance * aInstance);
-extern bool OT_API_REAL_NAME(otIp6IsSlaacEnabled)(otInstance * aInstance);
+extern bool        OT_API_REAL_NAME(otIp6ArePrefixesEqual)(const otIp6Prefix *aFirst, const otIp6Prefix *aSecond);
+extern bool        OT_API_REAL_NAME(otIp6HasUnicastAddress)(otInstance *aInstance, const otIp6Address *aAddress);
+extern bool        OT_API_REAL_NAME(otIp6IsAddressEqual)(const otIp6Address *aFirst, const otIp6Address *aSecond);
+extern bool        OT_API_REAL_NAME(otIp6IsAddressUnspecified)(const otIp6Address *aAddress);
+extern bool        OT_API_REAL_NAME(otIp6IsEnabled)(otInstance *aInstance);
+extern bool        OT_API_REAL_NAME(otIp6IsMulticastPromiscuousEnabled)(otInstance *aInstance);
+extern bool        OT_API_REAL_NAME(otIp6IsReceiveFilterEnabled)(otInstance *aInstance);
+extern bool        OT_API_REAL_NAME(otIp6IsSlaacEnabled)(otInstance *aInstance);
 extern const char *OT_API_REAL_NAME(otIp6ProtoToString)(uint8_t aIpProto);
-extern const otBorderRoutingCounters *OT_API_REAL_NAME(otIp6GetBorderRoutingCounters)(otInstance * aInstance);
-extern const otNetifAddress *OT_API_REAL_NAME(otIp6GetUnicastAddresses)(otInstance * aInstance);
-extern const otNetifMulticastAddress *OT_API_REAL_NAME(otIp6GetMulticastAddresses)(otInstance * aInstance);
-extern const uint16_t *OT_API_REAL_NAME(otIp6GetUnsecurePorts)(otInstance * aInstance,uint8_t * aNumEntries);
-extern otError OT_API_REAL_NAME(otIp6AddUnicastAddress)(otInstance * aInstance,const otNetifAddress * aAddress);
-extern otError OT_API_REAL_NAME(otIp6AddUnsecurePort)(otInstance * aInstance,uint16_t aPort);
-extern otError OT_API_REAL_NAME(otIp6AddressFromString)(const char * aString,otIp6Address * aAddress);
-extern otError OT_API_REAL_NAME(otIp6PrefixFromString)(const char * aString,otIp6Prefix * aPrefix);
-extern otError OT_API_REAL_NAME(otIp6RegisterMulticastListeners)(otInstance * aInstance,const otIp6Address * aAddresses,uint8_t aAddressNum,const uint32_t * aTimeout,otIp6RegisterMulticastListenersCallback aCallback,void * aContext);
-extern otError OT_API_REAL_NAME(otIp6RemoveUnicastAddress)(otInstance * aInstance,const otIp6Address * aAddress);
-extern otError OT_API_REAL_NAME(otIp6RemoveUnsecurePort)(otInstance * aInstance,uint16_t aPort);
-extern otError OT_API_REAL_NAME(otIp6SelectSourceAddress)(otInstance * aInstance,otMessageInfo * aMessageInfo);
-extern otError OT_API_REAL_NAME(otIp6Send)(otInstance * aInstance,otMessage * aMessage);
-extern otError OT_API_REAL_NAME(otIp6SetEnabled)(otInstance * aInstance,bool aEnabled);
-extern otError OT_API_REAL_NAME(otIp6SetMeshLocalIid)(otInstance * aInstance,const otIp6InterfaceIdentifier * aIid);
-extern otError OT_API_REAL_NAME(otIp6SubscribeMulticastAddress)(otInstance * aInstance,const otIp6Address * aAddress);
-extern otError OT_API_REAL_NAME(otIp6UnsubscribeMulticastAddress)(otInstance * aInstance,const otIp6Address * aAddress);
-extern otMessage *OT_API_REAL_NAME(otIp6NewMessage)(otInstance * aInstance,const otMessageSettings * aSettings);
-extern otMessage *OT_API_REAL_NAME(otIp6NewMessageFromBuffer)(otInstance * aInstance,const uint8_t * aData,uint16_t aDataLength,const otMessageSettings * aSettings);
-extern uint8_t OT_API_REAL_NAME(otIp6PrefixMatch)(const otIp6Address * aFirst,const otIp6Address * aSecond);
-extern void OT_API_REAL_NAME(otIp6AddressToString)(const otIp6Address * aAddress,char * aBuffer,uint16_t aSize);
-extern void OT_API_REAL_NAME(otIp6GetPrefix)(const otIp6Address * aAddress,uint8_t aLength,otIp6Prefix * aPrefix);
-extern void OT_API_REAL_NAME(otIp6PrefixToString)(const otIp6Prefix * aPrefix,char * aBuffer,uint16_t aSize);
-extern void OT_API_REAL_NAME(otIp6RemoveAllUnsecurePorts)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otIp6ResetBorderRoutingCounters)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otIp6SetAddressCallback)(otInstance * aInstance,otIp6AddressCallback aCallback,void * aCallbackContext);
-extern void OT_API_REAL_NAME(otIp6SetMulticastPromiscuousEnabled)(otInstance * aInstance,bool aEnabled);
-extern void OT_API_REAL_NAME(otIp6SetReceiveCallback)(otInstance * aInstance,otIp6ReceiveCallback aCallback,void * aCallbackContext);
-extern void OT_API_REAL_NAME(otIp6SetReceiveFilterEnabled)(otInstance * aInstance,bool aEnabled);
-extern void OT_API_REAL_NAME(otIp6SetSlaacEnabled)(otInstance * aInstance,bool aEnabled);
-extern void OT_API_REAL_NAME(otIp6SetSlaacPrefixFilter)(otInstance * aInstance,otIp6SlaacPrefixFilter aFilter);
-extern void OT_API_REAL_NAME(otIp6SockAddrToString)(const otSockAddr * aSockAddr,char * aBuffer,uint16_t aSize);
+extern const otBorderRoutingCounters *OT_API_REAL_NAME(otIp6GetBorderRoutingCounters)(otInstance *aInstance);
+extern const otNetifAddress          *OT_API_REAL_NAME(otIp6GetUnicastAddresses)(otInstance *aInstance);
+extern const otNetifMulticastAddress *OT_API_REAL_NAME(otIp6GetMulticastAddresses)(otInstance *aInstance);
+extern const uint16_t *OT_API_REAL_NAME(otIp6GetUnsecurePorts)(otInstance *aInstance, uint8_t *aNumEntries);
+extern otError         OT_API_REAL_NAME(otIp6AddUnicastAddress)(otInstance *aInstance, const otNetifAddress *aAddress);
+extern otError         OT_API_REAL_NAME(otIp6AddUnsecurePort)(otInstance *aInstance, uint16_t aPort);
+extern otError         OT_API_REAL_NAME(otIp6AddressFromString)(const char *aString, otIp6Address *aAddress);
+extern otError         OT_API_REAL_NAME(otIp6PrefixFromString)(const char *aString, otIp6Prefix *aPrefix);
+extern otError         OT_API_REAL_NAME(otIp6RegisterMulticastListeners)(otInstance                             *aInstance,
+                                                                 const otIp6Address                     *aAddresses,
+                                                                 uint8_t                                 aAddressNum,
+                                                                 const uint32_t                         *aTimeout,
+                                                                 otIp6RegisterMulticastListenersCallback aCallback,
+                                                                 void                                   *aContext);
+extern otError         OT_API_REAL_NAME(otIp6RemoveUnicastAddress)(otInstance *aInstance, const otIp6Address *aAddress);
+extern otError         OT_API_REAL_NAME(otIp6RemoveUnsecurePort)(otInstance *aInstance, uint16_t aPort);
+extern otError         OT_API_REAL_NAME(otIp6SelectSourceAddress)(otInstance *aInstance, otMessageInfo *aMessageInfo);
+extern otError         OT_API_REAL_NAME(otIp6Send)(otInstance *aInstance, otMessage *aMessage);
+extern otError         OT_API_REAL_NAME(otIp6SetEnabled)(otInstance *aInstance, bool aEnabled);
+extern otError OT_API_REAL_NAME(otIp6SetMeshLocalIid)(otInstance *aInstance, const otIp6InterfaceIdentifier *aIid);
+extern otError OT_API_REAL_NAME(otIp6SubscribeMulticastAddress)(otInstance *aInstance, const otIp6Address *aAddress);
+extern otError OT_API_REAL_NAME(otIp6UnsubscribeMulticastAddress)(otInstance *aInstance, const otIp6Address *aAddress);
+extern otMessage *OT_API_REAL_NAME(otIp6NewMessage)(otInstance *aInstance, const otMessageSettings *aSettings);
+extern otMessage *OT_API_REAL_NAME(otIp6NewMessageFromBuffer)(otInstance              *aInstance,
+                                                              const uint8_t           *aData,
+                                                              uint16_t                 aDataLength,
+                                                              const otMessageSettings *aSettings);
+extern uint8_t    OT_API_REAL_NAME(otIp6PrefixMatch)(const otIp6Address *aFirst, const otIp6Address *aSecond);
+extern void       OT_API_REAL_NAME(otIp6AddressToString)(const otIp6Address *aAddress, char *aBuffer, uint16_t aSize);
+extern void       OT_API_REAL_NAME(otIp6GetPrefix)(const otIp6Address *aAddress, uint8_t aLength, otIp6Prefix *aPrefix);
+extern void       OT_API_REAL_NAME(otIp6PrefixToString)(const otIp6Prefix *aPrefix, char *aBuffer, uint16_t aSize);
+extern void       OT_API_REAL_NAME(otIp6RemoveAllUnsecurePorts)(otInstance *aInstance);
+extern void       OT_API_REAL_NAME(otIp6ResetBorderRoutingCounters)(otInstance *aInstance);
+extern void       OT_API_REAL_NAME(otIp6SetAddressCallback)(otInstance          *aInstance,
+                                                      otIp6AddressCallback aCallback,
+                                                      void                *aCallbackContext);
+extern void       OT_API_REAL_NAME(otIp6SetMulticastPromiscuousEnabled)(otInstance *aInstance, bool aEnabled);
+extern void       OT_API_REAL_NAME(otIp6SetReceiveCallback)(otInstance          *aInstance,
+                                                      otIp6ReceiveCallback aCallback,
+                                                      void                *aCallbackContext);
+extern void       OT_API_REAL_NAME(otIp6SetReceiveFilterEnabled)(otInstance *aInstance, bool aEnabled);
+extern void       OT_API_REAL_NAME(otIp6SetSlaacEnabled)(otInstance *aInstance, bool aEnabled);
+extern void       OT_API_REAL_NAME(otIp6SetSlaacPrefixFilter)(otInstance *aInstance, otIp6SlaacPrefixFilter aFilter);
+extern void       OT_API_REAL_NAME(otIp6SockAddrToString)(const otSockAddr *aSockAddr, char *aBuffer, uint16_t aSize);
 
-bool OT_API_WRAPPER_NAME(otIp6ArePrefixesEqual)(const otIp6Prefix * aFirst,const otIp6Prefix * aSecond)
+bool OT_API_WRAPPER_NAME(otIp6ArePrefixesEqual)(const otIp6Prefix *aFirst, const otIp6Prefix *aSecond)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otIp6ArePrefixesEqual)(aFirst, aSecond);
@@ -96,7 +108,7 @@ bool OT_API_WRAPPER_NAME(otIp6ArePrefixesEqual)(const otIp6Prefix * aFirst,const
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otIp6HasUnicastAddress)(otInstance * aInstance,const otIp6Address * aAddress)
+bool OT_API_WRAPPER_NAME(otIp6HasUnicastAddress)(otInstance *aInstance, const otIp6Address *aAddress)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otIp6HasUnicastAddress)(aInstance, aAddress);
@@ -104,7 +116,7 @@ bool OT_API_WRAPPER_NAME(otIp6HasUnicastAddress)(otInstance * aInstance,const ot
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otIp6IsAddressEqual)(const otIp6Address * aFirst,const otIp6Address * aSecond)
+bool OT_API_WRAPPER_NAME(otIp6IsAddressEqual)(const otIp6Address *aFirst, const otIp6Address *aSecond)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otIp6IsAddressEqual)(aFirst, aSecond);
@@ -112,7 +124,7 @@ bool OT_API_WRAPPER_NAME(otIp6IsAddressEqual)(const otIp6Address * aFirst,const 
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otIp6IsAddressUnspecified)(const otIp6Address * aAddress)
+bool OT_API_WRAPPER_NAME(otIp6IsAddressUnspecified)(const otIp6Address *aAddress)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otIp6IsAddressUnspecified)(aAddress);
@@ -120,7 +132,7 @@ bool OT_API_WRAPPER_NAME(otIp6IsAddressUnspecified)(const otIp6Address * aAddres
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otIp6IsEnabled)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otIp6IsEnabled)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otIp6IsEnabled)(aInstance);
@@ -128,7 +140,7 @@ bool OT_API_WRAPPER_NAME(otIp6IsEnabled)(otInstance * aInstance)
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otIp6IsMulticastPromiscuousEnabled)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otIp6IsMulticastPromiscuousEnabled)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otIp6IsMulticastPromiscuousEnabled)(aInstance);
@@ -136,7 +148,7 @@ bool OT_API_WRAPPER_NAME(otIp6IsMulticastPromiscuousEnabled)(otInstance * aInsta
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otIp6IsReceiveFilterEnabled)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otIp6IsReceiveFilterEnabled)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otIp6IsReceiveFilterEnabled)(aInstance);
@@ -144,7 +156,7 @@ bool OT_API_WRAPPER_NAME(otIp6IsReceiveFilterEnabled)(otInstance * aInstance)
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otIp6IsSlaacEnabled)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otIp6IsSlaacEnabled)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otIp6IsSlaacEnabled)(aInstance);
@@ -160,7 +172,7 @@ const char *OT_API_WRAPPER_NAME(otIp6ProtoToString)(uint8_t aIpProto)
     return ret;
 }
 
-const otBorderRoutingCounters *OT_API_WRAPPER_NAME(otIp6GetBorderRoutingCounters)(otInstance * aInstance)
+const otBorderRoutingCounters *OT_API_WRAPPER_NAME(otIp6GetBorderRoutingCounters)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otBorderRoutingCounters *ret = OT_API_REAL_NAME(otIp6GetBorderRoutingCounters)(aInstance);
@@ -168,7 +180,7 @@ const otBorderRoutingCounters *OT_API_WRAPPER_NAME(otIp6GetBorderRoutingCounters
     return ret;
 }
 
-const otNetifAddress *OT_API_WRAPPER_NAME(otIp6GetUnicastAddresses)(otInstance * aInstance)
+const otNetifAddress *OT_API_WRAPPER_NAME(otIp6GetUnicastAddresses)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otNetifAddress *ret = OT_API_REAL_NAME(otIp6GetUnicastAddresses)(aInstance);
@@ -176,7 +188,7 @@ const otNetifAddress *OT_API_WRAPPER_NAME(otIp6GetUnicastAddresses)(otInstance *
     return ret;
 }
 
-const otNetifMulticastAddress *OT_API_WRAPPER_NAME(otIp6GetMulticastAddresses)(otInstance * aInstance)
+const otNetifMulticastAddress *OT_API_WRAPPER_NAME(otIp6GetMulticastAddresses)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otNetifMulticastAddress *ret = OT_API_REAL_NAME(otIp6GetMulticastAddresses)(aInstance);
@@ -184,7 +196,7 @@ const otNetifMulticastAddress *OT_API_WRAPPER_NAME(otIp6GetMulticastAddresses)(o
     return ret;
 }
 
-const uint16_t *OT_API_WRAPPER_NAME(otIp6GetUnsecurePorts)(otInstance * aInstance,uint8_t * aNumEntries)
+const uint16_t *OT_API_WRAPPER_NAME(otIp6GetUnsecurePorts)(otInstance *aInstance, uint8_t *aNumEntries)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const uint16_t *ret = OT_API_REAL_NAME(otIp6GetUnsecurePorts)(aInstance, aNumEntries);
@@ -192,7 +204,7 @@ const uint16_t *OT_API_WRAPPER_NAME(otIp6GetUnsecurePorts)(otInstance * aInstanc
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otIp6AddUnicastAddress)(otInstance * aInstance,const otNetifAddress * aAddress)
+otError OT_API_WRAPPER_NAME(otIp6AddUnicastAddress)(otInstance *aInstance, const otNetifAddress *aAddress)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otIp6AddUnicastAddress)(aInstance, aAddress);
@@ -200,7 +212,7 @@ otError OT_API_WRAPPER_NAME(otIp6AddUnicastAddress)(otInstance * aInstance,const
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otIp6AddUnsecurePort)(otInstance * aInstance,uint16_t aPort)
+otError OT_API_WRAPPER_NAME(otIp6AddUnsecurePort)(otInstance *aInstance, uint16_t aPort)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otIp6AddUnsecurePort)(aInstance, aPort);
@@ -208,7 +220,7 @@ otError OT_API_WRAPPER_NAME(otIp6AddUnsecurePort)(otInstance * aInstance,uint16_
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otIp6AddressFromString)(const char * aString,otIp6Address * aAddress)
+otError OT_API_WRAPPER_NAME(otIp6AddressFromString)(const char *aString, otIp6Address *aAddress)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otIp6AddressFromString)(aString, aAddress);
@@ -216,7 +228,7 @@ otError OT_API_WRAPPER_NAME(otIp6AddressFromString)(const char * aString,otIp6Ad
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otIp6PrefixFromString)(const char * aString,otIp6Prefix * aPrefix)
+otError OT_API_WRAPPER_NAME(otIp6PrefixFromString)(const char *aString, otIp6Prefix *aPrefix)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otIp6PrefixFromString)(aString, aPrefix);
@@ -224,15 +236,21 @@ otError OT_API_WRAPPER_NAME(otIp6PrefixFromString)(const char * aString,otIp6Pre
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otIp6RegisterMulticastListeners)(otInstance * aInstance,const otIp6Address * aAddresses,uint8_t aAddressNum,const uint32_t * aTimeout,otIp6RegisterMulticastListenersCallback aCallback,void * aContext)
+otError OT_API_WRAPPER_NAME(otIp6RegisterMulticastListeners)(otInstance                             *aInstance,
+                                                             const otIp6Address                     *aAddresses,
+                                                             uint8_t                                 aAddressNum,
+                                                             const uint32_t                         *aTimeout,
+                                                             otIp6RegisterMulticastListenersCallback aCallback,
+                                                             void                                   *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otIp6RegisterMulticastListeners)(aInstance, aAddresses, aAddressNum, aTimeout, aCallback, aContext);
+    otError ret = OT_API_REAL_NAME(
+        otIp6RegisterMulticastListeners)(aInstance, aAddresses, aAddressNum, aTimeout, aCallback, aContext);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otIp6RemoveUnicastAddress)(otInstance * aInstance,const otIp6Address * aAddress)
+otError OT_API_WRAPPER_NAME(otIp6RemoveUnicastAddress)(otInstance *aInstance, const otIp6Address *aAddress)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otIp6RemoveUnicastAddress)(aInstance, aAddress);
@@ -240,7 +258,7 @@ otError OT_API_WRAPPER_NAME(otIp6RemoveUnicastAddress)(otInstance * aInstance,co
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otIp6RemoveUnsecurePort)(otInstance * aInstance,uint16_t aPort)
+otError OT_API_WRAPPER_NAME(otIp6RemoveUnsecurePort)(otInstance *aInstance, uint16_t aPort)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otIp6RemoveUnsecurePort)(aInstance, aPort);
@@ -248,7 +266,7 @@ otError OT_API_WRAPPER_NAME(otIp6RemoveUnsecurePort)(otInstance * aInstance,uint
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otIp6SelectSourceAddress)(otInstance * aInstance,otMessageInfo * aMessageInfo)
+otError OT_API_WRAPPER_NAME(otIp6SelectSourceAddress)(otInstance *aInstance, otMessageInfo *aMessageInfo)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otIp6SelectSourceAddress)(aInstance, aMessageInfo);
@@ -256,7 +274,7 @@ otError OT_API_WRAPPER_NAME(otIp6SelectSourceAddress)(otInstance * aInstance,otM
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otIp6Send)(otInstance * aInstance,otMessage * aMessage)
+otError OT_API_WRAPPER_NAME(otIp6Send)(otInstance *aInstance, otMessage *aMessage)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otIp6Send)(aInstance, aMessage);
@@ -264,7 +282,7 @@ otError OT_API_WRAPPER_NAME(otIp6Send)(otInstance * aInstance,otMessage * aMessa
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otIp6SetEnabled)(otInstance * aInstance,bool aEnabled)
+otError OT_API_WRAPPER_NAME(otIp6SetEnabled)(otInstance *aInstance, bool aEnabled)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otIp6SetEnabled)(aInstance, aEnabled);
@@ -272,7 +290,7 @@ otError OT_API_WRAPPER_NAME(otIp6SetEnabled)(otInstance * aInstance,bool aEnable
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otIp6SetMeshLocalIid)(otInstance * aInstance,const otIp6InterfaceIdentifier * aIid)
+otError OT_API_WRAPPER_NAME(otIp6SetMeshLocalIid)(otInstance *aInstance, const otIp6InterfaceIdentifier *aIid)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otIp6SetMeshLocalIid)(aInstance, aIid);
@@ -280,7 +298,7 @@ otError OT_API_WRAPPER_NAME(otIp6SetMeshLocalIid)(otInstance * aInstance,const o
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otIp6SubscribeMulticastAddress)(otInstance * aInstance,const otIp6Address * aAddress)
+otError OT_API_WRAPPER_NAME(otIp6SubscribeMulticastAddress)(otInstance *aInstance, const otIp6Address *aAddress)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otIp6SubscribeMulticastAddress)(aInstance, aAddress);
@@ -288,7 +306,7 @@ otError OT_API_WRAPPER_NAME(otIp6SubscribeMulticastAddress)(otInstance * aInstan
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otIp6UnsubscribeMulticastAddress)(otInstance * aInstance,const otIp6Address * aAddress)
+otError OT_API_WRAPPER_NAME(otIp6UnsubscribeMulticastAddress)(otInstance *aInstance, const otIp6Address *aAddress)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otIp6UnsubscribeMulticastAddress)(aInstance, aAddress);
@@ -296,7 +314,7 @@ otError OT_API_WRAPPER_NAME(otIp6UnsubscribeMulticastAddress)(otInstance * aInst
     return ret;
 }
 
-otMessage *OT_API_WRAPPER_NAME(otIp6NewMessage)(otInstance * aInstance,const otMessageSettings * aSettings)
+otMessage *OT_API_WRAPPER_NAME(otIp6NewMessage)(otInstance *aInstance, const otMessageSettings *aSettings)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otMessage *ret = OT_API_REAL_NAME(otIp6NewMessage)(aInstance, aSettings);
@@ -304,7 +322,10 @@ otMessage *OT_API_WRAPPER_NAME(otIp6NewMessage)(otInstance * aInstance,const otM
     return ret;
 }
 
-otMessage *OT_API_WRAPPER_NAME(otIp6NewMessageFromBuffer)(otInstance * aInstance,const uint8_t * aData,uint16_t aDataLength,const otMessageSettings * aSettings)
+otMessage *OT_API_WRAPPER_NAME(otIp6NewMessageFromBuffer)(otInstance              *aInstance,
+                                                          const uint8_t           *aData,
+                                                          uint16_t                 aDataLength,
+                                                          const otMessageSettings *aSettings)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otMessage *ret = OT_API_REAL_NAME(otIp6NewMessageFromBuffer)(aInstance, aData, aDataLength, aSettings);
@@ -312,7 +333,7 @@ otMessage *OT_API_WRAPPER_NAME(otIp6NewMessageFromBuffer)(otInstance * aInstance
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otIp6PrefixMatch)(const otIp6Address * aFirst,const otIp6Address * aSecond)
+uint8_t OT_API_WRAPPER_NAME(otIp6PrefixMatch)(const otIp6Address *aFirst, const otIp6Address *aSecond)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otIp6PrefixMatch)(aFirst, aSecond);
@@ -320,87 +341,90 @@ uint8_t OT_API_WRAPPER_NAME(otIp6PrefixMatch)(const otIp6Address * aFirst,const 
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otIp6AddressToString)(const otIp6Address * aAddress,char * aBuffer,uint16_t aSize)
+void OT_API_WRAPPER_NAME(otIp6AddressToString)(const otIp6Address *aAddress, char *aBuffer, uint16_t aSize)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otIp6AddressToString)(aAddress, aBuffer, aSize);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otIp6GetPrefix)(const otIp6Address * aAddress,uint8_t aLength,otIp6Prefix * aPrefix)
+void OT_API_WRAPPER_NAME(otIp6GetPrefix)(const otIp6Address *aAddress, uint8_t aLength, otIp6Prefix *aPrefix)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otIp6GetPrefix)(aAddress, aLength, aPrefix);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otIp6PrefixToString)(const otIp6Prefix * aPrefix,char * aBuffer,uint16_t aSize)
+void OT_API_WRAPPER_NAME(otIp6PrefixToString)(const otIp6Prefix *aPrefix, char *aBuffer, uint16_t aSize)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otIp6PrefixToString)(aPrefix, aBuffer, aSize);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otIp6RemoveAllUnsecurePorts)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otIp6RemoveAllUnsecurePorts)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otIp6RemoveAllUnsecurePorts)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otIp6ResetBorderRoutingCounters)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otIp6ResetBorderRoutingCounters)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otIp6ResetBorderRoutingCounters)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otIp6SetAddressCallback)(otInstance * aInstance,otIp6AddressCallback aCallback,void * aCallbackContext)
+void OT_API_WRAPPER_NAME(otIp6SetAddressCallback)(otInstance          *aInstance,
+                                                  otIp6AddressCallback aCallback,
+                                                  void                *aCallbackContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otIp6SetAddressCallback)(aInstance, aCallback, aCallbackContext);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otIp6SetMulticastPromiscuousEnabled)(otInstance * aInstance,bool aEnabled)
+void OT_API_WRAPPER_NAME(otIp6SetMulticastPromiscuousEnabled)(otInstance *aInstance, bool aEnabled)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otIp6SetMulticastPromiscuousEnabled)(aInstance, aEnabled);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otIp6SetReceiveCallback)(otInstance * aInstance,otIp6ReceiveCallback aCallback,void * aCallbackContext)
+void OT_API_WRAPPER_NAME(otIp6SetReceiveCallback)(otInstance          *aInstance,
+                                                  otIp6ReceiveCallback aCallback,
+                                                  void                *aCallbackContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otIp6SetReceiveCallback)(aInstance, aCallback, aCallbackContext);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otIp6SetReceiveFilterEnabled)(otInstance * aInstance,bool aEnabled)
+void OT_API_WRAPPER_NAME(otIp6SetReceiveFilterEnabled)(otInstance *aInstance, bool aEnabled)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otIp6SetReceiveFilterEnabled)(aInstance, aEnabled);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otIp6SetSlaacEnabled)(otInstance * aInstance,bool aEnabled)
+void OT_API_WRAPPER_NAME(otIp6SetSlaacEnabled)(otInstance *aInstance, bool aEnabled)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otIp6SetSlaacEnabled)(aInstance, aEnabled);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otIp6SetSlaacPrefixFilter)(otInstance * aInstance,otIp6SlaacPrefixFilter aFilter)
+void OT_API_WRAPPER_NAME(otIp6SetSlaacPrefixFilter)(otInstance *aInstance, otIp6SlaacPrefixFilter aFilter)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otIp6SetSlaacPrefixFilter)(aInstance, aFilter);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otIp6SockAddrToString)(const otSockAddr * aSockAddr,char * aBuffer,uint16_t aSize)
+void OT_API_WRAPPER_NAME(otIp6SockAddrToString)(const otSockAddr *aSockAddr, char *aBuffer, uint16_t aSize)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otIp6SockAddrToString)(aSockAddr, aBuffer, aSize);
     sl_ot_rtos_release_stack_mutex();
 }
-

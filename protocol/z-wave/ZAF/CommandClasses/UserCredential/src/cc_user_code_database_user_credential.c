@@ -14,12 +14,26 @@
 /****************************************************************************/
 
 #include "CC_UserCode.h"
-#include "cc_user_code_io.h"
 #include "cc_user_credential_io.h"
+#include "cc_user_credential_config.h"
 #include "cc_user_credential_config_api.h"
 #include "cc_user_credential_io_config.h"
 #include <string.h>
 #include "assert.h"
+
+/****************************************************************************/
+/*                           STATIC PARAMETER CHECK                         */
+/****************************************************************************/
+
+// Ensure PIN slots are less or equal to 255 if User Code v1 is supported, CC:0083.01.00.21.015
+_Static_assert(CC_USER_CREDENTIAL_MAX_CREDENTIAL_SLOTS_PIN_CODE <= 255,
+               "PIN slots must be less or equal to 255 if User Code v1 is supported");
+
+// Ensure Duress and Disposable User Types must not be enabled if User Code v1 is supported, CC:0083.01.00.21.017
+_Static_assert(CC_USER_CREDENTIAL_USER_TYPE_SUPPORTED_DISPOSABLE == 0,
+               "Disposable User Type must not be enabled if User Code v1 is supported");
+_Static_assert(CC_USER_CREDENTIAL_USER_TYPE_SUPPORTED_DURESS == 0,
+               "Disposable User Type must not be enabled if User Code v1 is supported");
 
 /****************************************************************************/
 /*                           FORWARD DECLARATIONS                           */
@@ -83,13 +97,16 @@ static bool set_user_code(
   u3c_user existing_user = { 0 };
   user_found = CC_UserCredential_get_user(user_identifier, &existing_user, NULL)
                == U3C_DB_OPERATION_RESULT_SUCCESS;
+  u3c_modifier_type modifier_type = (modifier_node_id == 0)
+                                    ? MODIFIER_TYPE_LOCALLY
+                                    : MODIFIER_TYPE_Z_WAVE;
   if (!credential_found && !user_found) {
     // Add a new User with the same UUID as the User Identifier
     uint8_t name[U3C_BUFFER_SIZE_USER_NAME];
     u3c_user user = {
       .unique_identifier = user_identifier,
       .type = USER_TYPE_GENERAL,
-      .modifier_type = MODIFIER_TYPE_Z_WAVE,
+      .modifier_type = modifier_type,
       .modifier_node_id = modifier_node_id,
       .credential_rule = CREDENTIAL_RULE_SINGLE,
       .active = true,
@@ -107,7 +124,7 @@ static bool set_user_code(
     .data = pUserCode,
     .metadata = {
       .length = len,
-      .modifier_type = MODIFIER_TYPE_Z_WAVE,
+      .modifier_type = modifier_type,
       .modifier_node_id = modifier_node_id,
       .uuid = user_found ? existing_user.unique_identifier : user_identifier,
       .type = CREDENTIAL_TYPE_PIN_CODE,
@@ -275,6 +292,30 @@ e_cmd_handler_return_code_t CC_UserCode_Set_handler(
 void CC_UserCode_reset_data(void)
 {
   // The database is handled by the User Credential Command Class.
+}
+
+/**
+ * @brief Set the default user code to a new value.
+ *
+ * @param[in] new_user_code The new user code.
+ */
+void CC_UserCode_set_usercode(char * new_user_code)
+{
+  const uint16_t user_identifier = 1;
+  bool credential_found =
+    CC_UserCredential_get_credential(
+      0, CREDENTIAL_TYPE_PIN_CODE, user_identifier, NULL, NULL)
+    == U3C_DB_OPERATION_RESULT_SUCCESS;
+  uint8_t length = (uint8_t)strnlen(new_user_code,
+                                    cc_user_credential_get_max_length_of_data(
+                                      CREDENTIAL_TYPE_PIN_CODE));
+
+  if (!set_user_code(user_identifier, (uint8_t *)new_user_code, length,
+                     0, credential_found)
+      ) {
+    // Could not set the new user code
+    assert(false);
+  }
 }
 
 bool CC_UserCode_Validate(uint8_t identifier, const uint8_t *pCode, uint8_t len)

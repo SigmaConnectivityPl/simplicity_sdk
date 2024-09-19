@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Mesh Diag APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,32 +29,50 @@
  *
  ******************************************************************************/
 
-#include <openthread/mesh_diag.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/mesh_diag.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern otError OT_API_REAL_NAME(otMeshDiagDiscoverTopology)(otInstance * aInstance,const otMeshDiagDiscoverConfig * aConfig,otMeshDiagDiscoverCallback aCallback,void * aContext);
-extern otError OT_API_REAL_NAME(otMeshDiagGetNextChildInfo)(otMeshDiagChildIterator * aIterator,otMeshDiagChildInfo * aChildInfo);
-extern otError OT_API_REAL_NAME(otMeshDiagGetNextIp6Address)(otMeshDiagIp6AddrIterator * aIterator,otIp6Address * aIp6Address);
-extern otError OT_API_REAL_NAME(otMeshDiagQueryChildTable)(otInstance * aInstance,uint16_t aRloc16,otMeshDiagQueryChildTableCallback aCallback,void * aContext);
-extern otError OT_API_REAL_NAME(otMeshDiagQueryChildrenIp6Addrs)(otInstance * aInstance,uint16_t aRloc16,otMeshDiagChildIp6AddrsCallback aCallback,void * aContext);
-extern otError OT_API_REAL_NAME(otMeshDiagQueryRouterNeighborTable)(otInstance * aInstance,uint16_t aRloc16,otMeshDiagQueryRouterNeighborTableCallback aCallback,void * aContext);
-extern void OT_API_REAL_NAME(otMeshDiagCancel)(otInstance * aInstance);
+extern otError OT_API_REAL_NAME(otMeshDiagDiscoverTopology)(otInstance                     *aInstance,
+                                                            const otMeshDiagDiscoverConfig *aConfig,
+                                                            otMeshDiagDiscoverCallback      aCallback,
+                                                            void                           *aContext);
+extern otError OT_API_REAL_NAME(otMeshDiagGetNextChildInfo)(otMeshDiagChildIterator *aIterator,
+                                                            otMeshDiagChildInfo     *aChildInfo);
+extern otError OT_API_REAL_NAME(otMeshDiagGetNextIp6Address)(otMeshDiagIp6AddrIterator *aIterator,
+                                                             otIp6Address              *aIp6Address);
+extern otError OT_API_REAL_NAME(otMeshDiagQueryChildTable)(otInstance                       *aInstance,
+                                                           uint16_t                          aRloc16,
+                                                           otMeshDiagQueryChildTableCallback aCallback,
+                                                           void                             *aContext);
+extern otError OT_API_REAL_NAME(otMeshDiagQueryChildrenIp6Addrs)(otInstance                     *aInstance,
+                                                                 uint16_t                        aRloc16,
+                                                                 otMeshDiagChildIp6AddrsCallback aCallback,
+                                                                 void                           *aContext);
+extern otError OT_API_REAL_NAME(otMeshDiagQueryRouterNeighborTable)(
+    otInstance                                *aInstance,
+    uint16_t                                   aRloc16,
+    otMeshDiagQueryRouterNeighborTableCallback aCallback,
+    void                                      *aContext);
+extern void OT_API_REAL_NAME(otMeshDiagCancel)(otInstance *aInstance);
 
-otError OT_API_WRAPPER_NAME(otMeshDiagDiscoverTopology)(otInstance * aInstance,const otMeshDiagDiscoverConfig * aConfig,otMeshDiagDiscoverCallback aCallback,void * aContext)
+otError OT_API_WRAPPER_NAME(otMeshDiagDiscoverTopology)(otInstance                     *aInstance,
+                                                        const otMeshDiagDiscoverConfig *aConfig,
+                                                        otMeshDiagDiscoverCallback      aCallback,
+                                                        void                           *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otMeshDiagDiscoverTopology)(aInstance, aConfig, aCallback, aContext);
@@ -62,7 +80,8 @@ otError OT_API_WRAPPER_NAME(otMeshDiagDiscoverTopology)(otInstance * aInstance,c
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otMeshDiagGetNextChildInfo)(otMeshDiagChildIterator * aIterator,otMeshDiagChildInfo * aChildInfo)
+otError OT_API_WRAPPER_NAME(otMeshDiagGetNextChildInfo)(otMeshDiagChildIterator *aIterator,
+                                                        otMeshDiagChildInfo     *aChildInfo)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otMeshDiagGetNextChildInfo)(aIterator, aChildInfo);
@@ -70,7 +89,8 @@ otError OT_API_WRAPPER_NAME(otMeshDiagGetNextChildInfo)(otMeshDiagChildIterator 
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otMeshDiagGetNextIp6Address)(otMeshDiagIp6AddrIterator * aIterator,otIp6Address * aIp6Address)
+otError OT_API_WRAPPER_NAME(otMeshDiagGetNextIp6Address)(otMeshDiagIp6AddrIterator *aIterator,
+                                                         otIp6Address              *aIp6Address)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otMeshDiagGetNextIp6Address)(aIterator, aIp6Address);
@@ -78,7 +98,10 @@ otError OT_API_WRAPPER_NAME(otMeshDiagGetNextIp6Address)(otMeshDiagIp6AddrIterat
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otMeshDiagQueryChildTable)(otInstance * aInstance,uint16_t aRloc16,otMeshDiagQueryChildTableCallback aCallback,void * aContext)
+otError OT_API_WRAPPER_NAME(otMeshDiagQueryChildTable)(otInstance                       *aInstance,
+                                                       uint16_t                          aRloc16,
+                                                       otMeshDiagQueryChildTableCallback aCallback,
+                                                       void                             *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otMeshDiagQueryChildTable)(aInstance, aRloc16, aCallback, aContext);
@@ -86,7 +109,10 @@ otError OT_API_WRAPPER_NAME(otMeshDiagQueryChildTable)(otInstance * aInstance,ui
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otMeshDiagQueryChildrenIp6Addrs)(otInstance * aInstance,uint16_t aRloc16,otMeshDiagChildIp6AddrsCallback aCallback,void * aContext)
+otError OT_API_WRAPPER_NAME(otMeshDiagQueryChildrenIp6Addrs)(otInstance                     *aInstance,
+                                                             uint16_t                        aRloc16,
+                                                             otMeshDiagChildIp6AddrsCallback aCallback,
+                                                             void                           *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otMeshDiagQueryChildrenIp6Addrs)(aInstance, aRloc16, aCallback, aContext);
@@ -94,7 +120,10 @@ otError OT_API_WRAPPER_NAME(otMeshDiagQueryChildrenIp6Addrs)(otInstance * aInsta
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otMeshDiagQueryRouterNeighborTable)(otInstance * aInstance,uint16_t aRloc16,otMeshDiagQueryRouterNeighborTableCallback aCallback,void * aContext)
+otError OT_API_WRAPPER_NAME(otMeshDiagQueryRouterNeighborTable)(otInstance                                *aInstance,
+                                                                uint16_t                                   aRloc16,
+                                                                otMeshDiagQueryRouterNeighborTableCallback aCallback,
+                                                                void                                      *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otMeshDiagQueryRouterNeighborTable)(aInstance, aRloc16, aCallback, aContext);
@@ -102,10 +131,9 @@ otError OT_API_WRAPPER_NAME(otMeshDiagQueryRouterNeighborTable)(otInstance * aIn
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otMeshDiagCancel)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otMeshDiagCancel)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otMeshDiagCancel)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
-

@@ -32,6 +32,10 @@ config_file:
   directory: rail
   condition:
   - brd4270b
+- path: platform/radio/radio_configuration/WiSUN/brd_wisun_singlephy/device_sdid_220/NA_1_1b/radio_settings.radioconf
+  directory: rail
+  condition:
+  - brd4276a
 - path: platform/radio/radio_configuration/WiSUN/brd_wisun_singlephy/device_sdid_235/NA_1_1b/radio_settings.radioconf
   directory: rail
   condition:

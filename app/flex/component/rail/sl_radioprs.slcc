@@ -11,14 +11,19 @@ instantiable:
   prefix: inst
 root_path: app/flex/component/rail/sl_radioprs
 config_file:
-  - path: "config/s2/xg21/sl_radioprs_{{instance}}_config.h"
+  - path: "config/s2/xg21/sl_radioprs_config_{{instance}}.h"
     condition: [ 'device_sdid_200' ]
-  - path: "config/s2/sl_radioprs_{{instance}}_config.h"
+    file_id: sl_radioprs_config
+  - path: "config/s2/sl_radioprs_config_{{instance}}.h"
     condition: [ 'device_series_2' ]
     unless: [ 'device_sdid_200' ]
+    file_id: sl_radioprs_config
 template_file:
   - path: template/s2/sl_radioprs_init_instances.c.jinja
     condition: [ 'device_series_2' ]
+    unless: ['clock_manager_device_init']
+  - path: template/s2_clock_manager/sl_radioprs_init_instances.c.jinja
+    condition: [ 'device_series_2', 'clock_manager_device_init' ]
   - path: template/sl_radioprs_init_instances.h.jinja
 template_contribution:
   - name: radioprs_instances
@@ -35,4 +40,3 @@ provides:
 requires:
   - name: "emlib_prs"
   - name: "emlib_gpio"
-  - name: "clock_manager_device_init"

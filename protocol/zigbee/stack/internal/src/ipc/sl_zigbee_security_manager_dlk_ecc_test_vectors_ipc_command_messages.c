@@ -77,11 +77,9 @@ sl_status_t sl_zigbee_sec_man_ecc_init_with_test_vector(sl_zigbee_sec_man_dlk_ec
     msg.data.sec_man_ecc_init_with_test_vector.request.config = *config;
   }
 
-  if ((16) > (16)) {
-    assert(false); // "vector psk length exceeds expected maximum
+  if (psk != NULL) {
+    memmove(msg.data.sec_man_ecc_init_with_test_vector.request.psk, psk, sizeof(uint8_t) * (16));
   }
-
-  memmove(msg.data.sec_man_ecc_init_with_test_vector.request.psk, psk, sizeof(uint8_t) * (16));
 
   if (vector_data != NULL) {
     msg.data.sec_man_ecc_init_with_test_vector.request.vector_data = *vector_data;
@@ -97,11 +95,9 @@ sl_status_t sl_zigbee_sec_man_ecc_init_with_test_vector(sl_zigbee_sec_man_dlk_ec
     *config = msg.data.sec_man_ecc_init_with_test_vector.request.config;
   }
 
-  if ((16) > (16)) {
-    assert(false); // "vector psk length exceeds expected maximum
+  if (psk != NULL) {
+    memmove(psk, msg.data.sec_man_ecc_init_with_test_vector.request.psk, sizeof(uint8_t) * (16));
   }
-
-  memmove(psk, msg.data.sec_man_ecc_init_with_test_vector.request.psk, sizeof(uint8_t) * (16));
 
   if (vector_data != NULL) {
     *vector_data = msg.data.sec_man_ecc_init_with_test_vector.request.vector_data;

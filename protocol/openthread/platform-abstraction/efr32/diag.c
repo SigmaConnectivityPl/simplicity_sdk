@@ -65,10 +65,10 @@
 #include "sl_rail_util_ant_div.h"
 #endif
 
-#define GPIO_PIN_BITMASK    0xFFFFUL
-#define GPIO_PORT_BITMASK   (0xFFFFUL << 16)
-#define GET_GPIO_PIN(x)     (x & GPIO_PIN_BITMASK)
-#define GET_GPIO_PORT(x)    ((x & GPIO_PORT_BITMASK) >> 16)
+#define GPIO_PIN_BITMASK 0xFFFFUL
+#define GPIO_PORT_BITMASK (0xFFFFUL << 16)
+#define GET_GPIO_PIN(x) (x & GPIO_PIN_BITMASK)
+#define GET_GPIO_PORT(x) ((x & GPIO_PORT_BITMASK) >> 16)
 
 // To cache the transmit power, so that we don't override it while loading the
 // channel config or setting the channel.
@@ -309,8 +309,8 @@ void otPlatDiagChannelSet(uint8_t aChannel)
     RAIL_Status_t status;
 
     RAIL_SchedulerInfo_t bgRxSchedulerInfo = {
-    .priority = RADIO_SCHEDULER_BACKGROUND_RX_PRIORITY,
-    // sliptime/transaction time is not used for bg rx
+        .priority = RADIO_SCHEDULER_BACKGROUND_RX_PRIORITY,
+        // sliptime/transaction time is not used for bg rx
     };
 
     error = efr32RadioLoadChannelConfig(aChannel, sTxPower);
@@ -346,8 +346,8 @@ void otPlatDiagAlarmCallback(otInstance *aInstance)
 static otError getGpioPortAndPin(uint32_t aGpio, uint16_t *aPort, uint16_t *aPin)
 {
     otError error = OT_ERROR_NONE;
-    *aPort = GET_GPIO_PORT(aGpio);
-    *aPin = GET_GPIO_PIN(aGpio);
+    *aPort        = GET_GPIO_PORT(aGpio);
+    *aPin         = GET_GPIO_PIN(aGpio);
 
     if (*aPort > GPIO_PORT_MAX || *aPin > GPIO_PIN_MAX)
     {
@@ -360,7 +360,7 @@ exit:
 
 otError otPlatDiagGpioSet(uint32_t aGpio, bool aValue)
 {
-    otError error;
+    otError  error;
     uint16_t port;
     uint16_t pin;
 
@@ -375,13 +375,13 @@ otError otPlatDiagGpioSet(uint32_t aGpio, bool aValue)
         GPIO_PinOutClear((GPIO_Port_TypeDef)port, pin);
     }
 
-  exit:
-      return error;
+exit:
+    return error;
 }
 
 otError otPlatDiagGpioGet(uint32_t aGpio, bool *aValue)
 {
-    otError error;
+    otError  error;
     uint16_t port;
     uint16_t pin;
 
@@ -395,15 +395,14 @@ exit:
 
 otError otPlatDiagGpioSetMode(uint32_t aGpio, otGpioMode aMode)
 {
-    otError error;
-    uint16_t port;
-    uint16_t pin;
+    otError           error;
+    uint16_t          port;
+    uint16_t          pin;
     GPIO_Mode_TypeDef mode;
 
     SuccessOrExit(error = getGpioPortAndPin(aGpio, &port, &pin));
 
     mode = (aMode == OT_GPIO_MODE_INPUT) ? gpioModeInput : gpioModePushPull;
-
 
     GPIO_PinModeSet((GPIO_Port_TypeDef)port, pin, mode, 0 /*out*/);
 
@@ -413,19 +412,18 @@ exit:
 
 otError otPlatDiagGpioGetMode(uint32_t aGpio, otGpioMode *aMode)
 {
-    otError error;
-    uint16_t port;
-    uint16_t pin;
+    otError           error;
+    uint16_t          port;
+    uint16_t          pin;
     GPIO_Mode_TypeDef mode;
 
     SuccessOrExit(error = getGpioPortAndPin(aGpio, &port, &pin));
 
-    mode = GPIO_PinModeGet((GPIO_Port_TypeDef) port, pin);
+    mode = GPIO_PinModeGet((GPIO_Port_TypeDef)port, pin);
 
     *aMode = (mode == gpioModeInput) ? OT_GPIO_MODE_INPUT : OT_GPIO_MODE_OUTPUT;
 
 exit:
     return error;
-
 }
 #endif // OPENTHREAD_CONFIG_DIAG_ENABLE

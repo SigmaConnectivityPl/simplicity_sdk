@@ -47,5 +47,8 @@ typedef enum {
   act_subscribe_result
 } action_t;
 
+/// The default PDU size if 27 bytes according to the Core Specification
+#define THROUGHPUT_DEFAULT_PDU_SIZE 27u
+
 /** @} (end addtogroup throughput) */
 #endif // THROUGHPUT_COMMON_H

@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<api device_id="4" device_name="bt" version="8.1.0">
+<api device_id="4" device_name="bt" version="8.2.0">
     <datatypes>
         <datatype base="uint16" name="errorcode" length="2"/>
         <datatype base="int16" name="int16" length="2"/>
@@ -774,6 +774,9 @@
             <define name="event_flag_scannable" value="0x2"/>
             <define name="event_flag_directed" value="0x4"/>
             <define name="event_flag_scan_response" value="0x8"/>
+        </defines>
+        <defines name="option_flags">
+            <define name="ignore_bonding" value="0x1"/>
         </defines>
     </class>
     <class index="66" name="sync">

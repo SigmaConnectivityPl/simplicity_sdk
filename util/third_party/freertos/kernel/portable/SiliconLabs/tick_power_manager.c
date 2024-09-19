@@ -131,14 +131,14 @@ static void sli_schedule_wakeup_timer_expire_handler(sl_sleeptimer_timer_handle_
     bool sched = false;
 
     /* Increment the RTOS tick. */
-    while ((current_tick_count - last_update_lftick) > lfticks_per_os_ticks) {
+    while ((current_tick_count - last_update_lftick) >= lfticks_per_os_ticks) {
       sched |= xTaskIncrementTick();
-      last_update_lftick+= lfticks_per_os_ticks;
+      last_update_lftick += lfticks_per_os_ticks;
     }
 
-    if( sched != pdFALSE ) {
+    if ( sched != pdFALSE ) {
       /* A context switch is required.  Context switching is performed in
-      the PendSV interrupt.  Pend the PendSV interrupt. */
+         the PendSV interrupt.  Pend the PendSV interrupt. */
       portYIELD();
     }
 

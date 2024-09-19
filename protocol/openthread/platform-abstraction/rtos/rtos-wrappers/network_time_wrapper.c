@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Network Time APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,31 +29,33 @@
  *
  ******************************************************************************/
 
-#include <openthread/network_time.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/network_time.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern otError OT_API_REAL_NAME(otNetworkTimeSetSyncPeriod)(otInstance * aInstance,uint16_t aTimeSyncPeriod);
-extern otError OT_API_REAL_NAME(otNetworkTimeSetXtalThreshold)(otInstance * aInstance,uint16_t aXTALThreshold);
-extern otNetworkTimeStatus OT_API_REAL_NAME(otNetworkTimeGet)(otInstance * aInstance,uint64_t * aNetworkTime);
-extern uint16_t OT_API_REAL_NAME(otNetworkTimeGetSyncPeriod)(otInstance * aInstance);
-extern uint16_t OT_API_REAL_NAME(otNetworkTimeGetXtalThreshold)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otNetworkTimeSyncSetCallback)(otInstance * aInstance,otNetworkTimeSyncCallbackFn aCallbackFn,void * aCallbackContext);
+extern otError OT_API_REAL_NAME(otNetworkTimeSetSyncPeriod)(otInstance *aInstance, uint16_t aTimeSyncPeriod);
+extern otError OT_API_REAL_NAME(otNetworkTimeSetXtalThreshold)(otInstance *aInstance, uint16_t aXTALThreshold);
+extern otNetworkTimeStatus OT_API_REAL_NAME(otNetworkTimeGet)(otInstance *aInstance, uint64_t *aNetworkTime);
+extern uint16_t            OT_API_REAL_NAME(otNetworkTimeGetSyncPeriod)(otInstance *aInstance);
+extern uint16_t            OT_API_REAL_NAME(otNetworkTimeGetXtalThreshold)(otInstance *aInstance);
+extern void                OT_API_REAL_NAME(otNetworkTimeSyncSetCallback)(otInstance                 *aInstance,
+                                                           otNetworkTimeSyncCallbackFn aCallbackFn,
+                                                           void                       *aCallbackContext);
 
-otError OT_API_WRAPPER_NAME(otNetworkTimeSetSyncPeriod)(otInstance * aInstance,uint16_t aTimeSyncPeriod)
+otError OT_API_WRAPPER_NAME(otNetworkTimeSetSyncPeriod)(otInstance *aInstance, uint16_t aTimeSyncPeriod)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otNetworkTimeSetSyncPeriod)(aInstance, aTimeSyncPeriod);
@@ -61,7 +63,7 @@ otError OT_API_WRAPPER_NAME(otNetworkTimeSetSyncPeriod)(otInstance * aInstance,u
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otNetworkTimeSetXtalThreshold)(otInstance * aInstance,uint16_t aXTALThreshold)
+otError OT_API_WRAPPER_NAME(otNetworkTimeSetXtalThreshold)(otInstance *aInstance, uint16_t aXTALThreshold)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otNetworkTimeSetXtalThreshold)(aInstance, aXTALThreshold);
@@ -69,7 +71,7 @@ otError OT_API_WRAPPER_NAME(otNetworkTimeSetXtalThreshold)(otInstance * aInstanc
     return ret;
 }
 
-otNetworkTimeStatus OT_API_WRAPPER_NAME(otNetworkTimeGet)(otInstance * aInstance,uint64_t * aNetworkTime)
+otNetworkTimeStatus OT_API_WRAPPER_NAME(otNetworkTimeGet)(otInstance *aInstance, uint64_t *aNetworkTime)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otNetworkTimeStatus ret = OT_API_REAL_NAME(otNetworkTimeGet)(aInstance, aNetworkTime);
@@ -77,7 +79,7 @@ otNetworkTimeStatus OT_API_WRAPPER_NAME(otNetworkTimeGet)(otInstance * aInstance
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otNetworkTimeGetSyncPeriod)(otInstance * aInstance)
+uint16_t OT_API_WRAPPER_NAME(otNetworkTimeGetSyncPeriod)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otNetworkTimeGetSyncPeriod)(aInstance);
@@ -85,7 +87,7 @@ uint16_t OT_API_WRAPPER_NAME(otNetworkTimeGetSyncPeriod)(otInstance * aInstance)
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otNetworkTimeGetXtalThreshold)(otInstance * aInstance)
+uint16_t OT_API_WRAPPER_NAME(otNetworkTimeGetXtalThreshold)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otNetworkTimeGetXtalThreshold)(aInstance);
@@ -93,10 +95,11 @@ uint16_t OT_API_WRAPPER_NAME(otNetworkTimeGetXtalThreshold)(otInstance * aInstan
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otNetworkTimeSyncSetCallback)(otInstance * aInstance,otNetworkTimeSyncCallbackFn aCallbackFn,void * aCallbackContext)
+void OT_API_WRAPPER_NAME(otNetworkTimeSyncSetCallback)(otInstance                 *aInstance,
+                                                       otNetworkTimeSyncCallbackFn aCallbackFn,
+                                                       void                       *aCallbackContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otNetworkTimeSyncSetCallback)(aInstance, aCallbackFn, aCallbackContext);
     sl_ot_rtos_release_stack_mutex();
 }
-

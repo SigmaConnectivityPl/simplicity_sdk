@@ -101,8 +101,9 @@ extern "C" {
 #define SLI_ALIGN_ROUND_DOWN(num, align) ((num) & ~((align) - 1))
 
 // Macros to convert block length in different units (bytes, double words).
+// Byte to word will round up to account for extra bytes.
 #define SLI_BLOCK_LEN_DWORD_TO_BYTE(len) ((len) * SLI_WORD_SIZE_64)
-#define SLI_BLOCK_LEN_BYTE_TO_DWORD(len) ((len) / SLI_WORD_SIZE_64)
+#define SLI_BLOCK_LEN_BYTE_TO_DWORD(len) ((len + SLI_WORD_SIZE_64 - 1) / SLI_WORD_SIZE_64)
 
 // Macro to test address given a specified data alignment.
 #define SLI_ADDR_IS_ALIGNED(ptr, align_byte)   (((uintptr_t)(const void *)(ptr)) % (align_byte) == 0)
@@ -220,6 +221,21 @@ void *sli_memory_get_longterm_head_ptr(void);
  * @return    Pointer to first free short-term block.
  ******************************************************************************/
 void *sli_memory_get_shortterm_head_ptr(void);
+
+/***************************************************************************//**
+ * Update free lists heads (short and long terms)
+ *
+ * @param[in]  free_head  Block from where to start searching or next free block.
+ *
+ * @param[in]  condition_block  Block condition to check if update is necessary
+ *             or not.
+ *
+ * @param[in]  search  Boolean condition to check if searching the heap for a free
+ *                     block is necessary.
+ ******************************************************************************/
+void sli_update_free_list_heads(sli_block_metadata_t *free_head,
+                                const sli_block_metadata_t *condition_block,
+                                bool search);
 
 #ifdef SLI_MEMORY_MANAGER_ENABLE_TEST_UTILITIES
 /***************************************************************************//**

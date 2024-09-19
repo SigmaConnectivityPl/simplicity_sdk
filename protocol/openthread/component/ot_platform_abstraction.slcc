@@ -42,8 +42,6 @@ toolchain_settings:
   - option: gcc_compiler_option
     value: "-Werror=unused-label"
   - option: gcc_compiler_option
-    value: "-Werror=unused-parameter"
-  - option: gcc_compiler_option
     value: "-Werror=unused-variable"
   - option: preinclude
     value: sl_openthread_rtos_config.h

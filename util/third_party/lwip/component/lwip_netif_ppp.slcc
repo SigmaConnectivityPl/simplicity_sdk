@@ -75,3 +75,13 @@ include:
     - path: netif/ppp/pppos.h
     - path: netif/ppp/upap.h
     - path: netif/ppp/vj.h
+metadata:
+  sbom:
+    license: BSD-3-Clause
+    upstream:
+      name: lwip
+      version: 2.1.2
+      supplier: lwIP Developers
+      url: https://savannah.nongnu.org/projects/lwip/
+      package_url: https://github.com/lwip-tcpip/lwip/
+      comment: lwIP is a small independent implementation of the TCP/IP protocol suite.

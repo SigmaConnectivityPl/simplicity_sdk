@@ -40,7 +40,6 @@ requires:
   - name: ot_sbom_tcplp
 recommends:
   - id: ot_platform_abstraction_source
-  - id: ot_rtos_wrappers_real
 ui_hints:
   visibility: never
 include:

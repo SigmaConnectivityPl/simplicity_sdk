@@ -101,3 +101,4 @@ upgrade:
         replacement: REMOVED_MACRO
       - script: protocol/zigbee/component/scripts/upgrade_gp_table_token_size.lua
       - script: protocol/zigbee/component/scripts/upgrade_remove_packet_buffer_count.lua
+      - script: protocol/zigbee/component/scripts/zigbee_gsdk_to_sisdk_compatibility.lua

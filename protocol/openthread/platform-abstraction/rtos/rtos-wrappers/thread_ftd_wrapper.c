@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Thread Ftd APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,79 +29,99 @@
  *
  ******************************************************************************/
 
-#include <openthread/thread_ftd.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/thread_ftd.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern bool OT_API_REAL_NAME(otThreadIsRouterEligible)(otInstance * aInstance);
-extern bool OT_API_REAL_NAME(otThreadIsRouterIdAllocated)(otInstance * aInstance,uint8_t aRouterId);
-extern bool OT_API_REAL_NAME(otThreadIsTmfOriginFilterEnabled)(otInstance * aInstance);
-extern const otDeviceProperties *OT_API_REAL_NAME(otThreadGetDeviceProperties)(otInstance * aInstance);
-extern int8_t OT_API_REAL_NAME(otThreadGetParentPriority)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otThreadBecomeLeader)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otThreadBecomeRouter)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otThreadGetChildInfoById)(otInstance * aInstance,uint16_t aChildId,otChildInfo * aChildInfo);
-extern otError OT_API_REAL_NAME(otThreadGetChildInfoByIndex)(otInstance * aInstance,uint16_t aChildIndex,otChildInfo * aChildInfo);
-extern otError OT_API_REAL_NAME(otThreadGetChildNextIp6Address)(otInstance * aInstance,uint16_t aChildIndex,otChildIp6AddressIterator * aIterator,otIp6Address * aAddress);
-extern otError OT_API_REAL_NAME(otThreadGetNextCacheEntry)(otInstance * aInstance,otCacheEntryInfo * aEntryInfo,otCacheEntryIterator * aIterator);
-extern otError OT_API_REAL_NAME(otThreadGetRouterInfo)(otInstance * aInstance,uint16_t aRouterId,otRouterInfo * aRouterInfo);
-extern otError OT_API_REAL_NAME(otThreadReleaseRouterId)(otInstance * aInstance,uint8_t aRouterId);
-extern otError OT_API_REAL_NAME(otThreadSetChildRouterLinks)(otInstance * aInstance,uint8_t aChildRouterLinks);
-extern otError OT_API_REAL_NAME(otThreadSetJoinerUdpPort)(otInstance * aInstance,uint16_t aJoinerUdpPort);
-extern otError OT_API_REAL_NAME(otThreadSetMaxAllowedChildren)(otInstance * aInstance,uint16_t aMaxChildren);
-extern otError OT_API_REAL_NAME(otThreadSetMaxChildIpAddresses)(otInstance * aInstance,uint8_t aMaxIpAddresses);
-extern otError OT_API_REAL_NAME(otThreadSetParentPriority)(otInstance * aInstance,int8_t aParentPriority);
-extern otError OT_API_REAL_NAME(otThreadSetPreferredRouterId)(otInstance * aInstance,uint8_t aRouterId);
-extern otError OT_API_REAL_NAME(otThreadSetPskc)(otInstance * aInstance,const otPskc * aPskc);
-extern otError OT_API_REAL_NAME(otThreadSetPskcRef)(otInstance * aInstance,otPskcRef aKeyRef);
-extern otError OT_API_REAL_NAME(otThreadSetRouterEligible)(otInstance * aInstance,bool aEligible);
-extern otError OT_API_REAL_NAME(otThreadSetRouterIdRange)(otInstance * aInstance,uint8_t aMinRouterId,uint8_t aMaxRouterId);
-extern otPskcRef OT_API_REAL_NAME(otThreadGetPskcRef)(otInstance * aInstance);
-extern uint16_t OT_API_REAL_NAME(otThreadGetJoinerUdpPort)(otInstance * aInstance);
-extern uint16_t OT_API_REAL_NAME(otThreadGetMaxAllowedChildren)(otInstance * aInstance);
-extern uint32_t OT_API_REAL_NAME(otThreadGetAdvertisementTrickleIntervalMax)(otInstance * aInstance);
-extern uint32_t OT_API_REAL_NAME(otThreadGetContextIdReuseDelay)(otInstance * aInstance);
-extern uint32_t OT_API_REAL_NAME(otThreadGetPreferredLeaderPartitionId)(otInstance * aInstance);
-extern uint8_t OT_API_REAL_NAME(otThreadGetChildRouterLinks)(otInstance * aInstance);
-extern uint8_t OT_API_REAL_NAME(otThreadGetLocalLeaderWeight)(otInstance * aInstance);
-extern uint8_t OT_API_REAL_NAME(otThreadGetMaxChildIpAddresses)(otInstance * aInstance);
-extern uint8_t OT_API_REAL_NAME(otThreadGetMaxRouterId)(otInstance * aInstance);
-extern uint8_t OT_API_REAL_NAME(otThreadGetNetworkIdTimeout)(otInstance * aInstance);
-extern uint8_t OT_API_REAL_NAME(otThreadGetRouterDowngradeThreshold)(otInstance * aInstance);
-extern uint8_t OT_API_REAL_NAME(otThreadGetRouterIdSequence)(otInstance * aInstance);
-extern uint8_t OT_API_REAL_NAME(otThreadGetRouterSelectionJitter)(otInstance * aInstance);
-extern uint8_t OT_API_REAL_NAME(otThreadGetRouterUpgradeThreshold)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otThreadGetNextHopAndPathCost)(otInstance * aInstance,uint16_t aDestRloc16,uint16_t * aNextHopRloc16,uint8_t * aPathCost);
-extern void OT_API_REAL_NAME(otThreadGetPskc)(otInstance * aInstance,otPskc * aPskc);
-extern void OT_API_REAL_NAME(otThreadGetRouterIdRange)(otInstance * aInstance,uint8_t * aMinRouterId,uint8_t * aMaxRouterId);
-extern void OT_API_REAL_NAME(otThreadRegisterNeighborTableCallback)(otInstance * aInstance,otNeighborTableCallback aCallback);
-extern void OT_API_REAL_NAME(otThreadSetCcmEnabled)(otInstance * aInstance,bool aEnabled);
-extern void OT_API_REAL_NAME(otThreadSetContextIdReuseDelay)(otInstance * aInstance,uint32_t aDelay);
-extern void OT_API_REAL_NAME(otThreadSetDeviceProperties)(otInstance * aInstance,const otDeviceProperties * aDeviceProperties);
-extern void OT_API_REAL_NAME(otThreadSetLocalLeaderWeight)(otInstance * aInstance,uint8_t aWeight);
-extern void OT_API_REAL_NAME(otThreadSetNetworkIdTimeout)(otInstance * aInstance,uint8_t aTimeout);
-extern void OT_API_REAL_NAME(otThreadSetPreferredLeaderPartitionId)(otInstance * aInstance,uint32_t aPartitionId);
-extern void OT_API_REAL_NAME(otThreadSetRouterDowngradeThreshold)(otInstance * aInstance,uint8_t aThreshold);
-extern void OT_API_REAL_NAME(otThreadSetRouterSelectionJitter)(otInstance * aInstance,uint8_t aRouterJitter);
-extern void OT_API_REAL_NAME(otThreadSetRouterUpgradeThreshold)(otInstance * aInstance,uint8_t aThreshold);
-extern void OT_API_REAL_NAME(otThreadSetSteeringData)(otInstance * aInstance,const otExtAddress * aExtAddress);
-extern void OT_API_REAL_NAME(otThreadSetThreadVersionCheckEnabled)(otInstance * aInstance,bool aEnabled);
-extern void OT_API_REAL_NAME(otThreadSetTmfOriginFilterEnabled)(otInstance * aInstance,bool aEnabled);
+extern bool OT_API_REAL_NAME(otThreadIsRouterEligible)(otInstance *aInstance);
+extern bool OT_API_REAL_NAME(otThreadIsRouterIdAllocated)(otInstance *aInstance, uint8_t aRouterId);
+extern bool OT_API_REAL_NAME(otThreadIsTmfOriginFilterEnabled)(otInstance *aInstance);
+extern const otDeviceProperties *OT_API_REAL_NAME(otThreadGetDeviceProperties)(otInstance *aInstance);
+extern int8_t                    OT_API_REAL_NAME(otThreadGetParentPriority)(otInstance *aInstance);
+extern otError                   OT_API_REAL_NAME(otThreadBecomeLeader)(otInstance *aInstance);
+extern otError                   OT_API_REAL_NAME(otThreadBecomeRouter)(otInstance *aInstance);
+extern otError                   OT_API_REAL_NAME(otThreadGetChildInfoById)(otInstance  *aInstance,
+                                                          uint16_t     aChildId,
+                                                          otChildInfo *aChildInfo);
+extern otError                   OT_API_REAL_NAME(otThreadGetChildInfoByIndex)(otInstance  *aInstance,
+                                                             uint16_t     aChildIndex,
+                                                             otChildInfo *aChildInfo);
+extern otError                   OT_API_REAL_NAME(otThreadGetChildNextIp6Address)(otInstance                *aInstance,
+                                                                uint16_t                   aChildIndex,
+                                                                otChildIp6AddressIterator *aIterator,
+                                                                otIp6Address              *aAddress);
+extern otError                   OT_API_REAL_NAME(otThreadGetNextCacheEntry)(otInstance           *aInstance,
+                                                           otCacheEntryInfo     *aEntryInfo,
+                                                           otCacheEntryIterator *aIterator);
+extern otError                   OT_API_REAL_NAME(otThreadGetRouterInfo)(otInstance   *aInstance,
+                                                       uint16_t      aRouterId,
+                                                       otRouterInfo *aRouterInfo);
+extern otError                   OT_API_REAL_NAME(otThreadReleaseRouterId)(otInstance *aInstance, uint8_t aRouterId);
+extern otError   OT_API_REAL_NAME(otThreadSetChildRouterLinks)(otInstance *aInstance, uint8_t aChildRouterLinks);
+extern otError   OT_API_REAL_NAME(otThreadSetJoinerUdpPort)(otInstance *aInstance, uint16_t aJoinerUdpPort);
+extern otError   OT_API_REAL_NAME(otThreadSetMaxAllowedChildren)(otInstance *aInstance, uint16_t aMaxChildren);
+extern otError   OT_API_REAL_NAME(otThreadSetMaxChildIpAddresses)(otInstance *aInstance, uint8_t aMaxIpAddresses);
+extern otError   OT_API_REAL_NAME(otThreadSetParentPriority)(otInstance *aInstance, int8_t aParentPriority);
+extern otError   OT_API_REAL_NAME(otThreadSetPreferredRouterId)(otInstance *aInstance, uint8_t aRouterId);
+extern otError   OT_API_REAL_NAME(otThreadSetPskc)(otInstance *aInstance, const otPskc *aPskc);
+extern otError   OT_API_REAL_NAME(otThreadSetPskcRef)(otInstance *aInstance, otPskcRef aKeyRef);
+extern otError   OT_API_REAL_NAME(otThreadSetRouterEligible)(otInstance *aInstance, bool aEligible);
+extern otError   OT_API_REAL_NAME(otThreadSetRouterIdRange)(otInstance *aInstance,
+                                                          uint8_t     aMinRouterId,
+                                                          uint8_t     aMaxRouterId);
+extern otPskcRef OT_API_REAL_NAME(otThreadGetPskcRef)(otInstance *aInstance);
+extern uint16_t  OT_API_REAL_NAME(otThreadGetJoinerUdpPort)(otInstance *aInstance);
+extern uint16_t  OT_API_REAL_NAME(otThreadGetMaxAllowedChildren)(otInstance *aInstance);
+extern uint32_t  OT_API_REAL_NAME(otThreadGetAdvertisementTrickleIntervalMax)(otInstance *aInstance);
+extern uint32_t  OT_API_REAL_NAME(otThreadGetContextIdReuseDelay)(otInstance *aInstance);
+extern uint32_t  OT_API_REAL_NAME(otThreadGetPreferredLeaderPartitionId)(otInstance *aInstance);
+extern uint8_t   OT_API_REAL_NAME(otThreadGetChildRouterLinks)(otInstance *aInstance);
+extern uint8_t   OT_API_REAL_NAME(otThreadGetLocalLeaderWeight)(otInstance *aInstance);
+extern uint8_t   OT_API_REAL_NAME(otThreadGetMaxChildIpAddresses)(otInstance *aInstance);
+extern uint8_t   OT_API_REAL_NAME(otThreadGetMaxRouterId)(otInstance *aInstance);
+extern uint8_t   OT_API_REAL_NAME(otThreadGetNetworkIdTimeout)(otInstance *aInstance);
+extern uint8_t   OT_API_REAL_NAME(otThreadGetRouterDowngradeThreshold)(otInstance *aInstance);
+extern uint8_t   OT_API_REAL_NAME(otThreadGetRouterIdSequence)(otInstance *aInstance);
+extern uint8_t   OT_API_REAL_NAME(otThreadGetRouterSelectionJitter)(otInstance *aInstance);
+extern uint8_t   OT_API_REAL_NAME(otThreadGetRouterUpgradeThreshold)(otInstance *aInstance);
+extern void      OT_API_REAL_NAME(otThreadGetNextHopAndPathCost)(otInstance *aInstance,
+                                                            uint16_t    aDestRloc16,
+                                                            uint16_t   *aNextHopRloc16,
+                                                            uint8_t    *aPathCost);
+extern void      OT_API_REAL_NAME(otThreadGetPskc)(otInstance *aInstance, otPskc *aPskc);
+extern void      OT_API_REAL_NAME(otThreadGetRouterIdRange)(otInstance *aInstance,
+                                                       uint8_t    *aMinRouterId,
+                                                       uint8_t    *aMaxRouterId);
+extern void      OT_API_REAL_NAME(otThreadRegisterNeighborTableCallback)(otInstance             *aInstance,
+                                                                    otNeighborTableCallback aCallback);
+extern void      OT_API_REAL_NAME(otThreadSetCcmEnabled)(otInstance *aInstance, bool aEnabled);
+extern void      OT_API_REAL_NAME(otThreadSetContextIdReuseDelay)(otInstance *aInstance, uint32_t aDelay);
+extern void      OT_API_REAL_NAME(otThreadSetDeviceProperties)(otInstance               *aInstance,
+                                                          const otDeviceProperties *aDeviceProperties);
+extern void      OT_API_REAL_NAME(otThreadSetLocalLeaderWeight)(otInstance *aInstance, uint8_t aWeight);
+extern void      OT_API_REAL_NAME(otThreadSetNetworkIdTimeout)(otInstance *aInstance, uint8_t aTimeout);
+extern void      OT_API_REAL_NAME(otThreadSetPreferredLeaderPartitionId)(otInstance *aInstance, uint32_t aPartitionId);
+extern void      OT_API_REAL_NAME(otThreadSetRouterDowngradeThreshold)(otInstance *aInstance, uint8_t aThreshold);
+extern void      OT_API_REAL_NAME(otThreadSetRouterSelectionJitter)(otInstance *aInstance, uint8_t aRouterJitter);
+extern void      OT_API_REAL_NAME(otThreadSetRouterUpgradeThreshold)(otInstance *aInstance, uint8_t aThreshold);
+extern void      OT_API_REAL_NAME(otThreadSetSteeringData)(otInstance *aInstance, const otExtAddress *aExtAddress);
+extern void      OT_API_REAL_NAME(otThreadSetThreadVersionCheckEnabled)(otInstance *aInstance, bool aEnabled);
+extern void      OT_API_REAL_NAME(otThreadSetTmfOriginFilterEnabled)(otInstance *aInstance, bool aEnabled);
 
-bool OT_API_WRAPPER_NAME(otThreadIsRouterEligible)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otThreadIsRouterEligible)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otThreadIsRouterEligible)(aInstance);
@@ -109,7 +129,7 @@ bool OT_API_WRAPPER_NAME(otThreadIsRouterEligible)(otInstance * aInstance)
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otThreadIsRouterIdAllocated)(otInstance * aInstance,uint8_t aRouterId)
+bool OT_API_WRAPPER_NAME(otThreadIsRouterIdAllocated)(otInstance *aInstance, uint8_t aRouterId)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otThreadIsRouterIdAllocated)(aInstance, aRouterId);
@@ -117,7 +137,7 @@ bool OT_API_WRAPPER_NAME(otThreadIsRouterIdAllocated)(otInstance * aInstance,uin
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otThreadIsTmfOriginFilterEnabled)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otThreadIsTmfOriginFilterEnabled)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otThreadIsTmfOriginFilterEnabled)(aInstance);
@@ -125,7 +145,7 @@ bool OT_API_WRAPPER_NAME(otThreadIsTmfOriginFilterEnabled)(otInstance * aInstanc
     return ret;
 }
 
-const otDeviceProperties *OT_API_WRAPPER_NAME(otThreadGetDeviceProperties)(otInstance * aInstance)
+const otDeviceProperties *OT_API_WRAPPER_NAME(otThreadGetDeviceProperties)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otDeviceProperties *ret = OT_API_REAL_NAME(otThreadGetDeviceProperties)(aInstance);
@@ -133,7 +153,7 @@ const otDeviceProperties *OT_API_WRAPPER_NAME(otThreadGetDeviceProperties)(otIns
     return ret;
 }
 
-int8_t OT_API_WRAPPER_NAME(otThreadGetParentPriority)(otInstance * aInstance)
+int8_t OT_API_WRAPPER_NAME(otThreadGetParentPriority)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     int8_t ret = OT_API_REAL_NAME(otThreadGetParentPriority)(aInstance);
@@ -141,7 +161,7 @@ int8_t OT_API_WRAPPER_NAME(otThreadGetParentPriority)(otInstance * aInstance)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadBecomeLeader)(otInstance * aInstance)
+otError OT_API_WRAPPER_NAME(otThreadBecomeLeader)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadBecomeLeader)(aInstance);
@@ -149,7 +169,7 @@ otError OT_API_WRAPPER_NAME(otThreadBecomeLeader)(otInstance * aInstance)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadBecomeRouter)(otInstance * aInstance)
+otError OT_API_WRAPPER_NAME(otThreadBecomeRouter)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadBecomeRouter)(aInstance);
@@ -157,7 +177,7 @@ otError OT_API_WRAPPER_NAME(otThreadBecomeRouter)(otInstance * aInstance)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadGetChildInfoById)(otInstance * aInstance,uint16_t aChildId,otChildInfo * aChildInfo)
+otError OT_API_WRAPPER_NAME(otThreadGetChildInfoById)(otInstance *aInstance, uint16_t aChildId, otChildInfo *aChildInfo)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadGetChildInfoById)(aInstance, aChildId, aChildInfo);
@@ -165,7 +185,9 @@ otError OT_API_WRAPPER_NAME(otThreadGetChildInfoById)(otInstance * aInstance,uin
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadGetChildInfoByIndex)(otInstance * aInstance,uint16_t aChildIndex,otChildInfo * aChildInfo)
+otError OT_API_WRAPPER_NAME(otThreadGetChildInfoByIndex)(otInstance  *aInstance,
+                                                         uint16_t     aChildIndex,
+                                                         otChildInfo *aChildInfo)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadGetChildInfoByIndex)(aInstance, aChildIndex, aChildInfo);
@@ -173,7 +195,10 @@ otError OT_API_WRAPPER_NAME(otThreadGetChildInfoByIndex)(otInstance * aInstance,
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadGetChildNextIp6Address)(otInstance * aInstance,uint16_t aChildIndex,otChildIp6AddressIterator * aIterator,otIp6Address * aAddress)
+otError OT_API_WRAPPER_NAME(otThreadGetChildNextIp6Address)(otInstance                *aInstance,
+                                                            uint16_t                   aChildIndex,
+                                                            otChildIp6AddressIterator *aIterator,
+                                                            otIp6Address              *aAddress)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadGetChildNextIp6Address)(aInstance, aChildIndex, aIterator, aAddress);
@@ -181,7 +206,9 @@ otError OT_API_WRAPPER_NAME(otThreadGetChildNextIp6Address)(otInstance * aInstan
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadGetNextCacheEntry)(otInstance * aInstance,otCacheEntryInfo * aEntryInfo,otCacheEntryIterator * aIterator)
+otError OT_API_WRAPPER_NAME(otThreadGetNextCacheEntry)(otInstance           *aInstance,
+                                                       otCacheEntryInfo     *aEntryInfo,
+                                                       otCacheEntryIterator *aIterator)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadGetNextCacheEntry)(aInstance, aEntryInfo, aIterator);
@@ -189,7 +216,7 @@ otError OT_API_WRAPPER_NAME(otThreadGetNextCacheEntry)(otInstance * aInstance,ot
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadGetRouterInfo)(otInstance * aInstance,uint16_t aRouterId,otRouterInfo * aRouterInfo)
+otError OT_API_WRAPPER_NAME(otThreadGetRouterInfo)(otInstance *aInstance, uint16_t aRouterId, otRouterInfo *aRouterInfo)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadGetRouterInfo)(aInstance, aRouterId, aRouterInfo);
@@ -197,7 +224,7 @@ otError OT_API_WRAPPER_NAME(otThreadGetRouterInfo)(otInstance * aInstance,uint16
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadReleaseRouterId)(otInstance * aInstance,uint8_t aRouterId)
+otError OT_API_WRAPPER_NAME(otThreadReleaseRouterId)(otInstance *aInstance, uint8_t aRouterId)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadReleaseRouterId)(aInstance, aRouterId);
@@ -205,7 +232,7 @@ otError OT_API_WRAPPER_NAME(otThreadReleaseRouterId)(otInstance * aInstance,uint
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetChildRouterLinks)(otInstance * aInstance,uint8_t aChildRouterLinks)
+otError OT_API_WRAPPER_NAME(otThreadSetChildRouterLinks)(otInstance *aInstance, uint8_t aChildRouterLinks)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetChildRouterLinks)(aInstance, aChildRouterLinks);
@@ -213,7 +240,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetChildRouterLinks)(otInstance * aInstance,
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetJoinerUdpPort)(otInstance * aInstance,uint16_t aJoinerUdpPort)
+otError OT_API_WRAPPER_NAME(otThreadSetJoinerUdpPort)(otInstance *aInstance, uint16_t aJoinerUdpPort)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetJoinerUdpPort)(aInstance, aJoinerUdpPort);
@@ -221,7 +248,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetJoinerUdpPort)(otInstance * aInstance,uin
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetMaxAllowedChildren)(otInstance * aInstance,uint16_t aMaxChildren)
+otError OT_API_WRAPPER_NAME(otThreadSetMaxAllowedChildren)(otInstance *aInstance, uint16_t aMaxChildren)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetMaxAllowedChildren)(aInstance, aMaxChildren);
@@ -229,7 +256,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetMaxAllowedChildren)(otInstance * aInstanc
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetMaxChildIpAddresses)(otInstance * aInstance,uint8_t aMaxIpAddresses)
+otError OT_API_WRAPPER_NAME(otThreadSetMaxChildIpAddresses)(otInstance *aInstance, uint8_t aMaxIpAddresses)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetMaxChildIpAddresses)(aInstance, aMaxIpAddresses);
@@ -237,7 +264,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetMaxChildIpAddresses)(otInstance * aInstan
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetParentPriority)(otInstance * aInstance,int8_t aParentPriority)
+otError OT_API_WRAPPER_NAME(otThreadSetParentPriority)(otInstance *aInstance, int8_t aParentPriority)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetParentPriority)(aInstance, aParentPriority);
@@ -245,7 +272,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetParentPriority)(otInstance * aInstance,in
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetPreferredRouterId)(otInstance * aInstance,uint8_t aRouterId)
+otError OT_API_WRAPPER_NAME(otThreadSetPreferredRouterId)(otInstance *aInstance, uint8_t aRouterId)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetPreferredRouterId)(aInstance, aRouterId);
@@ -253,7 +280,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetPreferredRouterId)(otInstance * aInstance
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetPskc)(otInstance * aInstance,const otPskc * aPskc)
+otError OT_API_WRAPPER_NAME(otThreadSetPskc)(otInstance *aInstance, const otPskc *aPskc)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetPskc)(aInstance, aPskc);
@@ -261,7 +288,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetPskc)(otInstance * aInstance,const otPskc
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetPskcRef)(otInstance * aInstance,otPskcRef aKeyRef)
+otError OT_API_WRAPPER_NAME(otThreadSetPskcRef)(otInstance *aInstance, otPskcRef aKeyRef)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetPskcRef)(aInstance, aKeyRef);
@@ -269,7 +296,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetPskcRef)(otInstance * aInstance,otPskcRef
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetRouterEligible)(otInstance * aInstance,bool aEligible)
+otError OT_API_WRAPPER_NAME(otThreadSetRouterEligible)(otInstance *aInstance, bool aEligible)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetRouterEligible)(aInstance, aEligible);
@@ -277,7 +304,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetRouterEligible)(otInstance * aInstance,bo
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otThreadSetRouterIdRange)(otInstance * aInstance,uint8_t aMinRouterId,uint8_t aMaxRouterId)
+otError OT_API_WRAPPER_NAME(otThreadSetRouterIdRange)(otInstance *aInstance, uint8_t aMinRouterId, uint8_t aMaxRouterId)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otThreadSetRouterIdRange)(aInstance, aMinRouterId, aMaxRouterId);
@@ -285,7 +312,7 @@ otError OT_API_WRAPPER_NAME(otThreadSetRouterIdRange)(otInstance * aInstance,uin
     return ret;
 }
 
-otPskcRef OT_API_WRAPPER_NAME(otThreadGetPskcRef)(otInstance * aInstance)
+otPskcRef OT_API_WRAPPER_NAME(otThreadGetPskcRef)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otPskcRef ret = OT_API_REAL_NAME(otThreadGetPskcRef)(aInstance);
@@ -293,7 +320,7 @@ otPskcRef OT_API_WRAPPER_NAME(otThreadGetPskcRef)(otInstance * aInstance)
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otThreadGetJoinerUdpPort)(otInstance * aInstance)
+uint16_t OT_API_WRAPPER_NAME(otThreadGetJoinerUdpPort)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otThreadGetJoinerUdpPort)(aInstance);
@@ -301,7 +328,7 @@ uint16_t OT_API_WRAPPER_NAME(otThreadGetJoinerUdpPort)(otInstance * aInstance)
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otThreadGetMaxAllowedChildren)(otInstance * aInstance)
+uint16_t OT_API_WRAPPER_NAME(otThreadGetMaxAllowedChildren)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otThreadGetMaxAllowedChildren)(aInstance);
@@ -309,7 +336,7 @@ uint16_t OT_API_WRAPPER_NAME(otThreadGetMaxAllowedChildren)(otInstance * aInstan
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otThreadGetAdvertisementTrickleIntervalMax)(otInstance * aInstance)
+uint32_t OT_API_WRAPPER_NAME(otThreadGetAdvertisementTrickleIntervalMax)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otThreadGetAdvertisementTrickleIntervalMax)(aInstance);
@@ -317,7 +344,7 @@ uint32_t OT_API_WRAPPER_NAME(otThreadGetAdvertisementTrickleIntervalMax)(otInsta
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otThreadGetContextIdReuseDelay)(otInstance * aInstance)
+uint32_t OT_API_WRAPPER_NAME(otThreadGetContextIdReuseDelay)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otThreadGetContextIdReuseDelay)(aInstance);
@@ -325,7 +352,7 @@ uint32_t OT_API_WRAPPER_NAME(otThreadGetContextIdReuseDelay)(otInstance * aInsta
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otThreadGetPreferredLeaderPartitionId)(otInstance * aInstance)
+uint32_t OT_API_WRAPPER_NAME(otThreadGetPreferredLeaderPartitionId)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otThreadGetPreferredLeaderPartitionId)(aInstance);
@@ -333,7 +360,7 @@ uint32_t OT_API_WRAPPER_NAME(otThreadGetPreferredLeaderPartitionId)(otInstance *
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otThreadGetChildRouterLinks)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otThreadGetChildRouterLinks)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otThreadGetChildRouterLinks)(aInstance);
@@ -341,7 +368,7 @@ uint8_t OT_API_WRAPPER_NAME(otThreadGetChildRouterLinks)(otInstance * aInstance)
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otThreadGetLocalLeaderWeight)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otThreadGetLocalLeaderWeight)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otThreadGetLocalLeaderWeight)(aInstance);
@@ -349,7 +376,7 @@ uint8_t OT_API_WRAPPER_NAME(otThreadGetLocalLeaderWeight)(otInstance * aInstance
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otThreadGetMaxChildIpAddresses)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otThreadGetMaxChildIpAddresses)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otThreadGetMaxChildIpAddresses)(aInstance);
@@ -357,7 +384,7 @@ uint8_t OT_API_WRAPPER_NAME(otThreadGetMaxChildIpAddresses)(otInstance * aInstan
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otThreadGetMaxRouterId)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otThreadGetMaxRouterId)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otThreadGetMaxRouterId)(aInstance);
@@ -365,7 +392,7 @@ uint8_t OT_API_WRAPPER_NAME(otThreadGetMaxRouterId)(otInstance * aInstance)
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otThreadGetNetworkIdTimeout)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otThreadGetNetworkIdTimeout)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otThreadGetNetworkIdTimeout)(aInstance);
@@ -373,7 +400,7 @@ uint8_t OT_API_WRAPPER_NAME(otThreadGetNetworkIdTimeout)(otInstance * aInstance)
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otThreadGetRouterDowngradeThreshold)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otThreadGetRouterDowngradeThreshold)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otThreadGetRouterDowngradeThreshold)(aInstance);
@@ -381,7 +408,7 @@ uint8_t OT_API_WRAPPER_NAME(otThreadGetRouterDowngradeThreshold)(otInstance * aI
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otThreadGetRouterIdSequence)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otThreadGetRouterIdSequence)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otThreadGetRouterIdSequence)(aInstance);
@@ -389,7 +416,7 @@ uint8_t OT_API_WRAPPER_NAME(otThreadGetRouterIdSequence)(otInstance * aInstance)
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otThreadGetRouterSelectionJitter)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otThreadGetRouterSelectionJitter)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otThreadGetRouterSelectionJitter)(aInstance);
@@ -397,7 +424,7 @@ uint8_t OT_API_WRAPPER_NAME(otThreadGetRouterSelectionJitter)(otInstance * aInst
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otThreadGetRouterUpgradeThreshold)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otThreadGetRouterUpgradeThreshold)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otThreadGetRouterUpgradeThreshold)(aInstance);
@@ -405,115 +432,119 @@ uint8_t OT_API_WRAPPER_NAME(otThreadGetRouterUpgradeThreshold)(otInstance * aIns
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otThreadGetNextHopAndPathCost)(otInstance * aInstance,uint16_t aDestRloc16,uint16_t * aNextHopRloc16,uint8_t * aPathCost)
+void OT_API_WRAPPER_NAME(otThreadGetNextHopAndPathCost)(otInstance *aInstance,
+                                                        uint16_t    aDestRloc16,
+                                                        uint16_t   *aNextHopRloc16,
+                                                        uint8_t    *aPathCost)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadGetNextHopAndPathCost)(aInstance, aDestRloc16, aNextHopRloc16, aPathCost);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadGetPskc)(otInstance * aInstance,otPskc * aPskc)
+void OT_API_WRAPPER_NAME(otThreadGetPskc)(otInstance *aInstance, otPskc *aPskc)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadGetPskc)(aInstance, aPskc);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadGetRouterIdRange)(otInstance * aInstance,uint8_t * aMinRouterId,uint8_t * aMaxRouterId)
+void OT_API_WRAPPER_NAME(otThreadGetRouterIdRange)(otInstance *aInstance, uint8_t *aMinRouterId, uint8_t *aMaxRouterId)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadGetRouterIdRange)(aInstance, aMinRouterId, aMaxRouterId);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadRegisterNeighborTableCallback)(otInstance * aInstance,otNeighborTableCallback aCallback)
+void OT_API_WRAPPER_NAME(otThreadRegisterNeighborTableCallback)(otInstance             *aInstance,
+                                                                otNeighborTableCallback aCallback)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadRegisterNeighborTableCallback)(aInstance, aCallback);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetCcmEnabled)(otInstance * aInstance,bool aEnabled)
+void OT_API_WRAPPER_NAME(otThreadSetCcmEnabled)(otInstance *aInstance, bool aEnabled)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetCcmEnabled)(aInstance, aEnabled);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetContextIdReuseDelay)(otInstance * aInstance,uint32_t aDelay)
+void OT_API_WRAPPER_NAME(otThreadSetContextIdReuseDelay)(otInstance *aInstance, uint32_t aDelay)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetContextIdReuseDelay)(aInstance, aDelay);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetDeviceProperties)(otInstance * aInstance,const otDeviceProperties * aDeviceProperties)
+void OT_API_WRAPPER_NAME(otThreadSetDeviceProperties)(otInstance               *aInstance,
+                                                      const otDeviceProperties *aDeviceProperties)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetDeviceProperties)(aInstance, aDeviceProperties);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetLocalLeaderWeight)(otInstance * aInstance,uint8_t aWeight)
+void OT_API_WRAPPER_NAME(otThreadSetLocalLeaderWeight)(otInstance *aInstance, uint8_t aWeight)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetLocalLeaderWeight)(aInstance, aWeight);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetNetworkIdTimeout)(otInstance * aInstance,uint8_t aTimeout)
+void OT_API_WRAPPER_NAME(otThreadSetNetworkIdTimeout)(otInstance *aInstance, uint8_t aTimeout)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetNetworkIdTimeout)(aInstance, aTimeout);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetPreferredLeaderPartitionId)(otInstance * aInstance,uint32_t aPartitionId)
+void OT_API_WRAPPER_NAME(otThreadSetPreferredLeaderPartitionId)(otInstance *aInstance, uint32_t aPartitionId)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetPreferredLeaderPartitionId)(aInstance, aPartitionId);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetRouterDowngradeThreshold)(otInstance * aInstance,uint8_t aThreshold)
+void OT_API_WRAPPER_NAME(otThreadSetRouterDowngradeThreshold)(otInstance *aInstance, uint8_t aThreshold)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetRouterDowngradeThreshold)(aInstance, aThreshold);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetRouterSelectionJitter)(otInstance * aInstance,uint8_t aRouterJitter)
+void OT_API_WRAPPER_NAME(otThreadSetRouterSelectionJitter)(otInstance *aInstance, uint8_t aRouterJitter)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetRouterSelectionJitter)(aInstance, aRouterJitter);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetRouterUpgradeThreshold)(otInstance * aInstance,uint8_t aThreshold)
+void OT_API_WRAPPER_NAME(otThreadSetRouterUpgradeThreshold)(otInstance *aInstance, uint8_t aThreshold)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetRouterUpgradeThreshold)(aInstance, aThreshold);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetSteeringData)(otInstance * aInstance,const otExtAddress * aExtAddress)
+void OT_API_WRAPPER_NAME(otThreadSetSteeringData)(otInstance *aInstance, const otExtAddress *aExtAddress)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetSteeringData)(aInstance, aExtAddress);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetThreadVersionCheckEnabled)(otInstance * aInstance,bool aEnabled)
+void OT_API_WRAPPER_NAME(otThreadSetThreadVersionCheckEnabled)(otInstance *aInstance, bool aEnabled)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetThreadVersionCheckEnabled)(aInstance, aEnabled);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otThreadSetTmfOriginFilterEnabled)(otInstance * aInstance,bool aEnabled)
+void OT_API_WRAPPER_NAME(otThreadSetTmfOriginFilterEnabled)(otInstance *aInstance, bool aEnabled)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otThreadSetTmfOriginFilterEnabled)(aInstance, aEnabled);
     sl_ot_rtos_release_stack_mutex();
 }
-

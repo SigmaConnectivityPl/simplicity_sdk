@@ -234,7 +234,10 @@ void sl_hfxo_manager_irq_handler(void)
     HFXO0->IF_CLR = irq_flag & HFXO_IF_PRSRDY;
     HFXO0->CTRL_CLR = HFXO_CTRL_EM23ONDEMAND;
 
-    sli_hfxo_manager_retrieve_begining_startup_measurement();
+    // Only retrieve start of measurement if HFXO is not already ready.
+    if ((HFXO0->STATUS & HFXO_STATUS_RDY) == 0) {
+      sli_hfxo_manager_retrieve_begining_startup_measurement();
+    }
 
     // Notify power manager HFXO is ready
     sli_hfxo_notify_ready_for_power_manager_from_prs();

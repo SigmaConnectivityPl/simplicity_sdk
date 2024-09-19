@@ -32,11 +32,20 @@
  *                packet[0] packet[1] : 2 byte Length (packet[1] << 8 + packet[0])
  *                packet[2] .. packet[Length+1] payload
  *
- * CAUTION: Do not call this function from any other RTOS task context except Zigbee
- * This calls into a function that manipulates buffers and will cause unpredictable errors if this rule is not
- * followed
  */
 sl_status_t sl_high_datarate_phy_transmit(uint8_t *payload);
+
+/**
+ * Transmits a High-BW-Phy packet consisting of <len> bytes of payload
+ * Note that there is a 4 byte CRC which is tacked on later and is not part
+ * of the packet parameter
+ * @param[in] payload Pointer to bytes of transmitted data
+ *              packet[0] packet[1] : 2 byte Length (packet[1] << 8 + packet[0])
+ *              packet[2] .. packet[Length+1] payload
+ * @param[in] absolute timestamp that packet is expected to be transmitted
+ *
+ */
+sl_status_t sl_high_datarate_phy_transmit_scheduled(uint8_t *payload, RAIL_Time_t timestamp);
 
 /**
  * Configures transmit complete callback function
@@ -64,12 +73,13 @@ RAIL_Status_t sl_high_datarate_phy_set_reception_enable (bool enable_f);
  *              packet[2] .. packet[Length+1] payload
  *              linkQuality of received packet
  *              rssi of received packet
+ *              pkt received (frame end) absolute timestamp of received packet
  *
  * Note: By default, sl_high_datarate_phy_rx_cb fires upon receiving a High-BW-phy packet
  * The user is free to override this callback by calling this function and supplying
  * a different receive callback
  */
-void sl_high_datarate_phy_config_rx_callback(void (*rx_callback)(uint8_t *packet, uint8_t linkQuality, int8_t rssi));
+void sl_high_datarate_phy_config_rx_callback(void (*rx_callback)(uint8_t *packet, uint8_t linkQuality, int8_t rssi, uint32_t pkt_rx_timestamp));
 
 /**
  * Configures CSMA parameters for high datarate phy packet
@@ -93,9 +103,10 @@ void sl_high_datarate_phy_config_radio_priorities(sl_zigbee_multiprotocol_priori
  *              packet[2] .. packet[Length+1] payload
  *              linkQuality of received packet
  *              rssi of received packet
+ *              pkt received (frame end) absolute timestamp of received packet
  *
  * @param[out] packet pointer
  */
-void sl_high_datarate_phy_rx_cb(uint8_t *packet, uint8_t linkQuality, int8_t rssi);
+void sl_high_datarate_phy_rx_cb(uint8_t *packet, uint8_t linkQuality, int8_t rssi, uint32_t pkt_rx_timestamp);
 
 #endif //HIGH_DATARATE_PHY__H

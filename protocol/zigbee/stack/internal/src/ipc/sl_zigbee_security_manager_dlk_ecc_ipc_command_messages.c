@@ -96,17 +96,14 @@ sl_status_t sl_zigbee_sec_man_ecc_expand_shared_secret(sl_zigbee_sec_man_dlk_ecc
     msg.data.sec_man_ecc_expand_shared_secret.request.dlk_ecc_ctx = *dlk_ecc_ctx;
   }
 
-  if ((EUI64_SIZE) > (EUI64_SIZE)) {
-    assert(false); // "vector our_eui length exceeds expected maximum
+  if (our_eui != NULL) {
+    memmove(msg.data.sec_man_ecc_expand_shared_secret.request.our_eui, our_eui, sizeof(uint8_t) * (EUI64_SIZE));
   }
 
-  memmove(msg.data.sec_man_ecc_expand_shared_secret.request.our_eui, our_eui, sizeof(uint8_t) * (EUI64_SIZE));
-
-  if ((EUI64_SIZE) > (EUI64_SIZE)) {
-    assert(false); // "vector their_eui length exceeds expected maximum
+  if (their_eui != NULL) {
+    memmove(msg.data.sec_man_ecc_expand_shared_secret.request.their_eui, their_eui, sizeof(uint8_t) * (EUI64_SIZE));
   }
 
-  memmove(msg.data.sec_man_ecc_expand_shared_secret.request.their_eui, their_eui, sizeof(uint8_t) * (EUI64_SIZE));
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_sec_man_ecc_expand_shared_secret_process_ipc_command, &msg);
 
   if (dlk_ecc_ctx != NULL) {
@@ -166,11 +163,9 @@ sl_status_t sl_zigbee_sec_man_ecc_generate_keypair(sl_zigbee_sec_man_dlk_ecc_con
     msg.data.sec_man_ecc_generate_keypair.request.dlk_ecc_ctx = *dlk_ecc_ctx;
   }
 
-  if ((DLK_ECC_MAX_PUBLIC_KEY_SIZE) > (DLK_ECC_MAX_PUBLIC_KEY_SIZE)) {
-    assert(false); // "vector public_key_buff length exceeds expected maximum
+  if (public_key_buff != NULL) {
+    memmove(msg.data.sec_man_ecc_generate_keypair.request.public_key_buff, public_key_buff, sizeof(uint8_t) * (DLK_ECC_MAX_PUBLIC_KEY_SIZE));
   }
-
-  memmove(msg.data.sec_man_ecc_generate_keypair.request.public_key_buff, public_key_buff, sizeof(uint8_t) * (DLK_ECC_MAX_PUBLIC_KEY_SIZE));
 
   if (key_len_out != NULL) {
     msg.data.sec_man_ecc_generate_keypair.request.key_len_out = *key_len_out;
@@ -182,11 +177,9 @@ sl_status_t sl_zigbee_sec_man_ecc_generate_keypair(sl_zigbee_sec_man_dlk_ecc_con
     *dlk_ecc_ctx = msg.data.sec_man_ecc_generate_keypair.request.dlk_ecc_ctx;
   }
 
-  if ((DLK_ECC_MAX_PUBLIC_KEY_SIZE) > (DLK_ECC_MAX_PUBLIC_KEY_SIZE)) {
-    assert(false); // "vector public_key_buff length exceeds expected maximum
+  if (public_key_buff != NULL) {
+    memmove(public_key_buff, msg.data.sec_man_ecc_generate_keypair.request.public_key_buff, sizeof(uint8_t) * (DLK_ECC_MAX_PUBLIC_KEY_SIZE));
   }
-
-  memmove(public_key_buff, msg.data.sec_man_ecc_generate_keypair.request.public_key_buff, sizeof(uint8_t) * (DLK_ECC_MAX_PUBLIC_KEY_SIZE));
 
   if (key_len_out != NULL) {
     *key_len_out = msg.data.sec_man_ecc_generate_keypair.request.key_len_out;
@@ -209,11 +202,10 @@ sl_status_t sl_zigbee_sec_man_ecc_init(sl_zigbee_sec_man_dlk_ecc_context_t *dlk_
     msg.data.sec_man_ecc_init.request.config = *config;
   }
 
-  if ((16) > (16)) {
-    assert(false); // "vector psk length exceeds expected maximum
+  if (psk != NULL) {
+    memmove(msg.data.sec_man_ecc_init.request.psk, psk, sizeof(uint8_t) * (16));
   }
 
-  memmove(msg.data.sec_man_ecc_init.request.psk, psk, sizeof(uint8_t) * (16));
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_sec_man_ecc_init_process_ipc_command, &msg);
 
   if (dlk_ecc_ctx != NULL) {
@@ -237,17 +229,14 @@ sl_status_t sl_zigbee_sec_man_speke_expand_shared_secret(sl_zigbee_sec_man_dlk_e
     msg.data.sec_man_speke_expand_shared_secret.request.dlk_ecc_ctx = *dlk_ecc_ctx;
   }
 
-  if ((EUI64_SIZE) > (EUI64_SIZE)) {
-    assert(false); // "vector our_eui length exceeds expected maximum
+  if (our_eui != NULL) {
+    memmove(msg.data.sec_man_speke_expand_shared_secret.request.our_eui, our_eui, sizeof(uint8_t) * (EUI64_SIZE));
   }
 
-  memmove(msg.data.sec_man_speke_expand_shared_secret.request.our_eui, our_eui, sizeof(uint8_t) * (EUI64_SIZE));
-
-  if ((EUI64_SIZE) > (EUI64_SIZE)) {
-    assert(false); // "vector their_eui length exceeds expected maximum
+  if (their_eui != NULL) {
+    memmove(msg.data.sec_man_speke_expand_shared_secret.request.their_eui, their_eui, sizeof(uint8_t) * (EUI64_SIZE));
   }
 
-  memmove(msg.data.sec_man_speke_expand_shared_secret.request.their_eui, their_eui, sizeof(uint8_t) * (EUI64_SIZE));
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_sec_man_speke_expand_shared_secret_process_ipc_command, &msg);
 
   if (dlk_ecc_ctx != NULL) {

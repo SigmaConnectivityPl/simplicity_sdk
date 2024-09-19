@@ -24,6 +24,7 @@ typedef struct {
   uint8_t packet[MAX_HIGH_DATARATE_PHY_PACKET_LENGTH];
   uint8_t linkQuality;
   int8_t rssi;
+  uint32_t pkt_rx_timestamp;
 } sli_mac_stack_high_datarate_phy_rx_callback_ipc_event_t;
 
 typedef struct {

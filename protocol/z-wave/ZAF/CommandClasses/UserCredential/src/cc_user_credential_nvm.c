@@ -10,6 +10,7 @@
 /*                              INCLUDE FILES                               */
 /****************************************************************************/
 
+#include "cc_user_credential_nvm.h"
 #include "cc_user_credential_io.h"
 #include "cc_user_credential_io_config.h"
 #include "ZAF_file_ids.h"
@@ -20,74 +21,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
-
-/****************************************************************************/
-/*                          CONSTANTS and TYPEDEFS                          */
-/****************************************************************************/
-
-// Maximum number of User and User Name objects that can be stored in the NVM
-#define MAX_USER_OBJECTS                   \
-  ZAF_FILE_ID_CC_USER_CREDENTIAL_USER_LAST \
-  - ZAF_FILE_ID_CC_USER_CREDENTIAL_USER_BASE
-/**
- * Maximum number of Credential and Credential Data objects that can be stored
- * in the NVM
- */
-#define MAX_CREDENTIAL_OBJECTS                   \
-  ZAF_FILE_ID_CC_USER_CREDENTIAL_CREDENTIAL_LAST \
-  - ZAF_FILE_ID_CC_USER_CREDENTIAL_CREDENTIAL_BASE
-
-/**
- * Credential metadata object for storage in NVM.
- */
-typedef struct credential_metadata_nvm_ {
-  uint16_t modifier_node_id;
-  uint8_t length;
-  u3c_modifier_type modifier_type;
-} credential_metadata_nvm;
-
-/**
- * The User descriptor table is an array of associations between User Unique IDs
- * and file IDs of User objects.
- * Only the entries from ZAF_FILE_ID_CC_USER_CREDENTIAL_CREDENTIAL_BASE to
- * ZAF_FILE_ID_CC_USER_CREDENTIAL_CREDENTIAL_BASE + n_users - 1 are to be
- * considered valid.
- */
-typedef struct u3c_user_descriptor_ {
-  uint16_t unique_identifier;
-  uint16_t object_offset;
-} u3c_user_descriptor;
-
-/**
- * The Credential descriptor table is an array of associations between unique
- * Credentials and file IDs of Credential metadata objects. A Credential is
- * identified by its owner's User Unique ID and the Credential's type and slot.
- * Only the entries from ZAF_FILE_ID_CC_USER_CREDENTIAL_USER_BASE to
- * ZAF_FILE_ID_CC_USER_CREDENTIAL_USER_BASE + n_credentials - 1 are to be
- * considered valid.
- */
-typedef struct u3c_credential_descriptor_ {
-  uint16_t user_unique_identifier;
-  uint16_t credential_slot;
-  uint16_t object_offset;
-  u3c_credential_type credential_type;
-} u3c_credential_descriptor;
-
-typedef enum u3c_nvm_operation_ {
-  U3C_READ,
-  U3C_WRITE
-} u3c_nvm_operation;
-
-typedef enum u3c_nvm_area_ {
-  AREA_NUMBER_OF_USERS,
-  AREA_NUMBER_OF_CREDENTIALS,
-  AREA_USER_DESCRIPTORS,
-  AREA_USERS,
-  AREA_USER_NAMES,
-  AREA_CREDENTIAL_DESCRIPTORS,
-  AREA_CREDENTIAL_METADATA,
-  AREA_CREDENTIAL_DATA,
-} u3c_nvm_area;
 
 /****************************************************************************/
 /*                             STATIC VARIABLES                             */
@@ -119,6 +52,13 @@ static uint16_t n_credentials = UINT16_MAX;
  */
 static uint16_t users_buffer_head = 0;
 static uint16_t credentials_buffer_head = 0;
+
+/**
+ * @brief Mirror for admin pin code information.
+ * Admin code information is passed around via pointer,
+ * which need a persistent memory reference to work properly
+ */
+static admin_pin_code_metadata_nvm_t admin_code = { 0 }; 
 
 /****************************************************************************/
 /*                             PRIVATE FUNCTIONS                            */
@@ -175,6 +115,11 @@ bool nvm(
       size = sizeof(credential_metadata_nvm);
       break;
 
+    case AREA_ADMIN_PIN_CODE_DATA:
+      file_base = ZAF_FILE_ID_ADMIN_PIN_CODE; 
+      size = sizeof(admin_pin_code_metadata_nvm_t); 
+      break;
+
     /************************/
     /* Dynamic size objects */
     /************************/
@@ -220,6 +165,7 @@ void convert_credential_metadata_to_nvm(
   credential_metadata_nvm * p_metadata_nvm,
   u3c_credential_metadata * p_metadata_in)
 {
+  p_metadata_nvm->uuid = p_metadata_in->uuid;
   p_metadata_nvm->length = p_metadata_in->length;
   p_metadata_nvm->modifier_node_id = p_metadata_in->modifier_node_id;
   p_metadata_nvm->modifier_type = p_metadata_in->modifier_type;
@@ -246,6 +192,7 @@ bool convert_credential_metadata_from_nvm(
   p_metadata_out->length = p_metadata_nvm->length;
   p_metadata_out->modifier_node_id = p_metadata_nvm->modifier_node_id;
   p_metadata_out->modifier_type = p_metadata_nvm->modifier_type;
+  p_metadata_out->uuid = p_metadata_nvm->uuid;
   p_metadata_out->slot = slot;
   p_metadata_out->type = type;
   return true;
@@ -349,6 +296,70 @@ void init_database_variables()
   assert(max_credentials <= MAX_CREDENTIAL_OBJECTS);
 }
 
+bool is_user_identical(
+  u3c_user * p_user, uint8_t * p_name, uint16_t object_offset
+)
+{
+  // Check whether the incoming and stored metadata are identical
+  u3c_user stored_user = { 0 };
+  if (!nvm(U3C_READ, AREA_USERS, object_offset, &stored_user, 0)) {
+    return false; // Database error
+  }
+  if (
+    (p_user->unique_identifier != stored_user.unique_identifier)
+    || (p_user->type != stored_user.type)
+    || (p_user->active != stored_user.active)
+    || (p_user->credential_rule != stored_user.credential_rule)
+    || (p_user->expiring_timeout_minutes
+        != stored_user.expiring_timeout_minutes)
+    || (p_user->name_encoding != stored_user.name_encoding)
+    || (p_user->name_length != stored_user.name_length)
+    // Modifier Type and Modifier Node ID are ignored
+  ) {
+    return false; // User metadata are not identical
+  }
+
+  // Check whether the incoming and stored names are identical
+  uint8_t stored_name[U3C_BUFFER_SIZE_USER_NAME] = { 0 };
+  if (!nvm(U3C_READ, AREA_USER_NAMES, object_offset, stored_name,
+            stored_user.name_length)
+  ) {
+    return false; // Database error
+  }
+  return (bool)(memcmp(p_name, stored_name, p_user->name_length) == 0);
+}
+
+bool is_credential_identical(
+  u3c_credential * p_credential, uint16_t object_offset
+)
+{
+  // Check whether the incoming and stored metadata are identical
+  credential_metadata_nvm stored_metadata = { 0 };
+  if (!nvm(U3C_READ, AREA_CREDENTIAL_METADATA, object_offset,
+            &stored_metadata, 0)
+  ) {
+    return false; // Database error
+  }
+  if (
+    (p_credential->metadata.length != stored_metadata.length)
+    || (p_credential->metadata.uuid != stored_metadata.uuid)
+    // Modifier Type and Modifier Node ID are ignored.
+  ) {
+    return false; // Credential metadata are not identical
+  }
+
+  // Check whether the incoming and stored credential data are identical
+  uint8_t stored_data[U3C_BUFFER_SIZE_USER_NAME] = { 0 };
+  if (!nvm(U3C_READ, AREA_CREDENTIAL_DATA, object_offset, stored_data,
+            stored_metadata.length)
+  ) {
+    return false; // Database error
+  }
+  return (bool)(
+    memcmp(p_credential->data, stored_data, stored_metadata.length) == 0
+  );
+}
+
 /****************************************************************************/
 /*                           GENERAL API FUNCTIONS                          */
 /****************************************************************************/
@@ -360,11 +371,14 @@ void CC_UserCredential_factory_reset(void)
   // Create empty descriptor tables to initialize their NVM files
   u3c_user_descriptor user_desciptors[1] = { 0 };
   u3c_credential_descriptor credential_descriptors[1] = { 0 };
+  admin_pin_code_metadata_nvm_t ac = { 0 };  
   nvm(U3C_WRITE, AREA_USER_DESCRIPTORS, 0, user_desciptors, 0);
   nvm(U3C_WRITE, AREA_CREDENTIAL_DESCRIPTORS, 0, credential_descriptors, 0);
   // Initialize static database variables
   nvm(U3C_WRITE, AREA_NUMBER_OF_USERS, 0, &n_users, 0);
   nvm(U3C_WRITE, AREA_NUMBER_OF_CREDENTIALS, 0, &n_credentials, 0);
+  // Initialize admin code area
+  nvm(U3C_WRITE, AREA_ADMIN_PIN_CODE_DATA, 0, &ac, 0);  
   init_database_variables();
 }
 
@@ -492,7 +506,12 @@ u3c_db_operation_result CC_UserCredential_add_user(
     for (uint16_t i = 0; i < n_users; ++i) {
       // Check if the user already exists
       if (users[i].unique_identifier == user->unique_identifier) {
-        return U3C_DB_OPERATION_RESULT_FAIL_OCCUPIED;
+        // Check whether the incoming user is identical to the stored one
+        if (is_user_identical(user, name, object_offset)) {
+          return U3C_DB_OPERATION_RESULT_FAIL_IDENTICAL;
+        } else {
+          return U3C_DB_OPERATION_RESULT_FAIL_OCCUPIED;
+        }
       }
 
       // Check if the object is not assigned to any User
@@ -550,16 +569,26 @@ u3c_db_operation_result CC_UserCredential_modify_user(
   // Find User
   for (uint16_t i = 0; i < n_users; ++i) {
     if (users[i].unique_identifier == user->unique_identifier) {
-      return (
-        // Overwrite User object in NVM
-        nvm(U3C_WRITE, AREA_USERS, users[i].object_offset, user, 0)
+      uint16_t object_offset = users[i].object_offset;
+      
+      // Check whether the incoming user is identical to the stored one
+      if (is_user_identical(user, name, object_offset)) {
+        return U3C_DB_OPERATION_RESULT_FAIL_IDENTICAL;
+      }
+      
+      // Overwrite User object in NVM
+      if (nvm(U3C_WRITE, AREA_USERS, object_offset, user, 0)) {
+        if (name) {
+          // Overwrite User name in NVM
+          if (false == nvm(U3C_WRITE, AREA_USER_NAMES, object_offset, name, user->name_length)) {
+            return U3C_DB_OPERATION_RESULT_ERROR_IO;
+          }
+        }
+      } else {
+        return U3C_DB_OPERATION_RESULT_ERROR_IO;
+      }
 
-        // Overwrite User name in NVM
-        && nvm(U3C_WRITE, AREA_USER_NAMES, users[i].object_offset, name,
-               user->name_length))
-
-             ? U3C_DB_OPERATION_RESULT_SUCCESS
-             : U3C_DB_OPERATION_RESULT_ERROR_IO;
+      return U3C_DB_OPERATION_RESULT_SUCCESS;
     }
   }
 
@@ -648,12 +677,11 @@ u3c_db_operation_result CC_UserCredential_get_credential(
         && credentials[i].credential_type == credential_type
         && credentials[i].credential_slot == credential_slot
         ) {
-      credential_metadata_nvm metadata;
-      memset(&metadata, 0, sizeof(credential_metadata_nvm));
 
       // Copy Credential metadata from NVM if requested
       if (p_credential_metadata) {
         credential_metadata_nvm metadata;
+        memset(&metadata, 0, sizeof(credential_metadata_nvm));
 
         if (!nvm(U3C_READ, AREA_CREDENTIAL_METADATA, credentials[i].object_offset,
                 &metadata, 0)) {
@@ -661,7 +689,7 @@ u3c_db_operation_result CC_UserCredential_get_credential(
         }
 
         // Assemble outgoing Credential metadata struct
-        p_credential_metadata->uuid = user_unique_identifier;
+        p_credential_metadata->uuid = metadata.uuid;
         p_credential_metadata->slot = credential_slot;
         p_credential_metadata->type = credential_type;
         p_credential_metadata->length = metadata.length;
@@ -704,6 +732,9 @@ bool CC_UserCredential_get_next_credential(
   bool match_any_user = (user_unique_identifier == 0);
   bool match_any_type = (credential_type == CREDENTIAL_TYPE_NONE);
 
+  bool was_next_found = false;
+  uint16_t next_index = 0;
+
   if (credential_slot == 0) {
     // Find the first Credential
     for (uint16_t i = 0; i < n_credentials; ++i) {
@@ -712,48 +743,45 @@ bool CC_UserCredential_get_next_credential(
          || credentials[i].user_unique_identifier == user_unique_identifier)
         && (match_any_type || credentials[i].credential_type == credential_type)
       ) {
-        *next_credential_type = credentials[i].credential_type;
-        *next_credential_slot = credentials[i].credential_slot;
-        return true;
-      }
-    }
-  } else {
-    uint16_t current_index = n_credentials;
-
-    // Find the current Credential
-    for (uint16_t i = 0; i < n_credentials - 1; ++i) {
-      if (
-        (match_any_user
-        || (credentials[i].user_unique_identifier == user_unique_identifier))
-        && (credentials[i].credential_type == credential_type)
-        && (credentials[i].credential_slot == credential_slot)
-      ) {
-        current_index = i;
+        was_next_found = true;
+        next_index = i;
         break;
       }
     }
-
-    if (current_index >= (n_credentials - 1)) {
-      // The current Credential was not found or it is the very last one
+  } else {
+    if (match_any_type) {
+      // A credential type must be provided for a non-zero slot number.
       return false;
     }
-
-    // Find the next Credential of a Type or belonging to a User
-    for (uint16_t i = current_index + 1; i < n_credentials; ++i) {
+    for (uint16_t i = 0; i < n_credentials; ++i) {
+      // Discard credentials associated to a different user if specified
       if (
-        match_any_user
-        ? (credentials[i].credential_type == credential_type)
-        : (credentials[i].user_unique_identifier == user_unique_identifier)
+        !match_any_user
+        && (credentials[i].user_unique_identifier != user_unique_identifier)
       ) {
-        *next_credential_type = credentials[i].credential_type;
-        *next_credential_slot = credentials[i].credential_slot;
-        return true;
+        continue;
+      }
+
+      // Check if this credential is past the current one
+      if (
+        (credentials[i].credential_type > credential_type)
+        || (
+          (credentials[i].credential_type == credential_type)
+          && (credentials[i].credential_slot > credential_slot)
+        )
+      ) {
+        was_next_found = true;
+        next_index = i;
+        break;
       }
     }
   }
 
-  // No Credential satisfying the criteria was found
-  return false;
+  if (was_next_found) {
+    *next_credential_type = credentials[next_index].credential_type;
+    *next_credential_slot = credentials[next_index].credential_slot;
+  }
+  return was_next_found;
 }
 
 u3c_db_operation_result CC_UserCredential_add_credential(
@@ -786,7 +814,12 @@ u3c_db_operation_result CC_UserCredential_add_credential(
       // Check if the Credential already exists
       if (credentials[i].credential_type == p_credential->metadata.type
           && credentials[i].credential_slot == p_credential->metadata.slot) {
-        return U3C_DB_OPERATION_RESULT_FAIL_OCCUPIED;
+        // Check whether the incoming credential is identical to the stored one
+        if (is_credential_identical(p_credential, object_offset)) {
+          return U3C_DB_OPERATION_RESULT_FAIL_IDENTICAL;
+        } else {
+          return U3C_DB_OPERATION_RESULT_FAIL_OCCUPIED;
+        }
       }
 
       // Check if object is not assigned to any Credential
@@ -846,22 +879,35 @@ u3c_db_operation_result CC_UserCredential_modify_credential(
 
   // Find Credential
   for (uint16_t i = 0; i < n_credentials; ++i) {
-    if ((match_any_user
-         || credentials[i].user_unique_identifier == p_credential->metadata.uuid
-         )
-        && credentials[i].credential_type == p_credential->metadata.type
-        && credentials[i].credential_slot == p_credential->metadata.slot
+    if (credentials[i].credential_type == p_credential->metadata.type
+          && credentials[i].credential_slot == p_credential->metadata.slot
         ) {
+      uint16_t object_offset = credentials[i].object_offset;
+
+      /**
+       * Check if the UUID is being modified. This operation is not allowed.
+       * @ref CC_UserCredential_move_credential should be used instead.
+       */
+      if (!match_any_user &&
+        (credentials[i].user_unique_identifier != p_credential->metadata.uuid))
+      {
+        return U3C_DB_OPERATION_RESULT_FAIL_REASSIGN;
+      }
+
+      // Check whether the incoming credential is identical to the stored one
+      if (is_credential_identical(p_credential, object_offset)) {
+        return U3C_DB_OPERATION_RESULT_FAIL_IDENTICAL;
+      }
+      
       credential_metadata_nvm metadata;
       convert_credential_metadata_to_nvm(&metadata, &p_credential->metadata);
 
       return (
         // Overwrite Credential metadata in NVM
-        nvm(U3C_WRITE, AREA_CREDENTIAL_METADATA, credentials[i].object_offset,
-            &metadata, 0)
+        nvm(U3C_WRITE, AREA_CREDENTIAL_METADATA, object_offset, &metadata, 0)
 
         // Overwrite Credential data in NVM
-        && nvm(U3C_WRITE, AREA_CREDENTIAL_DATA, credentials[i].object_offset,
+        && nvm(U3C_WRITE, AREA_CREDENTIAL_DATA, object_offset,
                p_credential->data, p_credential->metadata.length))
              ? U3C_DB_OPERATION_RESULT_SUCCESS
              : U3C_DB_OPERATION_RESULT_ERROR_IO;
@@ -945,40 +991,55 @@ u3c_db_operation_result CC_UserCredential_move_credential(
   }
 
   bool source_exists = false;
-  bool destination_exists = false;
-  uint16_t i_source;
+  bool same_slot = (source_credential_slot == destination_credential_slot);
+  bool same_uuid = (source_user_uid == destination_user_uid);
+  uint16_t source_index;
 
   // Find source and destination Credentials
-  for (uint16_t i = 0;
-       i < n_credentials && !source_exists && !destination_exists;
-       ++i) {
+  for (uint16_t i = 0; i < n_credentials; ++i) {
     if (credentials[i].credential_type == credential_type) {
-      // Source Credential
-      if (credentials[i].user_unique_identifier == source_user_uid
-          && credentials[i].credential_slot == source_credential_slot) {
-        i_source = i;
+      // Source credential slot must exist
+      if (credentials[i].credential_slot == source_credential_slot) {
+        source_index = i;
         source_exists = true;
+        if (same_slot) {
+          break;
+        }
       }
 
-      // Destination Credential
-      if (credentials[i].user_unique_identifier == destination_user_uid
-          && credentials[i].credential_slot == destination_credential_slot) {
-        destination_exists = true;
+      // Destination credential slot must not be occupied if different
+      if (!same_slot
+          && (credentials[i].credential_slot == destination_credential_slot)
+      ) {
+        return U3C_DB_OPERATION_RESULT_FAIL_OCCUPIED;
       }
     }
   }
-
-  // Check if the criteria for the move were met
   if (!source_exists) {
     return U3C_DB_OPERATION_RESULT_FAIL_DNE;
   }
-  if (destination_exists) {
-    return U3C_DB_OPERATION_RESULT_FAIL_OCCUPIED;
+
+  uint16_t object_offset = credentials[source_index].object_offset;
+  
+  if (!same_uuid) {
+    // Change the associated UUID in the stored credential metadata
+    credential_metadata_nvm metadata = { 0 };
+    nvm(U3C_READ, AREA_CREDENTIAL_METADATA, object_offset, &metadata, 0);
+    metadata.uuid = destination_user_uid;
+    nvm(U3C_WRITE, AREA_CREDENTIAL_METADATA, object_offset, &metadata, 0);
   }
 
-  // Credential data is not moved, only the metadata
-  uint16_t object_offset = credentials[i_source].object_offset;
-  
+  // Remove the old element from the credential descriptor array
+  memmove(&credentials[source_index], &credentials[source_index + 1],
+          (n_credentials - source_index) * sizeof(u3c_credential_descriptor));
+  n_credentials--;
+
+  /** 
+   * Insert the new element into the credential descriptor array with
+   * the old credential's object offset.
+   * The partially initialized u3c_credential struct is only used for passing
+   * data to the @ref ordered_insert_credential_descriptor function.
+   */
   u3c_credential credential = {
     .metadata = {
       .uuid = destination_user_uid,
@@ -986,12 +1047,6 @@ u3c_db_operation_result CC_UserCredential_move_credential(
       .type = credential_type,
     }
   };
-
-  // Remove the old element from the array
-  memmove(&credentials[i_source], &credentials[i_source + 1], (n_credentials - i_source) * sizeof(u3c_credential_descriptor));
-  n_credentials--;
-
-  // Insert the new element into the array and with the old credentials object offset
   ordered_insert_credential_descriptor(credentials, &credential, object_offset);
 
   return (
@@ -999,4 +1054,39 @@ u3c_db_operation_result CC_UserCredential_move_credential(
     nvm(U3C_WRITE, AREA_CREDENTIAL_DESCRIPTORS, 0, &credentials, 0))
          ? U3C_DB_OPERATION_RESULT_SUCCESS
          : U3C_DB_OPERATION_RESULT_ERROR_IO;
+}
+
+u3c_db_operation_result CC_UserCredential_get_admin_code_info(
+  u3c_admin_code_metadata_t *code)
+{
+  admin_pin_code_metadata_nvm_t nvm_code = { 0 }; 
+  if (!nvm(U3C_READ, AREA_ADMIN_PIN_CODE_DATA, 0, &nvm_code, 0)) {
+    code->result = ADMIN_CODE_OPERATION_RESULT_ERROR_NODE; 
+    return U3C_DB_OPERATION_RESULT_ERROR;
+  }
+  // Move data into known good mirror and return
+  memcpy((void*)&admin_code, (void*)&nvm_code, sizeof(admin_pin_code_metadata_nvm_t)); 
+  code->code_data = (uint8_t*)admin_code.code; 
+  code->result = ADMIN_CODE_OPERATION_RESULT_GET_RESP; 
+  code->code_length = admin_code.code_length; 
+  return U3C_DB_OPERATION_RESULT_SUCCESS; 
+}
+
+u3c_db_operation_result CC_UserCredential_set_admin_code(
+  u3c_admin_code_metadata_t *code)
+{
+  // Create temporary code struct for write 
+  admin_pin_code_metadata_nvm_t nvm_code = { 
+    .code_length = code->code_length,
+  };
+  memcpy((void*)nvm_code.code, (void*)code->code_data, code->code_length); 
+   
+  if (!nvm(U3C_WRITE, AREA_ADMIN_PIN_CODE_DATA, 0, &nvm_code, 0)) {
+    code->result = ADMIN_CODE_OPERATION_RESULT_ERROR_NODE; 
+    return U3C_DB_OPERATION_RESULT_ERROR;
+  }
+  // If successful, update mirror with known good, new value and return
+  memcpy((void*)&admin_code, (void*)&nvm_code, sizeof(admin_pin_code_metadata_nvm_t)); 
+  code->result = ADMIN_CODE_OPERATION_RESULT_MODIFIED; 
+  return U3C_DB_OPERATION_RESULT_SUCCESS; 
 }

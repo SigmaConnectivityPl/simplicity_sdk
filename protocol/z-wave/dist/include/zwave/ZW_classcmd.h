@@ -3098,6 +3098,7 @@
   ZW_USER_CAPABILITIES_REPORT_3BYTE_FRAME                      ZW_UserCapabilitiesReport3byteFrame;\
   ZW_USER_CAPABILITIES_REPORT_4BYTE_FRAME                      ZW_UserCapabilitiesReport4byteFrame;\
   ZW_CREDENTIAL_CAPABILITIES_GET_FRAME                         ZW_CredentialCapabilitiesGetFrame;\
+  VG_CREDENTIAL_CAPABILITIES_REPORT_VG                         VG_CredentialCapabilitiesReportVGroup;\
   ZW_CREDENTIAL_CAPABILITIES_REPORT_1BYTE_FRAME                ZW_CredentialCapabilitiesReport1byteFrame;\
   ZW_CREDENTIAL_CAPABILITIES_REPORT_2BYTE_FRAME                ZW_CredentialCapabilitiesReport2byteFrame;\
   ZW_CREDENTIAL_CAPABILITIES_REPORT_3BYTE_FRAME                ZW_CredentialCapabilitiesReport3byteFrame;\
@@ -3111,11 +3112,6 @@
   ZW_USER_REPORT_2BYTE_FRAME                                   ZW_UserReport2byteFrame;\
   ZW_USER_REPORT_3BYTE_FRAME                                   ZW_UserReport3byteFrame;\
   ZW_USER_REPORT_4BYTE_FRAME                                   ZW_UserReport4byteFrame;\
-  ZW_USER_SET_ERROR_REPORT_1BYTE_FRAME                         ZW_UserSetErrorReport1byteFrame;\
-  ZW_USER_SET_ERROR_REPORT_2BYTE_FRAME                         ZW_UserSetErrorReport2byteFrame;\
-  ZW_USER_SET_ERROR_REPORT_3BYTE_FRAME                         ZW_UserSetErrorReport3byteFrame;\
-  ZW_USER_SET_ERROR_REPORT_4BYTE_FRAME                         ZW_UserSetErrorReport4byteFrame;\
-  ZW_USER_NOTIFICATION_REPORT_FRAME                            ZW_UserNotificationReportFrame;\
   ZW_CREDENTIAL_SET_1BYTE_FRAME                                ZW_CredentialSet1byteFrame;\
   ZW_CREDENTIAL_SET_2BYTE_FRAME                                ZW_CredentialSet2byteFrame;\
   ZW_CREDENTIAL_SET_3BYTE_FRAME                                ZW_CredentialSet3byteFrame;\
@@ -3125,14 +3121,6 @@
   ZW_CREDENTIAL_REPORT_2BYTE_FRAME                             ZW_CredentialReport2byteFrame;\
   ZW_CREDENTIAL_REPORT_3BYTE_FRAME                             ZW_CredentialReport3byteFrame;\
   ZW_CREDENTIAL_REPORT_4BYTE_FRAME                             ZW_CredentialReport4byteFrame;\
-  ZW_CREDENTIAL_SET_ERROR_REPORT_1BYTE_FRAME                   ZW_CredentialSetErrorReport1byteFrame;\
-  ZW_CREDENTIAL_SET_ERROR_REPORT_2BYTE_FRAME                   ZW_CredentialSetErrorReport2byteFrame;\
-  ZW_CREDENTIAL_SET_ERROR_REPORT_3BYTE_FRAME                   ZW_CredentialSetErrorReport3byteFrame;\
-  ZW_CREDENTIAL_SET_ERROR_REPORT_4BYTE_FRAME                   ZW_CredentialSetErrorReport4byteFrame;\
-  ZW_CREDENTIAL_NOTIFICATION_REPORT_1BYTE_FRAME                ZW_CredentialNotificationReport1byteFrame;\
-  ZW_CREDENTIAL_NOTIFICATION_REPORT_2BYTE_FRAME                ZW_CredentialNotificationReport2byteFrame;\
-  ZW_CREDENTIAL_NOTIFICATION_REPORT_3BYTE_FRAME                ZW_CredentialNotificationReport3byteFrame;\
-  ZW_CREDENTIAL_NOTIFICATION_REPORT_4BYTE_FRAME                ZW_CredentialNotificationReport4byteFrame;\
   ZW_CREDENTIAL_LEARN_START_FRAME                              ZW_CredentialLearnStartFrame;\
   ZW_CREDENTIAL_LEARN_CANCEL_FRAME                             ZW_CredentialLearnCancelFrame;\
   ZW_CREDENTIAL_LEARN_REPORT_FRAME                             ZW_CredentialLearnReportFrame;\
@@ -3144,6 +3132,15 @@
   ZW_USER_CHECKSUM_REPORT_FRAME                                ZW_UserChecksumReportFrame;\
   ZW_CREDENTIAL_CHECKSUM_GET_FRAME                             ZW_CredentialChecksumGetFrame;\
   ZW_CREDENTIAL_CHECKSUM_REPORT_FRAME                          ZW_CredentialChecksumReportFrame;\
+  ZW_ADMIN_PIN_CODE_SET_1BYTE_FRAME                            ZW_AdminPinCodeSet1byteFrame;\
+  ZW_ADMIN_PIN_CODE_SET_2BYTE_FRAME                            ZW_AdminPinCodeSet2byteFrame;\
+  ZW_ADMIN_PIN_CODE_SET_3BYTE_FRAME                            ZW_AdminPinCodeSet3byteFrame;\
+  ZW_ADMIN_PIN_CODE_SET_4BYTE_FRAME                            ZW_AdminPinCodeSet4byteFrame;\
+  ZW_ADMIN_PIN_CODE_GET_FRAME                                  ZW_AdminPinCodeGetFrame;\
+  ZW_ADMIN_PIN_CODE_REPORT_1BYTE_FRAME                         ZW_AdminPinCodeReport1byteFrame;\
+  ZW_ADMIN_PIN_CODE_REPORT_2BYTE_FRAME                         ZW_AdminPinCodeReport2byteFrame;\
+  ZW_ADMIN_PIN_CODE_REPORT_3BYTE_FRAME                         ZW_AdminPinCodeReport3byteFrame;\
+  ZW_ADMIN_PIN_CODE_REPORT_4BYTE_FRAME                         ZW_AdminPinCodeReport4byteFrame;\
 
 
 /************ Basic Device Class identifiers **************/
@@ -14394,13 +14391,9 @@
 #define USER_SET                                                                         0x05
 #define USER_GET                                                                         0x06
 #define USER_REPORT                                                                      0x07
-#define USER_SET_ERROR_REPORT                                                            0x08
-#define USER_NOTIFICATION_REPORT                                                         0x09
 #define CREDENTIAL_SET                                                                   0x0A
 #define CREDENTIAL_GET                                                                   0x0B
 #define CREDENTIAL_REPORT                                                                0x0C
-#define CREDENTIAL_SET_ERROR_REPORT                                                      0x0D
-#define CREDENTIAL_NOTIFICATION_REPORT                                                   0x0E
 #define CREDENTIAL_LEARN_START                                                           0x0F
 #define CREDENTIAL_LEARN_CANCEL                                                          0x10
 #define CREDENTIAL_LEARN_REPORT                                                          0x11
@@ -14412,14 +14405,19 @@
 #define USER_CHECKSUM_REPORT                                                             0x17
 #define CREDENTIAL_CHECKSUM_GET                                                          0x18
 #define CREDENTIAL_CHECKSUM_REPORT                                                       0x19
+#define ADMIN_PIN_CODE_SET                                                               0x1A
+#define ADMIN_PIN_CODE_GET                                                               0x1B
+#define ADMIN_PIN_CODE_REPORT                                                            0x1C
 /* Values used for User Capabilities Report command */
 #define USER_CAPABILITIES_REPORT_PROPERTIES1_RESERVED_MASK                               0x1F
 #define USER_CAPABILITIES_REPORT_PROPERTIES1_USER_CHECKSUM_SUPPORT_BIT_MASK              0x20
 #define USER_CAPABILITIES_REPORT_PROPERTIES1_ALL_USERS_CHECKSUM_SUPPORT_BIT_MASK         0x40
 #define USER_CAPABILITIES_REPORT_PROPERTIES1_USER_SCHEDULE_SUPPORT_BIT_MASK              0x80
 /* Values used for Credential Capabilities Report command */
-#define CREDENTIAL_CAPABILITIES_REPORT_PROPERTIES1_RESERVED_MASK                         0x7F
-#define CREDENTIAL_CAPABILITIES_REPORT_PROPERTIES1_CREDENTIAL_CHECKSUM_SUPPORT_BIT_MASK  0x80
+#define CREDENTIAL_CAPABILITIES_REPORT_PROPERTIES1_RESERVED_MASK                         0x1F
+#define CREDENTIAL_CAPABILITIES_REPORT_PROPERTIES1_CREDENTIAL_CHECKSUM_SUPPORT_BIT_MASK  0x20
+#define CREDENTIAL_CAPABILITIES_REPORT_PROPERTIES1_ADMIN_CODE_SUPPORT_BIT_MASK           0x40
+#define CREDENTIAL_CAPABILITIES_REPORT_PROPERTIES1_ADMIN_CODE_DEACTIVATION_SUPPORT_BIT_MASK 0x80
 /* Values used for User Set command */
 #define USER_SET_PROPERTIES1_OPERATION_TYPE_MASK                                         0x03
 #define USER_SET_OPERATION_TYPE_ADD                                                      0x00
@@ -14428,15 +14426,23 @@
 #define USER_SET_PROPERTIES1_RESERVED_MASK                                               0xFC
 #define USER_SET_PROPERTIES1_RESERVED_SHIFT                                              0x02
 #define USER_SET_PROPERTIES2_USER_ACTIVE_STATE_BIT_MASK                                  0x01
-#define USER_SET_PROPERTIES2_RESERVED_MASK                                               0xFE
-#define USER_SET_PROPERTIES2_RESERVED_SHIFT                                              0x01
+#define USER_SET_PROPERTIES2_RESERVED2_MASK                                              0xFE
+#define USER_SET_PROPERTIES2_RESERVED2_SHIFT                                             0x01
 #define USER_SET_PROPERTIES3_USER_NAME_ENCODING_MASK                                     0x07
 #define USER_SET_USER_NAME_ENCODING_USING_STANDARD_ASCII_CODES                           0x00
 #define USER_SET_USER_NAME_ENCODING_USING_STANDARD_AND_OEM_EXTENDED_ASCII_CODES          0x01
 #define USER_SET_USER_NAME_ENCODING_UNICODE_UTF_16                                       0x02
-#define USER_SET_PROPERTIES3_RESERVED_MASK                                               0xF8
-#define USER_SET_PROPERTIES3_RESERVED_SHIFT                                              0x03
+#define USER_SET_PROPERTIES3_RESERVED3_MASK                                              0xF8
+#define USER_SET_PROPERTIES3_RESERVED3_SHIFT                                             0x03
 /* Values used for User Report command */
+#define USER_REPORT_ADDED                                                                0x00
+#define USER_REPORT_MODIFIED                                                             0x01
+#define USER_REPORT_DELETED                                                              0x02
+#define USER_REPORT_UNCHANGED                                                            0x03
+#define USER_REPORT_RESPONSE_TO_GET                                                      0x04
+#define USER_REPORT_ADD_AGAINST_OCCUPIED                                                 0x05
+#define USER_REPORT_MODIFY_AGAINST_EMPTY                                                 0x06
+#define USER_REPORT_NON_ZERO_EXPIRING_MINUTES_INVALID                                    0x07
 #define USER_REPORT_DNE                                                                  0x00
 #define USER_REPORT_UNKNOWN                                                              0x01
 #define USER_REPORT_Z_WAVE                                                               0x02
@@ -14449,34 +14455,8 @@
 #define USER_REPORT_USER_NAME_ENCODING_USING_STANDARD_ASCII_CODES                        0x00
 #define USER_REPORT_USER_NAME_ENCODING_USING_STANDARD_AND_OEM_EXTENDED_ASCII_CODES       0x01
 #define USER_REPORT_USER_NAME_ENCODING_UNICODE_UTF_16                                    0x02
-#define USER_REPORT_PROPERTIES2_RESERVED_MASK                                            0xF8
-#define USER_REPORT_PROPERTIES2_RESERVED_SHIFT                                           0x03
-/* Values used for User Set Error Report command */
-#define USER_SET_ERROR_REPORT_USERADDREJECTEDLOCATIONOCCUPIED                            0x00
-#define USER_SET_ERROR_REPORT_USERMODIFYREJECTEDLOCATIONEMPTY                            0x01
-#define USER_SET_ERROR_REPORT_DNE                                                        0x00
-#define USER_SET_ERROR_REPORT_UNKNOWN                                                    0x01
-#define USER_SET_ERROR_REPORT_Z_WAVE                                                     0x02
-#define USER_SET_ERROR_REPORT_LOCALLY                                                    0x03
-#define USER_SET_ERROR_REPORT_MOBILE_APP_OR_OTHER_IOT_TECHNOLOGY                         0x04
-#define USER_SET_ERROR_REPORT_PROPERTIES1_USER_ACTIVE_STATE_BIT_MASK                     0x01
-#define USER_SET_ERROR_REPORT_PROPERTIES1_RESERVED_MASK                                  0xFE
-#define USER_SET_ERROR_REPORT_PROPERTIES1_RESERVED_SHIFT                                 0x01
-#define USER_SET_ERROR_REPORT_PROPERTIES2_USER_NAME_ENCODING_MASK                        0x07
-#define USER_SET_ERROR_REPORT_USER_NAME_ENCODING_USING_STANDARD_ASCII_CODES              0x00
-#define USER_SET_ERROR_REPORT_USER_NAME_ENCODING_USING_STANDARD_AND_OEM_EXTENDED_ASCII_CODES 0x01
-#define USER_SET_ERROR_REPORT_USER_NAME_ENCODING_UNICODE_UTF_16                          0x02
-#define USER_SET_ERROR_REPORT_PROPERTIES2_RESERVED_MASK                                  0xF8
-#define USER_SET_ERROR_REPORT_PROPERTIES2_RESERVED_SHIFT                                 0x03
-/* Values used for User Notification Report command */
-#define USER_NOTIFICATION_REPORT_DNE                                                     0x00
-#define USER_NOTIFICATION_REPORT_UNKNOWN                                                 0x01
-#define USER_NOTIFICATION_REPORT_Z_WAVE                                                  0x02
-#define USER_NOTIFICATION_REPORT_LOCALLY                                                 0x03
-#define USER_NOTIFICATION_REPORT_MOBILE_APP_OR_OTHER_IOT_TECHNOLOGY                      0x04
-#define USER_NOTIFICATION_REPORT_PROPERTIES1_USER_ACTIVE_STATE_BIT_MASK                  0x01
-#define USER_NOTIFICATION_REPORT_PROPERTIES1_RESERVED_MASK                               0xFE
-#define USER_NOTIFICATION_REPORT_PROPERTIES1_RESERVED_SHIFT                              0x01
+#define USER_REPORT_PROPERTIES2_RESERVED2_MASK                                           0xF8
+#define USER_REPORT_PROPERTIES2_RESERVED2_SHIFT                                          0x03
 /* Values used for Credential Set command */
 #define CREDENTIAL_SET_PIN_CODE                                                          0x01
 #define CREDENTIAL_SET_PASSWORD                                                          0x02
@@ -14508,6 +14488,17 @@
 #define CREDENTIAL_GET_HAND_BIOMETRIC                                                    0x0A
 #define CREDENTIAL_GET_UNSPECIFIED_BIOMETRIC                                             0x0B
 /* Values used for Credential Report command */
+#define CREDENTIAL_REPORT_ADDED                                                          0x00
+#define CREDENTIAL_REPORT_MODIFIED                                                       0x01
+#define CREDENTIAL_REPORT_DELETED                                                        0x02
+#define CREDENTIAL_REPORT_UNCHANGED                                                      0x03
+#define CREDENTIAL_REPORT_RESPONSE_TO_GET                                                0x04
+#define CREDENTIAL_REPORT_ADD_AGAINST_OCCUPIED                                           0x05
+#define CREDENTIAL_REPORT_MODIFY_AGAINST_EMPTY                                           0x06
+#define CREDENTIAL_REPORT_DUPLICATE                                                      0x07
+#define CREDENTIAL_REPORT_MANUFACTURER_SECURITY_RULES                                    0x08
+#define CREDENTIAL_REPORT_ASSIGNED_TO_DIFFERENT_USER                                     0x09
+#define CREDENTIAL_REPORT_DUPLICATE_ADMIN_PIN_CODE                                       0x0A
 #define CREDENTIAL_REPORT_PIN_CODE                                                       0x01
 #define CREDENTIAL_REPORT_PASSWORD                                                       0x02
 #define CREDENTIAL_REPORT_RFID_CODE                                                      0x03
@@ -14526,6 +14517,7 @@
 #define CREDENTIAL_REPORT_Z_WAVE                                                         0x02
 #define CREDENTIAL_REPORT_LOCALLY                                                        0x03
 #define CREDENTIAL_REPORT_MOBILE_APP_OR_OTHER_IOT_TECHNOLOGY                             0x04
+#define CREDENTIAL_REPORT_NONE                                                           0x00
 #define CREDENTIAL_REPORT_PIN_CODE                                                       0x01
 #define CREDENTIAL_REPORT_PASSWORD                                                       0x02
 #define CREDENTIAL_REPORT_RFID_CODE                                                      0x03
@@ -14537,48 +14529,6 @@
 #define CREDENTIAL_REPORT_FINGER_BIOMETRIC                                               0x09
 #define CREDENTIAL_REPORT_HAND_BIOMETRIC                                                 0x0A
 #define CREDENTIAL_REPORT_UNSPECIFIED_BIOMETRIC                                          0x0B
-/* Values used for Credential Set Error Report command */
-#define CREDENTIAL_SET_ERROR_REPORT_CREDENTIALADDREJECTEDLOCATIONOCCUPIED                0x00
-#define CREDENTIAL_SET_ERROR_REPORT_CREDENTIALMODIFYREJECTEDLOCATIONEMPTY                0x01
-#define CREDENTIAL_SET_ERROR_REPORT_DUPLICATECREDENTIAL                                  0x02
-#define CREDENTIAL_SET_ERROR_REPORT_MANUFACTURERSECURITYRULES                            0x03
-#define CREDENTIAL_SET_ERROR_REPORT_PIN_CODE                                             0x01
-#define CREDENTIAL_SET_ERROR_REPORT_PASSWORD                                             0x02
-#define CREDENTIAL_SET_ERROR_REPORT_RFID_CODE                                            0x03
-#define CREDENTIAL_SET_ERROR_REPORT_BLE                                                  0x04
-#define CREDENTIAL_SET_ERROR_REPORT_NFC                                                  0x05
-#define CREDENTIAL_SET_ERROR_REPORT_UWB                                                  0x06
-#define CREDENTIAL_SET_ERROR_REPORT_EYE_BIOMETRIC                                        0x07
-#define CREDENTIAL_SET_ERROR_REPORT_FACE_BIOMETRIC                                       0x08
-#define CREDENTIAL_SET_ERROR_REPORT_FINGER_BIOMETRIC                                     0x09
-#define CREDENTIAL_SET_ERROR_REPORT_HAND_BIOMETRIC                                       0x0A
-#define CREDENTIAL_SET_ERROR_REPORT_UNSPECIFIED_BIOMETRIC                                0x0B
-#define CREDENTIAL_SET_ERROR_REPORT_PROPERTIES1_RESERVED_MASK                            0x7F
-#define CREDENTIAL_SET_ERROR_REPORT_PROPERTIES1_CRB_BIT_MASK                             0x80
-#define CREDENTIAL_SET_ERROR_REPORT_DNE                                                  0x00
-#define CREDENTIAL_SET_ERROR_REPORT_UNKNOWN                                              0x01
-#define CREDENTIAL_SET_ERROR_REPORT_Z_WAVE                                               0x02
-#define CREDENTIAL_SET_ERROR_REPORT_LOCALLY                                              0x03
-#define CREDENTIAL_SET_ERROR_REPORT_MOBILE_APP_OR_OTHER_IOT_TECHNOLOGY                   0x04
-/* Values used for Credential Notification Report command */
-#define CREDENTIAL_NOTIFICATION_REPORT_PIN_CODE                                          0x01
-#define CREDENTIAL_NOTIFICATION_REPORT_PASSWORD                                          0x02
-#define CREDENTIAL_NOTIFICATION_REPORT_RFID_CODE                                         0x03
-#define CREDENTIAL_NOTIFICATION_REPORT_BLE                                               0x04
-#define CREDENTIAL_NOTIFICATION_REPORT_NFC                                               0x05
-#define CREDENTIAL_NOTIFICATION_REPORT_UWB                                               0x06
-#define CREDENTIAL_NOTIFICATION_REPORT_EYE_BIOMETRIC                                     0x07
-#define CREDENTIAL_NOTIFICATION_REPORT_FACE_BIOMETRIC                                    0x08
-#define CREDENTIAL_NOTIFICATION_REPORT_FINGER_BIOMETRIC                                  0x09
-#define CREDENTIAL_NOTIFICATION_REPORT_HAND_BIOMETRIC                                    0x0A
-#define CREDENTIAL_NOTIFICATION_REPORT_UNSPECIFIED_BIOMETRIC                             0x0B
-#define CREDENTIAL_NOTIFICATION_REPORT_PROPERTIES1_RESERVED_MASK                         0x7F
-#define CREDENTIAL_NOTIFICATION_REPORT_PROPERTIES1_CRB_BIT_MASK                          0x80
-#define CREDENTIAL_NOTIFICATION_REPORT_DNE                                               0x00
-#define CREDENTIAL_NOTIFICATION_REPORT_UNKNOWN                                           0x01
-#define CREDENTIAL_NOTIFICATION_REPORT_Z_WAVE                                            0x02
-#define CREDENTIAL_NOTIFICATION_REPORT_LOCALLY                                           0x03
-#define CREDENTIAL_NOTIFICATION_REPORT_MOBILE_APP_OR_OTHER_IOT_TECHNOLOGY                0x04
 /* Values used for Credential Learn Start command */
 #define CREDENTIAL_LEARN_START_PIN_CODE                                                  0x01
 #define CREDENTIAL_LEARN_START_PASSWORD                                                  0x02
@@ -14674,6 +14624,14 @@
 #define CREDENTIAL_CHECKSUM_REPORT_FINGER_BIOMETRIC                                      0x09
 #define CREDENTIAL_CHECKSUM_REPORT_HAND_BIOMETRIC                                        0x0A
 #define CREDENTIAL_CHECKSUM_REPORT_UNSPECIFIED_BIOMETRIC                                 0x0B
+/* Values used for Admin Pin Code Set command */
+#define ADMIN_PIN_CODE_SET_PROPERTIES1_ADMIN_PIN_CODE_LENGTH_MASK                        0x0F
+#define ADMIN_PIN_CODE_SET_PROPERTIES1_RESERVED_MASK                                     0xF0
+#define ADMIN_PIN_CODE_SET_PROPERTIES1_RESERVED_SHIFT                                    0x04
+/* Values used for Admin Pin Code Report command */
+#define ADMIN_PIN_CODE_REPORT_PROPERTIES1_ADMIN_PIN_CODE_LENGTH_MASK                     0x0F
+#define ADMIN_PIN_CODE_REPORT_PROPERTIES1_ADMIN_PIN_CODE_OPERATION_RESULT_MASK           0xF0
+#define ADMIN_PIN_CODE_REPORT_PROPERTIES1_ADMIN_PIN_CODE_OPERATION_RESULT_SHIFT          0x04
 
 
 /* Max. frame size to allow routing over 4 hops */
@@ -54398,6 +54356,7 @@ typedef struct _ZW_USER_REPORT_1BYTE_FRAME_
 {
     uint8_t   cmdClass;                     /* The command class */
     uint8_t   cmd;                          /* The command */
+    uint8_t   userReportType;               /**/
     uint8_t   nextUserUniqueIdentifier1;    /* MSB */
     uint8_t   nextUserUniqueIdentifier2;    /* LSB */
     uint8_t   userModifierType;             /**/
@@ -54422,6 +54381,7 @@ typedef struct _ZW_USER_REPORT_2BYTE_FRAME_
 {
     uint8_t   cmdClass;                     /* The command class */
     uint8_t   cmd;                          /* The command */
+    uint8_t   userReportType;               /**/
     uint8_t   nextUserUniqueIdentifier1;    /* MSB */
     uint8_t   nextUserUniqueIdentifier2;    /* LSB */
     uint8_t   userModifierType;             /**/
@@ -54447,6 +54407,7 @@ typedef struct _ZW_USER_REPORT_3BYTE_FRAME_
 {
     uint8_t   cmdClass;                     /* The command class */
     uint8_t   cmd;                          /* The command */
+    uint8_t   userReportType;               /**/
     uint8_t   nextUserUniqueIdentifier1;    /* MSB */
     uint8_t   nextUserUniqueIdentifier2;    /* LSB */
     uint8_t   userModifierType;             /**/
@@ -54473,6 +54434,7 @@ typedef struct _ZW_USER_REPORT_4BYTE_FRAME_
 {
     uint8_t   cmdClass;                     /* The command class */
     uint8_t   cmd;                          /* The command */
+    uint8_t   userReportType;               /**/
     uint8_t   nextUserUniqueIdentifier1;    /* MSB */
     uint8_t   nextUserUniqueIdentifier2;    /* LSB */
     uint8_t   userModifierType;             /**/
@@ -54492,123 +54454,6 @@ typedef struct _ZW_USER_REPORT_4BYTE_FRAME_
     uint8_t   userName3;                    
     uint8_t   userName4;                    /* LSB */
 } ZW_USER_REPORT_4BYTE_FRAME;
-
-/************************************************************/
-/* User Set Error Report 1byte command class structs */     
-/************************************************************/
-typedef struct _ZW_USER_SET_ERROR_REPORT_1BYTE_FRAME_
-{
-    uint8_t   cmdClass;                     /* The command class */
-    uint8_t   cmd;                          /* The command */
-    uint8_t   userSetErrorType;             /**/
-    uint8_t   userModifierType;             /**/
-    uint8_t   userModifierNodeId1;          /* MSB */
-    uint8_t   userModifierNodeId2;          /* LSB */
-    uint8_t   userUniqueIdentifier1;        /* MSB */
-    uint8_t   userUniqueIdentifier2;        /* LSB */
-    uint8_t   userType;                     /**/
-    uint8_t   properties1;                  /* masked byte */
-    uint8_t   credentialRule;               /**/
-    uint8_t   expiringTimeoutMinutes1;      /* MSB */
-    uint8_t   expiringTimeoutMinutes2;      /* LSB */
-    uint8_t   properties2;                  /* masked byte */
-    uint8_t   userNameLength;               /**/
-    uint8_t   userName1;                    
-} ZW_USER_SET_ERROR_REPORT_1BYTE_FRAME;
-
-/************************************************************/
-/* User Set Error Report 2byte command class structs */     
-/************************************************************/
-typedef struct _ZW_USER_SET_ERROR_REPORT_2BYTE_FRAME_
-{
-    uint8_t   cmdClass;                     /* The command class */
-    uint8_t   cmd;                          /* The command */
-    uint8_t   userSetErrorType;             /**/
-    uint8_t   userModifierType;             /**/
-    uint8_t   userModifierNodeId1;          /* MSB */
-    uint8_t   userModifierNodeId2;          /* LSB */
-    uint8_t   userUniqueIdentifier1;        /* MSB */
-    uint8_t   userUniqueIdentifier2;        /* LSB */
-    uint8_t   userType;                     /**/
-    uint8_t   properties1;                  /* masked byte */
-    uint8_t   credentialRule;               /**/
-    uint8_t   expiringTimeoutMinutes1;      /* MSB */
-    uint8_t   expiringTimeoutMinutes2;      /* LSB */
-    uint8_t   properties2;                  /* masked byte */
-    uint8_t   userNameLength;               /**/
-    uint8_t   userName1;                    /* MSB */
-    uint8_t   userName2;                    /* LSB */
-} ZW_USER_SET_ERROR_REPORT_2BYTE_FRAME;
-
-/************************************************************/
-/* User Set Error Report 3byte command class structs */     
-/************************************************************/
-typedef struct _ZW_USER_SET_ERROR_REPORT_3BYTE_FRAME_
-{
-    uint8_t   cmdClass;                     /* The command class */
-    uint8_t   cmd;                          /* The command */
-    uint8_t   userSetErrorType;             /**/
-    uint8_t   userModifierType;             /**/
-    uint8_t   userModifierNodeId1;          /* MSB */
-    uint8_t   userModifierNodeId2;          /* LSB */
-    uint8_t   userUniqueIdentifier1;        /* MSB */
-    uint8_t   userUniqueIdentifier2;        /* LSB */
-    uint8_t   userType;                     /**/
-    uint8_t   properties1;                  /* masked byte */
-    uint8_t   credentialRule;               /**/
-    uint8_t   expiringTimeoutMinutes1;      /* MSB */
-    uint8_t   expiringTimeoutMinutes2;      /* LSB */
-    uint8_t   properties2;                  /* masked byte */
-    uint8_t   userNameLength;               /**/
-    uint8_t   userName1;                    /* MSB */
-    uint8_t   userName2;                    
-    uint8_t   userName3;                    /* LSB */
-} ZW_USER_SET_ERROR_REPORT_3BYTE_FRAME;
-
-/************************************************************/
-/* User Set Error Report 4byte command class structs */     
-/************************************************************/
-typedef struct _ZW_USER_SET_ERROR_REPORT_4BYTE_FRAME_
-{
-    uint8_t   cmdClass;                     /* The command class */
-    uint8_t   cmd;                          /* The command */
-    uint8_t   userSetErrorType;             /**/
-    uint8_t   userModifierType;             /**/
-    uint8_t   userModifierNodeId1;          /* MSB */
-    uint8_t   userModifierNodeId2;          /* LSB */
-    uint8_t   userUniqueIdentifier1;        /* MSB */
-    uint8_t   userUniqueIdentifier2;        /* LSB */
-    uint8_t   userType;                     /**/
-    uint8_t   properties1;                  /* masked byte */
-    uint8_t   credentialRule;               /**/
-    uint8_t   expiringTimeoutMinutes1;      /* MSB */
-    uint8_t   expiringTimeoutMinutes2;      /* LSB */
-    uint8_t   properties2;                  /* masked byte */
-    uint8_t   userNameLength;               /**/
-    uint8_t   userName1;                    /* MSB */
-    uint8_t   userName2;                    
-    uint8_t   userName3;                    
-    uint8_t   userName4;                    /* LSB */
-} ZW_USER_SET_ERROR_REPORT_4BYTE_FRAME;
-
-/************************************************************/
-/* User Notification Report command class structs */        
-/************************************************************/
-typedef struct _ZW_USER_NOTIFICATION_REPORT_FRAME_
-{
-    uint8_t   cmdClass;                     /* The command class */
-    uint8_t   cmd;                          /* The command */
-    uint8_t   userModifierType;             /**/
-    uint8_t   userModifierNodeId1;          /* MSB */
-    uint8_t   userModifierNodeId2;          /* LSB */
-    uint8_t   userUniqueIdentifier1;        /* MSB */
-    uint8_t   userUniqueIdentifier2;        /* LSB */
-    uint8_t   userType;                     /**/
-    uint8_t   properties1;                  /* masked byte */
-    uint8_t   credentialRule;               /**/
-    uint8_t   expiringTimeoutMinutes1;      /* MSB */
-    uint8_t   expiringTimeoutMinutes2;      /* LSB */
-} ZW_USER_NOTIFICATION_REPORT_FRAME;
 
 /************************************************************/
 /* Credential Set 1byte command class structs */            
@@ -54705,6 +54550,7 @@ typedef struct _ZW_CREDENTIAL_REPORT_1BYTE_FRAME_
 {
     uint8_t   cmdClass;                     /* The command class */
     uint8_t   cmd;                          /* The command */
+    uint8_t   credentialReportType;         /**/
     uint8_t   userUniqueIdentifier1;        /* MSB */
     uint8_t   userUniqueIdentifier2;        /* LSB */
     uint8_t   credentialType;               /**/
@@ -54728,6 +54574,7 @@ typedef struct _ZW_CREDENTIAL_REPORT_2BYTE_FRAME_
 {
     uint8_t   cmdClass;                     /* The command class */
     uint8_t   cmd;                          /* The command */
+    uint8_t   credentialReportType;         /**/
     uint8_t   userUniqueIdentifier1;        /* MSB */
     uint8_t   userUniqueIdentifier2;        /* LSB */
     uint8_t   credentialType;               /**/
@@ -54752,6 +54599,7 @@ typedef struct _ZW_CREDENTIAL_REPORT_3BYTE_FRAME_
 {
     uint8_t   cmdClass;                     /* The command class */
     uint8_t   cmd;                          /* The command */
+    uint8_t   credentialReportType;         /**/
     uint8_t   userUniqueIdentifier1;        /* MSB */
     uint8_t   userUniqueIdentifier2;        /* LSB */
     uint8_t   credentialType;               /**/
@@ -54777,6 +54625,7 @@ typedef struct _ZW_CREDENTIAL_REPORT_4BYTE_FRAME_
 {
     uint8_t   cmdClass;                     /* The command class */
     uint8_t   cmd;                          /* The command */
+    uint8_t   credentialReportType;         /**/
     uint8_t   userUniqueIdentifier1;        /* MSB */
     uint8_t   userUniqueIdentifier2;        /* LSB */
     uint8_t   credentialType;               /**/
@@ -54795,182 +54644,6 @@ typedef struct _ZW_CREDENTIAL_REPORT_4BYTE_FRAME_
     uint8_t   nextCredentialSlot1;          /* MSB */
     uint8_t   nextCredentialSlot2;          /* LSB */
 } ZW_CREDENTIAL_REPORT_4BYTE_FRAME;
-
-/************************************************************/
-/* Credential Set Error Report 1byte command class structs */
-/************************************************************/
-typedef struct _ZW_CREDENTIAL_SET_ERROR_REPORT_1BYTE_FRAME_
-{
-    uint8_t   cmdClass;                     /* The command class */
-    uint8_t   cmd;                          /* The command */
-    uint8_t   credentialSetErrorType;       /**/
-    uint8_t   userUniqueIdentifier1;        /* MSB */
-    uint8_t   userUniqueIdentifier2;        /* LSB */
-    uint8_t   credentialType;               /**/
-    uint8_t   credentialSlot1;              /* MSB */
-    uint8_t   credentialSlot2;              /* LSB */
-    uint8_t   properties1;                  /* masked byte */
-    uint8_t   credentialLength;             /**/
-    uint8_t   credentialData1;              
-    uint8_t   credentialModifierType;       /**/
-    uint8_t   credentialModifierNodeId1;    /* MSB */
-    uint8_t   credentialModifierNodeId2;    /* LSB */
-} ZW_CREDENTIAL_SET_ERROR_REPORT_1BYTE_FRAME;
-
-/************************************************************/
-/* Credential Set Error Report 2byte command class structs */
-/************************************************************/
-typedef struct _ZW_CREDENTIAL_SET_ERROR_REPORT_2BYTE_FRAME_
-{
-    uint8_t   cmdClass;                     /* The command class */
-    uint8_t   cmd;                          /* The command */
-    uint8_t   credentialSetErrorType;       /**/
-    uint8_t   userUniqueIdentifier1;        /* MSB */
-    uint8_t   userUniqueIdentifier2;        /* LSB */
-    uint8_t   credentialType;               /**/
-    uint8_t   credentialSlot1;              /* MSB */
-    uint8_t   credentialSlot2;              /* LSB */
-    uint8_t   properties1;                  /* masked byte */
-    uint8_t   credentialLength;             /**/
-    uint8_t   credentialData1;              /* MSB */
-    uint8_t   credentialData2;              /* LSB */
-    uint8_t   credentialModifierType;       /**/
-    uint8_t   credentialModifierNodeId1;    /* MSB */
-    uint8_t   credentialModifierNodeId2;    /* LSB */
-} ZW_CREDENTIAL_SET_ERROR_REPORT_2BYTE_FRAME;
-
-/************************************************************/
-/* Credential Set Error Report 3byte command class structs */
-/************************************************************/
-typedef struct _ZW_CREDENTIAL_SET_ERROR_REPORT_3BYTE_FRAME_
-{
-    uint8_t   cmdClass;                     /* The command class */
-    uint8_t   cmd;                          /* The command */
-    uint8_t   credentialSetErrorType;       /**/
-    uint8_t   userUniqueIdentifier1;        /* MSB */
-    uint8_t   userUniqueIdentifier2;        /* LSB */
-    uint8_t   credentialType;               /**/
-    uint8_t   credentialSlot1;              /* MSB */
-    uint8_t   credentialSlot2;              /* LSB */
-    uint8_t   properties1;                  /* masked byte */
-    uint8_t   credentialLength;             /**/
-    uint8_t   credentialData1;              /* MSB */
-    uint8_t   credentialData2;              
-    uint8_t   credentialData3;              /* LSB */
-    uint8_t   credentialModifierType;       /**/
-    uint8_t   credentialModifierNodeId1;    /* MSB */
-    uint8_t   credentialModifierNodeId2;    /* LSB */
-} ZW_CREDENTIAL_SET_ERROR_REPORT_3BYTE_FRAME;
-
-/************************************************************/
-/* Credential Set Error Report 4byte command class structs */
-/************************************************************/
-typedef struct _ZW_CREDENTIAL_SET_ERROR_REPORT_4BYTE_FRAME_
-{
-    uint8_t   cmdClass;                     /* The command class */
-    uint8_t   cmd;                          /* The command */
-    uint8_t   credentialSetErrorType;       /**/
-    uint8_t   userUniqueIdentifier1;        /* MSB */
-    uint8_t   userUniqueIdentifier2;        /* LSB */
-    uint8_t   credentialType;               /**/
-    uint8_t   credentialSlot1;              /* MSB */
-    uint8_t   credentialSlot2;              /* LSB */
-    uint8_t   properties1;                  /* masked byte */
-    uint8_t   credentialLength;             /**/
-    uint8_t   credentialData1;              /* MSB */
-    uint8_t   credentialData2;              
-    uint8_t   credentialData3;              
-    uint8_t   credentialData4;              /* LSB */
-    uint8_t   credentialModifierType;       /**/
-    uint8_t   credentialModifierNodeId1;    /* MSB */
-    uint8_t   credentialModifierNodeId2;    /* LSB */
-} ZW_CREDENTIAL_SET_ERROR_REPORT_4BYTE_FRAME;
-
-/************************************************************/
-/* Credential Notification Report 1byte command class structs */
-/************************************************************/
-typedef struct _ZW_CREDENTIAL_NOTIFICATION_REPORT_1BYTE_FRAME_
-{
-    uint8_t   cmdClass;                     /* The command class */
-    uint8_t   cmd;                          /* The command */
-    uint8_t   userUniqueIdentifier1;        /* MSB */
-    uint8_t   userUniqueIdentifier2;        /* LSB */
-    uint8_t   credentialType;               /**/
-    uint8_t   credentialSlot1;              /* MSB */
-    uint8_t   credentialSlot2;              /* LSB */
-    uint8_t   properties1;                  /* masked byte */
-    uint8_t   credentialLength;             /**/
-    uint8_t   credentialData1;              
-    uint8_t   credentialModifierType;       /**/
-    uint8_t   credentialModifierNodeId1;    /* MSB */
-    uint8_t   credentialModifierNodeId2;    /* LSB */
-} ZW_CREDENTIAL_NOTIFICATION_REPORT_1BYTE_FRAME;
-
-/************************************************************/
-/* Credential Notification Report 2byte command class structs */
-/************************************************************/
-typedef struct _ZW_CREDENTIAL_NOTIFICATION_REPORT_2BYTE_FRAME_
-{
-    uint8_t   cmdClass;                     /* The command class */
-    uint8_t   cmd;                          /* The command */
-    uint8_t   userUniqueIdentifier1;        /* MSB */
-    uint8_t   userUniqueIdentifier2;        /* LSB */
-    uint8_t   credentialType;               /**/
-    uint8_t   credentialSlot1;              /* MSB */
-    uint8_t   credentialSlot2;              /* LSB */
-    uint8_t   properties1;                  /* masked byte */
-    uint8_t   credentialLength;             /**/
-    uint8_t   credentialData1;              /* MSB */
-    uint8_t   credentialData2;              /* LSB */
-    uint8_t   credentialModifierType;       /**/
-    uint8_t   credentialModifierNodeId1;    /* MSB */
-    uint8_t   credentialModifierNodeId2;    /* LSB */
-} ZW_CREDENTIAL_NOTIFICATION_REPORT_2BYTE_FRAME;
-
-/************************************************************/
-/* Credential Notification Report 3byte command class structs */
-/************************************************************/
-typedef struct _ZW_CREDENTIAL_NOTIFICATION_REPORT_3BYTE_FRAME_
-{
-    uint8_t   cmdClass;                     /* The command class */
-    uint8_t   cmd;                          /* The command */
-    uint8_t   userUniqueIdentifier1;        /* MSB */
-    uint8_t   userUniqueIdentifier2;        /* LSB */
-    uint8_t   credentialType;               /**/
-    uint8_t   credentialSlot1;              /* MSB */
-    uint8_t   credentialSlot2;              /* LSB */
-    uint8_t   properties1;                  /* masked byte */
-    uint8_t   credentialLength;             /**/
-    uint8_t   credentialData1;              /* MSB */
-    uint8_t   credentialData2;              
-    uint8_t   credentialData3;              /* LSB */
-    uint8_t   credentialModifierType;       /**/
-    uint8_t   credentialModifierNodeId1;    /* MSB */
-    uint8_t   credentialModifierNodeId2;    /* LSB */
-} ZW_CREDENTIAL_NOTIFICATION_REPORT_3BYTE_FRAME;
-
-/************************************************************/
-/* Credential Notification Report 4byte command class structs */
-/************************************************************/
-typedef struct _ZW_CREDENTIAL_NOTIFICATION_REPORT_4BYTE_FRAME_
-{
-    uint8_t   cmdClass;                     /* The command class */
-    uint8_t   cmd;                          /* The command */
-    uint8_t   userUniqueIdentifier1;        /* MSB */
-    uint8_t   userUniqueIdentifier2;        /* LSB */
-    uint8_t   credentialType;               /**/
-    uint8_t   credentialSlot1;              /* MSB */
-    uint8_t   credentialSlot2;              /* LSB */
-    uint8_t   properties1;                  /* masked byte */
-    uint8_t   credentialLength;             /**/
-    uint8_t   credentialData1;              /* MSB */
-    uint8_t   credentialData2;              
-    uint8_t   credentialData3;              
-    uint8_t   credentialData4;              /* LSB */
-    uint8_t   credentialModifierType;       /**/
-    uint8_t   credentialModifierNodeId1;    /* MSB */
-    uint8_t   credentialModifierNodeId2;    /* LSB */
-} ZW_CREDENTIAL_NOTIFICATION_REPORT_4BYTE_FRAME;
 
 /************************************************************/
 /* Credential Learn Start command class structs */          
@@ -55115,6 +54788,115 @@ typedef struct _ZW_CREDENTIAL_CHECKSUM_REPORT_FRAME_
     uint8_t   credentialChecksum1;          /* MSB */
     uint8_t   credentialChecksum2;          /* LSB */
 } ZW_CREDENTIAL_CHECKSUM_REPORT_FRAME;
+
+/************************************************************/
+/* Admin Pin Code Set 1byte command class structs */        
+/************************************************************/
+typedef struct _ZW_ADMIN_PIN_CODE_SET_1BYTE_FRAME_
+{
+    uint8_t   cmdClass;                     /* The command class */
+    uint8_t   cmd;                          /* The command */
+    uint8_t   properties1;                  /* masked byte */
+    uint8_t   adminCode1;                   
+} ZW_ADMIN_PIN_CODE_SET_1BYTE_FRAME;
+
+/************************************************************/
+/* Admin Pin Code Set 2byte command class structs */        
+/************************************************************/
+typedef struct _ZW_ADMIN_PIN_CODE_SET_2BYTE_FRAME_
+{
+    uint8_t   cmdClass;                     /* The command class */
+    uint8_t   cmd;                          /* The command */
+    uint8_t   properties1;                  /* masked byte */
+    uint8_t   adminCode1;                   /* MSB */
+    uint8_t   adminCode2;                   /* LSB */
+} ZW_ADMIN_PIN_CODE_SET_2BYTE_FRAME;
+
+/************************************************************/
+/* Admin Pin Code Set 3byte command class structs */        
+/************************************************************/
+typedef struct _ZW_ADMIN_PIN_CODE_SET_3BYTE_FRAME_
+{
+    uint8_t   cmdClass;                     /* The command class */
+    uint8_t   cmd;                          /* The command */
+    uint8_t   properties1;                  /* masked byte */
+    uint8_t   adminCode1;                   /* MSB */
+    uint8_t   adminCode2;                   
+    uint8_t   adminCode3;                   /* LSB */
+} ZW_ADMIN_PIN_CODE_SET_3BYTE_FRAME;
+
+/************************************************************/
+/* Admin Pin Code Set 4byte command class structs */        
+/************************************************************/
+typedef struct _ZW_ADMIN_PIN_CODE_SET_4BYTE_FRAME_
+{
+    uint8_t   cmdClass;                     /* The command class */
+    uint8_t   cmd;                          /* The command */
+    uint8_t   properties1;                  /* masked byte */
+    uint8_t   adminCode1;                   /* MSB */
+    uint8_t   adminCode2;                   
+    uint8_t   adminCode3;                   
+    uint8_t   adminCode4;                   /* LSB */
+} ZW_ADMIN_PIN_CODE_SET_4BYTE_FRAME;
+
+/************************************************************/
+/* Admin Pin Code Get command class structs */              
+/************************************************************/
+typedef struct _ZW_ADMIN_PIN_CODE_GET_FRAME_
+{
+    uint8_t   cmdClass;                     /* The command class */
+    uint8_t   cmd;                          /* The command */
+} ZW_ADMIN_PIN_CODE_GET_FRAME;
+
+/************************************************************/
+/* Admin Pin Code Report 1byte command class structs */     
+/************************************************************/
+typedef struct _ZW_ADMIN_PIN_CODE_REPORT_1BYTE_FRAME_
+{
+    uint8_t   cmdClass;                     /* The command class */
+    uint8_t   cmd;                          /* The command */
+    uint8_t   properties1;                  /* masked byte */
+    uint8_t   adminCode1;                   
+} ZW_ADMIN_PIN_CODE_REPORT_1BYTE_FRAME;
+
+/************************************************************/
+/* Admin Pin Code Report 2byte command class structs */     
+/************************************************************/
+typedef struct _ZW_ADMIN_PIN_CODE_REPORT_2BYTE_FRAME_
+{
+    uint8_t   cmdClass;                     /* The command class */
+    uint8_t   cmd;                          /* The command */
+    uint8_t   properties1;                  /* masked byte */
+    uint8_t   adminCode1;                   /* MSB */
+    uint8_t   adminCode2;                   /* LSB */
+} ZW_ADMIN_PIN_CODE_REPORT_2BYTE_FRAME;
+
+/************************************************************/
+/* Admin Pin Code Report 3byte command class structs */     
+/************************************************************/
+typedef struct _ZW_ADMIN_PIN_CODE_REPORT_3BYTE_FRAME_
+{
+    uint8_t   cmdClass;                     /* The command class */
+    uint8_t   cmd;                          /* The command */
+    uint8_t   properties1;                  /* masked byte */
+    uint8_t   adminCode1;                   /* MSB */
+    uint8_t   adminCode2;                   
+    uint8_t   adminCode3;                   /* LSB */
+} ZW_ADMIN_PIN_CODE_REPORT_3BYTE_FRAME;
+
+/************************************************************/
+/* Admin Pin Code Report 4byte command class structs */     
+/************************************************************/
+typedef struct _ZW_ADMIN_PIN_CODE_REPORT_4BYTE_FRAME_
+{
+    uint8_t   cmdClass;                     /* The command class */
+    uint8_t   cmd;                          /* The command */
+    uint8_t   properties1;                  /* masked byte */
+    uint8_t   adminCode1;                   /* MSB */
+    uint8_t   adminCode2;                   
+    uint8_t   adminCode3;                   
+    uint8_t   adminCode4;                   /* LSB */
+} ZW_ADMIN_PIN_CODE_REPORT_4BYTE_FRAME;
 
 
 

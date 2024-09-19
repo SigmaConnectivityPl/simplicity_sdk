@@ -120,11 +120,10 @@ sl_status_t sl_zigbee_dlk_open_key_exchange(sl_zigbee_dlk_negotiation_context_t 
   msg.data.dlk_open_key_exchange.request.keyProtocol = keyProtocol;
   msg.data.dlk_open_key_exchange.request.secret = secret;
 
-  if ((16) > (16)) {
-    assert(false); // "vector psk_bytes length exceeds expected maximum
+  if (psk_bytes != NULL) {
+    memmove(msg.data.dlk_open_key_exchange.request.psk_bytes, psk_bytes, sizeof(uint8_t) * (16));
   }
 
-  memmove(msg.data.dlk_open_key_exchange.request.psk_bytes, psk_bytes, sizeof(uint8_t) * (16));
   msg.data.dlk_open_key_exchange.request.dlk_start_complete_callback = dlk_start_complete_callback;
   msg.data.dlk_open_key_exchange.request.dlk_finish_complete_callback = dlk_finish_complete_callback;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_dlk_open_key_exchange_process_ipc_command, &msg);

@@ -138,6 +138,7 @@
 #define RAIL_SetRssiOffset sl_rail_mux_SetRssiOffset
 #define RAIL_StartTxStreamAlt sl_rail_mux_StartTxStreamAlt
 #define RAIL_IEEE802154_Config2p4GHzRadio1MbpsFec sl_rail_mux_IEEE802154_Config2p4GHzRadio1MbpsFec
+#define RAIL_GetRxTimeFrameEnd sl_rail_mux_GetRxTimeFrameEnd
 
 #define ATOMIC_SECTION(RETURN_TYPE, yourcode, ...) \
   ({                                               \

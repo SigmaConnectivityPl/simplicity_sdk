@@ -1,19 +1,17 @@
 #include "em_device.h"
-#include "sl_clock_manager.h"
+#include "em_cmu.h"
 #include "em_gpio.h"
 #include "em_prs.h"
 
 // Include instance(s) config(s) {# Include instance config #}
-{% for instance in radioprs_instances %} #include "sl_radioprs_{{ instance }}_config.h"
+{% for instance in radioprs_instances %} #include "sl_radioprs_config_{{ instance }}.h"
 {% endfor %}
 
 {# Init function #}
 void sl_radioprs_init_instances(void)
 {
-  sl_status_t clock_status = SL_STATUS_OK;
-
-  clock_status = sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_PRS);
-  clock_status = sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_GPIO);
+  CMU_ClockEnable(cmuClock_PRS, true);
+  CMU_ClockEnable(cmuClock_GPIO, true);
 
   // radioprs instance(s) init(s) {# Initialize radioprs instance(s) #}
   {% for instance in radioprs_instances %}

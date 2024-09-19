@@ -7,6 +7,11 @@
 {%- set flash_addr = device_flash_addr | first | default(0, true) %}
 {%- set flash_size = device_flash_size | first %}
 {%- set flash_page_size = device_flash_page_size | first %}
+{%- if linker_mpu is defined %}
+  {%- set ram_code_alignment = 32 %}
+{%- else %}
+  {%- set ram_code_alignment = 8 %}
+{%- endif %}
 
 {%- if bootloader_enable %}
   {%- if memory_flash_start is defined %}
@@ -171,19 +176,37 @@ define block application with fixed order
   readonly
 };
 
-define block text_application_ram with alignment = 8
+define block text_application_ram with alignment = {{ram_code_alignment}}
 {
   readwrite code section text_application_ram,
 };
 
-define block text_application_ram_init with alignment = 8
+define block text_application_ram_init with alignment = {{ram_code_alignment}}
 {
   readonly code section text_application_ram_init,
 };
 
-initialize by copy
+{%- if linker_mpu is defined %}
+define block ram_alignment_padding with alignment = {{ram_code_alignment}} {};
+keep { block ram_alignment_padding };
+{%- endif %}
+
+define block text_ram with alignment = {{ram_code_alignment}}, fixed order
 {
-  section text_application_ram,
+  block text_application_ram,
+{%- if linker_mpu is defined %}
+  block ram_alignment_padding,
+{%- endif %}
+};
+
+define block text_ram_init with alignment = {{ram_code_alignment}}
+{
+  block text_application_ram_init,
+};
+
+initialize manually
+{
+  readonly section text_application_ram,
 };
 
 {%- endif %}
@@ -240,14 +263,14 @@ place at start of ROM_region  { block apploader };
 place in ROM_region
 {
   block application,
-  block text_application_ram_init,
+  block text_ram_init,
 };
 {%- else %}
 "application":
 place at start of ROM_region
 {
   block application,
-  block text_application_ram_init,
+  block text_ram_init,
 };
 {%- endif %}
 {%- endif %}
@@ -274,7 +297,7 @@ place at start of RAM_region {
 {%- if not bootloader_enable %}
 "ram_code":
 place in RAM_region {
-  block text_application_ram,
+  block text_ram,
 };
 {%- endif %}
 

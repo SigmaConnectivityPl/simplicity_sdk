@@ -56,10 +56,7 @@ extern otInstance *sInstance;
 #endif // SL_COMPONENT_CATALOG_PRESENT
 
 #ifndef SL_CATALOG_KERNEL_PRESENT
-#define sl_ot_rtos_task_can_access_pal()    (true)
-#elif defined(MATTER_INTEGRATION) && MATTER_INTEGRATION
-// TODO: Temporary for matter integration. This will be fix in https://jira.silabs.com/browse/MATTER-2801
-#define sl_ot_rtos_task_can_access_pal()    (true)
+#define sl_ot_rtos_task_can_access_pal() (true)
 #else
 #include "sl_ot_rtos_adaptation.h"
 #endif

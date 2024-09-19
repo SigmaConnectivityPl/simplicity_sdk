@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Srp Server APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,67 +29,85 @@
  *
  ******************************************************************************/
 
-#include <openthread/srp_server.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/srp_server.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern bool OT_API_REAL_NAME(otSrpServerHostIsDeleted)(const otSrpServerHost * aHost);
-extern bool OT_API_REAL_NAME(otSrpServerHostMatchesFullName)(const otSrpServerHost * aHost,const char * aFullName);
-extern bool OT_API_REAL_NAME(otSrpServerIsAutoEnableMode)(otInstance * aInstance);
-extern bool OT_API_REAL_NAME(otSrpServerServiceHasSubTypeServiceName)(const otSrpServerService * aService,const char * aSubTypeServiceName);
-extern bool OT_API_REAL_NAME(otSrpServerServiceIsDeleted)(const otSrpServerService * aService);
-extern bool OT_API_REAL_NAME(otSrpServerServiceMatchesInstanceName)(const otSrpServerService * aService,const char * aInstanceName);
-extern bool OT_API_REAL_NAME(otSrpServerServiceMatchesServiceName)(const otSrpServerService * aService,const char * aServiceName);
-extern const char *OT_API_REAL_NAME(otSrpServerGetDomain)(otInstance * aInstance);
-extern const char *OT_API_REAL_NAME(otSrpServerHostGetFullName)(const otSrpServerHost * aHost);
-extern const char *OT_API_REAL_NAME(otSrpServerServiceGetInstanceLabel)(const otSrpServerService * aService);
-extern const char *OT_API_REAL_NAME(otSrpServerServiceGetInstanceName)(const otSrpServerService * aService);
-extern const char *OT_API_REAL_NAME(otSrpServerServiceGetServiceName)(const otSrpServerService * aService);
-extern const char *OT_API_REAL_NAME(otSrpServerServiceGetSubTypeServiceNameAt)(const otSrpServerService * aService,uint16_t aIndex);
-extern const otIp6Address *OT_API_REAL_NAME(otSrpServerHostGetAddresses)(const otSrpServerHost * aHost,uint8_t * aAddressesNum);
-extern const otSrpServerHost *OT_API_REAL_NAME(otSrpServerGetNextHost)(otInstance * aInstance,const otSrpServerHost * aHost);
-extern const otSrpServerHost *OT_API_REAL_NAME(otSrpServerServiceGetHost)(const otSrpServerService * aService);
-extern const otSrpServerResponseCounters *OT_API_REAL_NAME(otSrpServerGetResponseCounters)(otInstance * aInstance);
-extern const otSrpServerService *OT_API_REAL_NAME(otSrpServerHostGetNextService)(const otSrpServerHost * aHost,const otSrpServerService * aService);
-extern const uint8_t *OT_API_REAL_NAME(otSrpServerServiceGetTxtData)(const otSrpServerService * aService,uint16_t * aDataLength);
-extern otError OT_API_REAL_NAME(otSrpServerParseSubTypeServiceName)(const char * aSubTypeServiceName,char * aLabel,uint8_t aLabelSize);
-extern otError OT_API_REAL_NAME(otSrpServerSetAddressMode)(otInstance * aInstance,otSrpServerAddressMode aMode);
-extern otError OT_API_REAL_NAME(otSrpServerSetAnycastModeSequenceNumber)(otInstance * aInstance,uint8_t aSequenceNumber);
-extern otError OT_API_REAL_NAME(otSrpServerSetDomain)(otInstance * aInstance,const char * aDomain);
-extern otError OT_API_REAL_NAME(otSrpServerSetLeaseConfig)(otInstance * aInstance,const otSrpServerLeaseConfig * aLeaseConfig);
-extern otError OT_API_REAL_NAME(otSrpServerSetTtlConfig)(otInstance * aInstance,const otSrpServerTtlConfig * aTtlConfig);
-extern otSrpServerAddressMode OT_API_REAL_NAME(otSrpServerGetAddressMode)(otInstance * aInstance);
-extern otSrpServerState OT_API_REAL_NAME(otSrpServerGetState)(otInstance * aInstance);
-extern uint16_t OT_API_REAL_NAME(otSrpServerGetPort)(otInstance * aInstance);
-extern uint16_t OT_API_REAL_NAME(otSrpServerServiceGetNumberOfSubTypes)(const otSrpServerService * aService);
-extern uint16_t OT_API_REAL_NAME(otSrpServerServiceGetPort)(const otSrpServerService * aService);
-extern uint16_t OT_API_REAL_NAME(otSrpServerServiceGetPriority)(const otSrpServerService * aService);
-extern uint16_t OT_API_REAL_NAME(otSrpServerServiceGetWeight)(const otSrpServerService * aService);
-extern uint32_t OT_API_REAL_NAME(otSrpServerServiceGetTtl)(const otSrpServerService * aService);
-extern uint8_t OT_API_REAL_NAME(otSrpServerGetAnycastModeSequenceNumber)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otSrpServerGetLeaseConfig)(otInstance * aInstance,otSrpServerLeaseConfig * aLeaseConfig);
-extern void OT_API_REAL_NAME(otSrpServerGetTtlConfig)(otInstance * aInstance,otSrpServerTtlConfig * aTtlConfig);
-extern void OT_API_REAL_NAME(otSrpServerHandleServiceUpdateResult)(otInstance * aInstance,otSrpServerServiceUpdateId aId,otError aError);
-extern void OT_API_REAL_NAME(otSrpServerHostGetLeaseInfo)(const otSrpServerHost * aHost,otSrpServerLeaseInfo * aLeaseInfo);
-extern void OT_API_REAL_NAME(otSrpServerServiceGetLeaseInfo)(const otSrpServerService * aService,otSrpServerLeaseInfo * aLeaseInfo);
-extern void OT_API_REAL_NAME(otSrpServerSetAutoEnableMode)(otInstance * aInstance,bool aEnabled);
-extern void OT_API_REAL_NAME(otSrpServerSetEnabled)(otInstance * aInstance,bool aEnabled);
-extern void OT_API_REAL_NAME(otSrpServerSetServiceUpdateHandler)(otInstance * aInstance,otSrpServerServiceUpdateHandler aServiceHandler,void * aContext);
+extern bool OT_API_REAL_NAME(otSrpServerHostIsDeleted)(const otSrpServerHost *aHost);
+extern bool OT_API_REAL_NAME(otSrpServerHostMatchesFullName)(const otSrpServerHost *aHost, const char *aFullName);
+extern bool OT_API_REAL_NAME(otSrpServerIsAutoEnableMode)(otInstance *aInstance);
+extern bool OT_API_REAL_NAME(otSrpServerServiceHasSubTypeServiceName)(const otSrpServerService *aService,
+                                                                      const char               *aSubTypeServiceName);
+extern bool OT_API_REAL_NAME(otSrpServerServiceIsDeleted)(const otSrpServerService *aService);
+extern bool OT_API_REAL_NAME(otSrpServerServiceMatchesInstanceName)(const otSrpServerService *aService,
+                                                                    const char               *aInstanceName);
+extern bool OT_API_REAL_NAME(otSrpServerServiceMatchesServiceName)(const otSrpServerService *aService,
+                                                                   const char               *aServiceName);
+extern const char *OT_API_REAL_NAME(otSrpServerGetDomain)(otInstance *aInstance);
+extern const char *OT_API_REAL_NAME(otSrpServerHostGetFullName)(const otSrpServerHost *aHost);
+extern const char *OT_API_REAL_NAME(otSrpServerServiceGetInstanceLabel)(const otSrpServerService *aService);
+extern const char *OT_API_REAL_NAME(otSrpServerServiceGetInstanceName)(const otSrpServerService *aService);
+extern const char *OT_API_REAL_NAME(otSrpServerServiceGetServiceName)(const otSrpServerService *aService);
+extern const char *OT_API_REAL_NAME(otSrpServerServiceGetSubTypeServiceNameAt)(const otSrpServerService *aService,
+                                                                               uint16_t                  aIndex);
+extern const otIp6Address    *OT_API_REAL_NAME(otSrpServerHostGetAddresses)(const otSrpServerHost *aHost,
+                                                                         uint8_t               *aAddressesNum);
+extern const otSrpServerHost *OT_API_REAL_NAME(otSrpServerGetNextHost)(otInstance            *aInstance,
+                                                                       const otSrpServerHost *aHost);
+extern const otSrpServerHost *OT_API_REAL_NAME(otSrpServerServiceGetHost)(const otSrpServerService *aService);
+extern const otSrpServerResponseCounters *OT_API_REAL_NAME(otSrpServerGetResponseCounters)(otInstance *aInstance);
+extern const otSrpServerService          *OT_API_REAL_NAME(otSrpServerHostGetNextService)(const otSrpServerHost    *aHost,
+                                                                                 const otSrpServerService *aService);
+extern const uint8_t *OT_API_REAL_NAME(otSrpServerServiceGetTxtData)(const otSrpServerService *aService,
+                                                                     uint16_t                 *aDataLength);
+extern otError        OT_API_REAL_NAME(otSrpServerParseSubTypeServiceName)(const char *aSubTypeServiceName,
+                                                                    char       *aLabel,
+                                                                    uint8_t     aLabelSize);
+extern otError        OT_API_REAL_NAME(otSrpServerSetAddressMode)(otInstance *aInstance, otSrpServerAddressMode aMode);
+extern otError        OT_API_REAL_NAME(otSrpServerSetAnycastModeSequenceNumber)(otInstance *aInstance,
+                                                                         uint8_t     aSequenceNumber);
+extern otError        OT_API_REAL_NAME(otSrpServerSetDomain)(otInstance *aInstance, const char *aDomain);
+extern otError        OT_API_REAL_NAME(otSrpServerSetLeaseConfig)(otInstance                   *aInstance,
+                                                           const otSrpServerLeaseConfig *aLeaseConfig);
+extern otError OT_API_REAL_NAME(otSrpServerSetTtlConfig)(otInstance *aInstance, const otSrpServerTtlConfig *aTtlConfig);
+extern otSrpServerAddressMode OT_API_REAL_NAME(otSrpServerGetAddressMode)(otInstance *aInstance);
+extern otSrpServerState       OT_API_REAL_NAME(otSrpServerGetState)(otInstance *aInstance);
+extern uint16_t               OT_API_REAL_NAME(otSrpServerGetPort)(otInstance *aInstance);
+extern uint16_t OT_API_REAL_NAME(otSrpServerServiceGetNumberOfSubTypes)(const otSrpServerService *aService);
+extern uint16_t OT_API_REAL_NAME(otSrpServerServiceGetPort)(const otSrpServerService *aService);
+extern uint16_t OT_API_REAL_NAME(otSrpServerServiceGetPriority)(const otSrpServerService *aService);
+extern uint16_t OT_API_REAL_NAME(otSrpServerServiceGetWeight)(const otSrpServerService *aService);
+extern uint32_t OT_API_REAL_NAME(otSrpServerServiceGetTtl)(const otSrpServerService *aService);
+extern uint8_t  OT_API_REAL_NAME(otSrpServerGetAnycastModeSequenceNumber)(otInstance *aInstance);
+extern void OT_API_REAL_NAME(otSrpServerGetLeaseConfig)(otInstance *aInstance, otSrpServerLeaseConfig *aLeaseConfig);
+extern void OT_API_REAL_NAME(otSrpServerGetTtlConfig)(otInstance *aInstance, otSrpServerTtlConfig *aTtlConfig);
+extern void OT_API_REAL_NAME(otSrpServerHandleServiceUpdateResult)(otInstance                *aInstance,
+                                                                   otSrpServerServiceUpdateId aId,
+                                                                   otError                    aError);
+extern void OT_API_REAL_NAME(otSrpServerHostGetLeaseInfo)(const otSrpServerHost *aHost,
+                                                          otSrpServerLeaseInfo  *aLeaseInfo);
+extern void OT_API_REAL_NAME(otSrpServerServiceGetLeaseInfo)(const otSrpServerService *aService,
+                                                             otSrpServerLeaseInfo     *aLeaseInfo);
+extern void OT_API_REAL_NAME(otSrpServerSetAutoEnableMode)(otInstance *aInstance, bool aEnabled);
+extern void OT_API_REAL_NAME(otSrpServerSetEnabled)(otInstance *aInstance, bool aEnabled);
+extern void OT_API_REAL_NAME(otSrpServerSetServiceUpdateHandler)(otInstance                     *aInstance,
+                                                                 otSrpServerServiceUpdateHandler aServiceHandler,
+                                                                 void                           *aContext);
 
-bool OT_API_WRAPPER_NAME(otSrpServerHostIsDeleted)(const otSrpServerHost * aHost)
+bool OT_API_WRAPPER_NAME(otSrpServerHostIsDeleted)(const otSrpServerHost *aHost)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otSrpServerHostIsDeleted)(aHost);
@@ -97,7 +115,7 @@ bool OT_API_WRAPPER_NAME(otSrpServerHostIsDeleted)(const otSrpServerHost * aHost
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otSrpServerHostMatchesFullName)(const otSrpServerHost * aHost,const char * aFullName)
+bool OT_API_WRAPPER_NAME(otSrpServerHostMatchesFullName)(const otSrpServerHost *aHost, const char *aFullName)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otSrpServerHostMatchesFullName)(aHost, aFullName);
@@ -105,7 +123,7 @@ bool OT_API_WRAPPER_NAME(otSrpServerHostMatchesFullName)(const otSrpServerHost *
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otSrpServerIsAutoEnableMode)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otSrpServerIsAutoEnableMode)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otSrpServerIsAutoEnableMode)(aInstance);
@@ -113,7 +131,8 @@ bool OT_API_WRAPPER_NAME(otSrpServerIsAutoEnableMode)(otInstance * aInstance)
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otSrpServerServiceHasSubTypeServiceName)(const otSrpServerService * aService,const char * aSubTypeServiceName)
+bool OT_API_WRAPPER_NAME(otSrpServerServiceHasSubTypeServiceName)(const otSrpServerService *aService,
+                                                                  const char               *aSubTypeServiceName)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otSrpServerServiceHasSubTypeServiceName)(aService, aSubTypeServiceName);
@@ -121,7 +140,7 @@ bool OT_API_WRAPPER_NAME(otSrpServerServiceHasSubTypeServiceName)(const otSrpSer
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otSrpServerServiceIsDeleted)(const otSrpServerService * aService)
+bool OT_API_WRAPPER_NAME(otSrpServerServiceIsDeleted)(const otSrpServerService *aService)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otSrpServerServiceIsDeleted)(aService);
@@ -129,7 +148,8 @@ bool OT_API_WRAPPER_NAME(otSrpServerServiceIsDeleted)(const otSrpServerService *
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otSrpServerServiceMatchesInstanceName)(const otSrpServerService * aService,const char * aInstanceName)
+bool OT_API_WRAPPER_NAME(otSrpServerServiceMatchesInstanceName)(const otSrpServerService *aService,
+                                                                const char               *aInstanceName)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otSrpServerServiceMatchesInstanceName)(aService, aInstanceName);
@@ -137,7 +157,8 @@ bool OT_API_WRAPPER_NAME(otSrpServerServiceMatchesInstanceName)(const otSrpServe
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otSrpServerServiceMatchesServiceName)(const otSrpServerService * aService,const char * aServiceName)
+bool OT_API_WRAPPER_NAME(otSrpServerServiceMatchesServiceName)(const otSrpServerService *aService,
+                                                               const char               *aServiceName)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otSrpServerServiceMatchesServiceName)(aService, aServiceName);
@@ -145,7 +166,7 @@ bool OT_API_WRAPPER_NAME(otSrpServerServiceMatchesServiceName)(const otSrpServer
     return ret;
 }
 
-const char *OT_API_WRAPPER_NAME(otSrpServerGetDomain)(otInstance * aInstance)
+const char *OT_API_WRAPPER_NAME(otSrpServerGetDomain)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const char *ret = OT_API_REAL_NAME(otSrpServerGetDomain)(aInstance);
@@ -153,7 +174,7 @@ const char *OT_API_WRAPPER_NAME(otSrpServerGetDomain)(otInstance * aInstance)
     return ret;
 }
 
-const char *OT_API_WRAPPER_NAME(otSrpServerHostGetFullName)(const otSrpServerHost * aHost)
+const char *OT_API_WRAPPER_NAME(otSrpServerHostGetFullName)(const otSrpServerHost *aHost)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const char *ret = OT_API_REAL_NAME(otSrpServerHostGetFullName)(aHost);
@@ -161,7 +182,7 @@ const char *OT_API_WRAPPER_NAME(otSrpServerHostGetFullName)(const otSrpServerHos
     return ret;
 }
 
-const char *OT_API_WRAPPER_NAME(otSrpServerServiceGetInstanceLabel)(const otSrpServerService * aService)
+const char *OT_API_WRAPPER_NAME(otSrpServerServiceGetInstanceLabel)(const otSrpServerService *aService)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const char *ret = OT_API_REAL_NAME(otSrpServerServiceGetInstanceLabel)(aService);
@@ -169,7 +190,7 @@ const char *OT_API_WRAPPER_NAME(otSrpServerServiceGetInstanceLabel)(const otSrpS
     return ret;
 }
 
-const char *OT_API_WRAPPER_NAME(otSrpServerServiceGetInstanceName)(const otSrpServerService * aService)
+const char *OT_API_WRAPPER_NAME(otSrpServerServiceGetInstanceName)(const otSrpServerService *aService)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const char *ret = OT_API_REAL_NAME(otSrpServerServiceGetInstanceName)(aService);
@@ -177,7 +198,7 @@ const char *OT_API_WRAPPER_NAME(otSrpServerServiceGetInstanceName)(const otSrpSe
     return ret;
 }
 
-const char *OT_API_WRAPPER_NAME(otSrpServerServiceGetServiceName)(const otSrpServerService * aService)
+const char *OT_API_WRAPPER_NAME(otSrpServerServiceGetServiceName)(const otSrpServerService *aService)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const char *ret = OT_API_REAL_NAME(otSrpServerServiceGetServiceName)(aService);
@@ -185,7 +206,8 @@ const char *OT_API_WRAPPER_NAME(otSrpServerServiceGetServiceName)(const otSrpSer
     return ret;
 }
 
-const char *OT_API_WRAPPER_NAME(otSrpServerServiceGetSubTypeServiceNameAt)(const otSrpServerService * aService,uint16_t aIndex)
+const char *OT_API_WRAPPER_NAME(otSrpServerServiceGetSubTypeServiceNameAt)(const otSrpServerService *aService,
+                                                                           uint16_t                  aIndex)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const char *ret = OT_API_REAL_NAME(otSrpServerServiceGetSubTypeServiceNameAt)(aService, aIndex);
@@ -193,7 +215,8 @@ const char *OT_API_WRAPPER_NAME(otSrpServerServiceGetSubTypeServiceNameAt)(const
     return ret;
 }
 
-const otIp6Address *OT_API_WRAPPER_NAME(otSrpServerHostGetAddresses)(const otSrpServerHost * aHost,uint8_t * aAddressesNum)
+const otIp6Address *OT_API_WRAPPER_NAME(otSrpServerHostGetAddresses)(const otSrpServerHost *aHost,
+                                                                     uint8_t               *aAddressesNum)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otIp6Address *ret = OT_API_REAL_NAME(otSrpServerHostGetAddresses)(aHost, aAddressesNum);
@@ -201,7 +224,7 @@ const otIp6Address *OT_API_WRAPPER_NAME(otSrpServerHostGetAddresses)(const otSrp
     return ret;
 }
 
-const otSrpServerHost *OT_API_WRAPPER_NAME(otSrpServerGetNextHost)(otInstance * aInstance,const otSrpServerHost * aHost)
+const otSrpServerHost *OT_API_WRAPPER_NAME(otSrpServerGetNextHost)(otInstance *aInstance, const otSrpServerHost *aHost)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otSrpServerHost *ret = OT_API_REAL_NAME(otSrpServerGetNextHost)(aInstance, aHost);
@@ -209,7 +232,7 @@ const otSrpServerHost *OT_API_WRAPPER_NAME(otSrpServerGetNextHost)(otInstance * 
     return ret;
 }
 
-const otSrpServerHost *OT_API_WRAPPER_NAME(otSrpServerServiceGetHost)(const otSrpServerService * aService)
+const otSrpServerHost *OT_API_WRAPPER_NAME(otSrpServerServiceGetHost)(const otSrpServerService *aService)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otSrpServerHost *ret = OT_API_REAL_NAME(otSrpServerServiceGetHost)(aService);
@@ -217,7 +240,7 @@ const otSrpServerHost *OT_API_WRAPPER_NAME(otSrpServerServiceGetHost)(const otSr
     return ret;
 }
 
-const otSrpServerResponseCounters *OT_API_WRAPPER_NAME(otSrpServerGetResponseCounters)(otInstance * aInstance)
+const otSrpServerResponseCounters *OT_API_WRAPPER_NAME(otSrpServerGetResponseCounters)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otSrpServerResponseCounters *ret = OT_API_REAL_NAME(otSrpServerGetResponseCounters)(aInstance);
@@ -225,7 +248,8 @@ const otSrpServerResponseCounters *OT_API_WRAPPER_NAME(otSrpServerGetResponseCou
     return ret;
 }
 
-const otSrpServerService *OT_API_WRAPPER_NAME(otSrpServerHostGetNextService)(const otSrpServerHost * aHost,const otSrpServerService * aService)
+const otSrpServerService *OT_API_WRAPPER_NAME(otSrpServerHostGetNextService)(const otSrpServerHost    *aHost,
+                                                                             const otSrpServerService *aService)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otSrpServerService *ret = OT_API_REAL_NAME(otSrpServerHostGetNextService)(aHost, aService);
@@ -233,7 +257,8 @@ const otSrpServerService *OT_API_WRAPPER_NAME(otSrpServerHostGetNextService)(con
     return ret;
 }
 
-const uint8_t *OT_API_WRAPPER_NAME(otSrpServerServiceGetTxtData)(const otSrpServerService * aService,uint16_t * aDataLength)
+const uint8_t *OT_API_WRAPPER_NAME(otSrpServerServiceGetTxtData)(const otSrpServerService *aService,
+                                                                 uint16_t                 *aDataLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const uint8_t *ret = OT_API_REAL_NAME(otSrpServerServiceGetTxtData)(aService, aDataLength);
@@ -241,7 +266,9 @@ const uint8_t *OT_API_WRAPPER_NAME(otSrpServerServiceGetTxtData)(const otSrpServ
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otSrpServerParseSubTypeServiceName)(const char * aSubTypeServiceName,char * aLabel,uint8_t aLabelSize)
+otError OT_API_WRAPPER_NAME(otSrpServerParseSubTypeServiceName)(const char *aSubTypeServiceName,
+                                                                char       *aLabel,
+                                                                uint8_t     aLabelSize)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otSrpServerParseSubTypeServiceName)(aSubTypeServiceName, aLabel, aLabelSize);
@@ -249,7 +276,7 @@ otError OT_API_WRAPPER_NAME(otSrpServerParseSubTypeServiceName)(const char * aSu
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otSrpServerSetAddressMode)(otInstance * aInstance,otSrpServerAddressMode aMode)
+otError OT_API_WRAPPER_NAME(otSrpServerSetAddressMode)(otInstance *aInstance, otSrpServerAddressMode aMode)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otSrpServerSetAddressMode)(aInstance, aMode);
@@ -257,7 +284,7 @@ otError OT_API_WRAPPER_NAME(otSrpServerSetAddressMode)(otInstance * aInstance,ot
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otSrpServerSetAnycastModeSequenceNumber)(otInstance * aInstance,uint8_t aSequenceNumber)
+otError OT_API_WRAPPER_NAME(otSrpServerSetAnycastModeSequenceNumber)(otInstance *aInstance, uint8_t aSequenceNumber)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otSrpServerSetAnycastModeSequenceNumber)(aInstance, aSequenceNumber);
@@ -265,7 +292,7 @@ otError OT_API_WRAPPER_NAME(otSrpServerSetAnycastModeSequenceNumber)(otInstance 
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otSrpServerSetDomain)(otInstance * aInstance,const char * aDomain)
+otError OT_API_WRAPPER_NAME(otSrpServerSetDomain)(otInstance *aInstance, const char *aDomain)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otSrpServerSetDomain)(aInstance, aDomain);
@@ -273,7 +300,8 @@ otError OT_API_WRAPPER_NAME(otSrpServerSetDomain)(otInstance * aInstance,const c
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otSrpServerSetLeaseConfig)(otInstance * aInstance,const otSrpServerLeaseConfig * aLeaseConfig)
+otError OT_API_WRAPPER_NAME(otSrpServerSetLeaseConfig)(otInstance                   *aInstance,
+                                                       const otSrpServerLeaseConfig *aLeaseConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otSrpServerSetLeaseConfig)(aInstance, aLeaseConfig);
@@ -281,7 +309,7 @@ otError OT_API_WRAPPER_NAME(otSrpServerSetLeaseConfig)(otInstance * aInstance,co
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otSrpServerSetTtlConfig)(otInstance * aInstance,const otSrpServerTtlConfig * aTtlConfig)
+otError OT_API_WRAPPER_NAME(otSrpServerSetTtlConfig)(otInstance *aInstance, const otSrpServerTtlConfig *aTtlConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otSrpServerSetTtlConfig)(aInstance, aTtlConfig);
@@ -289,7 +317,7 @@ otError OT_API_WRAPPER_NAME(otSrpServerSetTtlConfig)(otInstance * aInstance,cons
     return ret;
 }
 
-otSrpServerAddressMode OT_API_WRAPPER_NAME(otSrpServerGetAddressMode)(otInstance * aInstance)
+otSrpServerAddressMode OT_API_WRAPPER_NAME(otSrpServerGetAddressMode)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otSrpServerAddressMode ret = OT_API_REAL_NAME(otSrpServerGetAddressMode)(aInstance);
@@ -297,7 +325,7 @@ otSrpServerAddressMode OT_API_WRAPPER_NAME(otSrpServerGetAddressMode)(otInstance
     return ret;
 }
 
-otSrpServerState OT_API_WRAPPER_NAME(otSrpServerGetState)(otInstance * aInstance)
+otSrpServerState OT_API_WRAPPER_NAME(otSrpServerGetState)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otSrpServerState ret = OT_API_REAL_NAME(otSrpServerGetState)(aInstance);
@@ -305,7 +333,7 @@ otSrpServerState OT_API_WRAPPER_NAME(otSrpServerGetState)(otInstance * aInstance
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otSrpServerGetPort)(otInstance * aInstance)
+uint16_t OT_API_WRAPPER_NAME(otSrpServerGetPort)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otSrpServerGetPort)(aInstance);
@@ -313,7 +341,7 @@ uint16_t OT_API_WRAPPER_NAME(otSrpServerGetPort)(otInstance * aInstance)
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otSrpServerServiceGetNumberOfSubTypes)(const otSrpServerService * aService)
+uint16_t OT_API_WRAPPER_NAME(otSrpServerServiceGetNumberOfSubTypes)(const otSrpServerService *aService)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otSrpServerServiceGetNumberOfSubTypes)(aService);
@@ -321,7 +349,7 @@ uint16_t OT_API_WRAPPER_NAME(otSrpServerServiceGetNumberOfSubTypes)(const otSrpS
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otSrpServerServiceGetPort)(const otSrpServerService * aService)
+uint16_t OT_API_WRAPPER_NAME(otSrpServerServiceGetPort)(const otSrpServerService *aService)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otSrpServerServiceGetPort)(aService);
@@ -329,7 +357,7 @@ uint16_t OT_API_WRAPPER_NAME(otSrpServerServiceGetPort)(const otSrpServerService
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otSrpServerServiceGetPriority)(const otSrpServerService * aService)
+uint16_t OT_API_WRAPPER_NAME(otSrpServerServiceGetPriority)(const otSrpServerService *aService)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otSrpServerServiceGetPriority)(aService);
@@ -337,7 +365,7 @@ uint16_t OT_API_WRAPPER_NAME(otSrpServerServiceGetPriority)(const otSrpServerSer
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otSrpServerServiceGetWeight)(const otSrpServerService * aService)
+uint16_t OT_API_WRAPPER_NAME(otSrpServerServiceGetWeight)(const otSrpServerService *aService)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otSrpServerServiceGetWeight)(aService);
@@ -345,7 +373,7 @@ uint16_t OT_API_WRAPPER_NAME(otSrpServerServiceGetWeight)(const otSrpServerServi
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otSrpServerServiceGetTtl)(const otSrpServerService * aService)
+uint32_t OT_API_WRAPPER_NAME(otSrpServerServiceGetTtl)(const otSrpServerService *aService)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otSrpServerServiceGetTtl)(aService);
@@ -353,7 +381,7 @@ uint32_t OT_API_WRAPPER_NAME(otSrpServerServiceGetTtl)(const otSrpServerService 
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otSrpServerGetAnycastModeSequenceNumber)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otSrpServerGetAnycastModeSequenceNumber)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otSrpServerGetAnycastModeSequenceNumber)(aInstance);
@@ -361,59 +389,63 @@ uint8_t OT_API_WRAPPER_NAME(otSrpServerGetAnycastModeSequenceNumber)(otInstance 
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otSrpServerGetLeaseConfig)(otInstance * aInstance,otSrpServerLeaseConfig * aLeaseConfig)
+void OT_API_WRAPPER_NAME(otSrpServerGetLeaseConfig)(otInstance *aInstance, otSrpServerLeaseConfig *aLeaseConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otSrpServerGetLeaseConfig)(aInstance, aLeaseConfig);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otSrpServerGetTtlConfig)(otInstance * aInstance,otSrpServerTtlConfig * aTtlConfig)
+void OT_API_WRAPPER_NAME(otSrpServerGetTtlConfig)(otInstance *aInstance, otSrpServerTtlConfig *aTtlConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otSrpServerGetTtlConfig)(aInstance, aTtlConfig);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otSrpServerHandleServiceUpdateResult)(otInstance * aInstance,otSrpServerServiceUpdateId aId,otError aError)
+void OT_API_WRAPPER_NAME(otSrpServerHandleServiceUpdateResult)(otInstance                *aInstance,
+                                                               otSrpServerServiceUpdateId aId,
+                                                               otError                    aError)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otSrpServerHandleServiceUpdateResult)(aInstance, aId, aError);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otSrpServerHostGetLeaseInfo)(const otSrpServerHost * aHost,otSrpServerLeaseInfo * aLeaseInfo)
+void OT_API_WRAPPER_NAME(otSrpServerHostGetLeaseInfo)(const otSrpServerHost *aHost, otSrpServerLeaseInfo *aLeaseInfo)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otSrpServerHostGetLeaseInfo)(aHost, aLeaseInfo);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otSrpServerServiceGetLeaseInfo)(const otSrpServerService * aService,otSrpServerLeaseInfo * aLeaseInfo)
+void OT_API_WRAPPER_NAME(otSrpServerServiceGetLeaseInfo)(const otSrpServerService *aService,
+                                                         otSrpServerLeaseInfo     *aLeaseInfo)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otSrpServerServiceGetLeaseInfo)(aService, aLeaseInfo);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otSrpServerSetAutoEnableMode)(otInstance * aInstance,bool aEnabled)
+void OT_API_WRAPPER_NAME(otSrpServerSetAutoEnableMode)(otInstance *aInstance, bool aEnabled)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otSrpServerSetAutoEnableMode)(aInstance, aEnabled);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otSrpServerSetEnabled)(otInstance * aInstance,bool aEnabled)
+void OT_API_WRAPPER_NAME(otSrpServerSetEnabled)(otInstance *aInstance, bool aEnabled)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otSrpServerSetEnabled)(aInstance, aEnabled);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otSrpServerSetServiceUpdateHandler)(otInstance * aInstance,otSrpServerServiceUpdateHandler aServiceHandler,void * aContext)
+void OT_API_WRAPPER_NAME(otSrpServerSetServiceUpdateHandler)(otInstance                     *aInstance,
+                                                             otSrpServerServiceUpdateHandler aServiceHandler,
+                                                             void                           *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otSrpServerSetServiceUpdateHandler)(aInstance, aServiceHandler, aContext);
     sl_ot_rtos_release_stack_mutex();
 }
-

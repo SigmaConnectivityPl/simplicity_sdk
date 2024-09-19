@@ -4,6 +4,9 @@ description: Zigbee PHY select CLI
 package: platform
 category: Platform|Radio
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 requires:
   - name: rail_util_ieee802154_phy_select
     condition:

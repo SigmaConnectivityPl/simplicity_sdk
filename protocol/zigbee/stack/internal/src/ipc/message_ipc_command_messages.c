@@ -265,11 +265,10 @@ sl_status_t sl_zigbee_proxy_next_broadcast_from_long(const uint8_t *euiSource)
 {
   sli_zigbee_ipc_cmd_t msg;
 
-  if ((EUI64_SIZE) > (EUI64_SIZE)) {
-    assert(false); // "vector euiSource length exceeds expected maximum
+  if (euiSource != NULL) {
+    memmove(msg.data.proxy_next_broadcast_from_long.request.euiSource, euiSource, sizeof(uint8_t) * (EUI64_SIZE));
   }
 
-  memmove(msg.data.proxy_next_broadcast_from_long.request.euiSource, euiSource, sizeof(uint8_t) * (EUI64_SIZE));
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_proxy_next_broadcast_from_long_process_ipc_command, &msg);
 
   return msg.data.proxy_next_broadcast_from_long.response.result;

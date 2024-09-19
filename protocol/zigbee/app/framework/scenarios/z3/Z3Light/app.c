@@ -34,7 +34,10 @@
 #include "network-creator-security.h"
 #include "network-steering.h"
 #include "find-and-bind-target.h"
+
+#ifdef SL_CATALOG_ZIGBEE_ZLL_COMMISSIONING_COMMON_PRESENT
 #include "zll-commissioning.h"
+#endif //SL_CATALOG_ZIGBEE_ZLL_COMMISSIONING_COMMON_PRESENT
 
 #if defined(SL_CATALOG_LED0_PRESENT)
 #include "sl_led.h"
@@ -149,13 +152,14 @@ void sl_zigbee_af_network_steering_complete_cb(sl_status_t status,
   sl_zigbee_app_debug_println("Join network complete: 0x%X", status);
 
   if (status != SL_STATUS_OK) {
+#ifdef SL_CATALOG_ZIGBEE_ZLL_COMMISSIONING_COMMON_PRESENT
     // Initialize our ZLL security now so that we are ready to be a touchlink
     // target at any point.
     status = sl_zigbee_af_zll_set_initial_security_state();
     if (status != SL_STATUS_OK) {
       sl_zigbee_app_debug_println("Error: cannot initialize ZLL security: 0x%X", status);
     }
-
+#endif //SL_CATALOG_ZIGBEE_ZLL_COMMISSIONING_COMMON_PRESENT
     status = sl_zigbee_af_network_creator_start(false); // distributed
     sl_zigbee_app_debug_println("Form network start: 0x%X", status);
   }

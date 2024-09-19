@@ -1104,7 +1104,6 @@ void throughput_peripheral_on_bt_event(sl_bt_msg_t *evt)
                                      &(peripheral_state.mtu_size));
       app_assert_status(sc);
 
-      peripheral_state.pdu_size = evt->data.evt_connection_parameters.txsize;
       throughput_peripheral_calculate_data_size();
 
       sc = sl_bt_gatt_server_write_attribute_value(gattdb_pdu_size,
@@ -1133,10 +1132,6 @@ void throughput_peripheral_on_bt_event(sl_bt_msg_t *evt)
                                                    (uint8_t *)&peripheral_state.connection_timeout);
       app_assert_status(sc);
 
-      sc = sl_bt_gatt_server_notify_all(gattdb_pdu_size,
-                                        1,
-                                        (uint8_t *)&peripheral_state.pdu_size);
-      app_assert_status(sc);
       sc = sl_bt_gatt_server_notify_all(gattdb_mtu_size,
                                         1,
                                         (uint8_t *)&peripheral_state.mtu_size);
@@ -1154,6 +1149,19 @@ void throughput_peripheral_on_bt_event(sl_bt_msg_t *evt)
                                         (uint8_t *)&peripheral_state.connection_timeout);
       app_assert_status(sc);
 
+      throughput_peripheral_on_connection_settings_change(peripheral_state.interval,
+                                                          peripheral_state.pdu_size,
+                                                          peripheral_state.mtu_size,
+                                                          peripheral_state.data_size);
+      break;
+
+    case sl_bt_evt_connection_data_length_id:
+      peripheral_state.pdu_size = evt->data.evt_connection_data_length.tx_data_len;
+      throughput_peripheral_calculate_data_size();
+      sc = sl_bt_gatt_server_notify_all(gattdb_pdu_size,
+                                        1,
+                                        (uint8_t *)&peripheral_state.pdu_size);
+      app_assert_status(sc);
       throughput_peripheral_on_connection_settings_change(peripheral_state.interval,
                                                           peripheral_state.pdu_size,
                                                           peripheral_state.mtu_size,

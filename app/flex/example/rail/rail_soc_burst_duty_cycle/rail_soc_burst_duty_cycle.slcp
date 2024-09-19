@@ -38,6 +38,7 @@ component:
   - id: iostream_recommended_stream
   - id: iostream_retarget_stdio
 #---------------- Power - Sleep ---------------------
+  - id: sl_flex_rail_sleep
   - id: power_manager
 #---------------------- LCD -------------------------
   - id: glib

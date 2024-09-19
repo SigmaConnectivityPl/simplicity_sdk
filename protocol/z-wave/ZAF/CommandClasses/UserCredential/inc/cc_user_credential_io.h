@@ -22,12 +22,15 @@
 /****************************************************************************/
 
 typedef enum u3c_db_operation_result_ {
-  U3C_DB_OPERATION_RESULT_SUCCESS, // The operation completed succesfully
-  U3C_DB_OPERATION_RESULT_ERROR, // An error occurred
-  U3C_DB_OPERATION_RESULT_ERROR_IO, // An I/O error occurred
-  U3C_DB_OPERATION_RESULT_FAIL_DNE, // The object does not exist
-  U3C_DB_OPERATION_RESULT_FAIL_FULL, // There is no space left for the object
-  U3C_DB_OPERATION_RESULT_FAIL_OCCUPIED // The object already exists
+  U3C_DB_OPERATION_RESULT_SUCCESS,         ///< The operation completed succesfully
+  U3C_DB_OPERATION_RESULT_ERROR,           ///< An error occurred
+  U3C_DB_OPERATION_RESULT_ERROR_IO,        ///< An I/O error occurred
+  U3C_DB_OPERATION_RESULT_ERROR_DUPLICATE, ///< Duplicate Entry in table
+  U3C_DB_OPERATION_RESULT_FAIL_DNE,        ///< The object does not exist
+  U3C_DB_OPERATION_RESULT_FAIL_FULL,       ///< There is no space left for the object
+  U3C_DB_OPERATION_RESULT_FAIL_OCCUPIED,   ///< The object already exists
+  U3C_DB_OPERATION_RESULT_FAIL_REASSIGN,   ///< The credential is assigned to a different user
+  U3C_DB_OPERATION_RESULT_FAIL_IDENTICAL   ///< The new data is identical to the data already stored locally
 } u3c_db_operation_result;
 
 /****************************************************************************/
@@ -99,7 +102,7 @@ u3c_db_operation_result CC_UserCredential_delete_user(
  *                                 requested
  * @param[out] credential_data The memory location where the Credential data
  *                             will be copied, or NULL if not requested
- * @return true if the Credential object was copied succesfully
+ * @return the result of the operation
  */
 u3c_db_operation_result CC_UserCredential_get_credential(
   uint16_t user_unique_identifier,
@@ -166,6 +169,32 @@ u3c_db_operation_result CC_UserCredential_move_credential(
   uint16_t destination_user_uid,
   uint16_t destination_credential_slot
   );
+
+/****************************************************************************/
+/*                      ADMIN CODE RELATED API FUNCTIONS                    */
+/****************************************************************************/
+
+/**
+ * Retrieves the admin code information from the node. Can be used to ensure node
+ * supports the functionality.
+ *
+ * @param[out] code Admin Code information. If Admin Code is not supported,
+ * the struct will be fully zeroed out upon return.
+ * @return U3C_DB_OPERATION_SUCCESS if successful
+ * @return U3C_DB_OPERATION_ERROR otherwise
+ */
+u3c_db_operation_result CC_UserCredential_get_admin_code_info(u3c_admin_code_metadata_t *code);
+
+/**
+ * Sets the admin code on the node, if supported.
+ *
+ * @param[in] code Admin Code information to apply to node
+ * @return U3C_DB_OPERATION_ERROR_DUPLICATE if Admin Code is a duplicate of an
+ * existing PIN Code or Admin Code
+ * @return U3C_OPERATION_SUCCESS if successful
+ * @return U3C_OPERATION_ERROR otherwise
+ */
+u3c_db_operation_result CC_UserCredential_set_admin_code(u3c_admin_code_metadata_t *code);
 
 /**
  * @}

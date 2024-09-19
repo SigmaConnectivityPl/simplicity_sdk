@@ -32,6 +32,8 @@
 /*                      EXPORTED TYPES and DEFINITIONS                      */
 /****************************************************************************/
 
+#define U3C_CREDENTIAL_TYPE_PIN_CODE_MIN_LENGTH_REQUIREMENT 4
+
 typedef enum u3c_modifier_type_ {
   MODIFIER_TYPE_DNE = CREDENTIAL_REPORT_DNE,
   MODIFIER_TYPE_UNKNOWN,
@@ -52,8 +54,23 @@ typedef enum u3c_credential_type_ {
   CREDENTIAL_TYPE_FACE_BIOMETRIC,
   CREDENTIAL_TYPE_FINGER_BIOMETRIC,
   CREDENTIAL_TYPE_HAND_BIOMETRIC,
-  CREDENTIAL_TYPE_UNSPECIFIED_BIOMETRIC
+  CREDENTIAL_TYPE_UNSPECIFIED_BIOMETRIC,
+  CREDENTIAL_TYPE_NUMBER_OF_TYPES
 } u3c_credential_type;
+
+typedef enum _u3c_credential_report_type_t_ {
+  CREDENTIAL_REP_TYPE_ADDED =                       CREDENTIAL_REPORT_ADDED,
+  CREDENTIAL_REP_TYPE_MODIFIED =                    CREDENTIAL_REPORT_MODIFIED,
+  CREDENTIAL_REP_TYPE_DELETED =                     CREDENTIAL_REPORT_DELETED,
+  CREDENTIAL_REP_TYPE_UNCHANGED =                   CREDENTIAL_REPORT_UNCHANGED,
+  CREDENTIAL_REP_TYPE_RESPONSE_TO_GET =             CREDENTIAL_REPORT_RESPONSE_TO_GET,
+  CREDENTIAL_REP_TYPE_ADD_AGAINST_OCCUPIED =        CREDENTIAL_REPORT_ADD_AGAINST_OCCUPIED,
+  CREDENTIAL_REP_TYPE_MODIF_AGAINST_EMPTY =         CREDENTIAL_REPORT_MODIFY_AGAINST_EMPTY,
+  CREDENTIAL_REP_TYPE_DUPLICATE =                   CREDENTIAL_REPORT_DUPLICATE,
+  CREDENTIAL_REP_TYPE_MANUFACTURER_SECURITY_RULES = CREDENTIAL_REPORT_MANUFACTURER_SECURITY_RULES,
+  CREDENTIAL_REP_TYPE_ASSIGNED_TO_DIFFERENT_USER =  CREDENTIAL_REPORT_ASSIGNED_TO_DIFFERENT_USER,
+  CREDENTIAL_REP_TYPE_DUPLICATE_ADMIN_PIN_CODE =    CREDENTIAL_REPORT_DUPLICATE_ADMIN_PIN_CODE
+} u3c_credential_report_type_t;
 
 typedef enum u3c_credential_learn_status_ {
   CL_STATUS_STARTED =                       CREDENTIAL_LEARN_REPORT_STARTED,
@@ -66,6 +83,17 @@ typedef enum u3c_credential_learn_status_ {
   CL_STATUS_INVALID_MODIFY_OPERATION_TYPE = CREDENTIAL_LEARN_REPORT_INVALID_CREDENTIAL_LEARN_MODIFY_OPERATION_TYPE
 } u3c_credential_learn_status;
 
+typedef enum u3c_user_report_type_t_ {
+  USER_REP_TYPE_ADDED                  = USER_REPORT_ADDED,
+  USER_REP_TYPE_MODIFIED               = USER_REPORT_MODIFIED,
+  USER_REP_TYPE_DELETED                = USER_REPORT_DELETED,
+  USER_REP_TYPE_UNCHANGED              = USER_REPORT_UNCHANGED,
+  USER_REP_TYPE_RESPONSE_TO_GET        = USER_REPORT_RESPONSE_TO_GET,
+  USER_REP_TYPE_ADD_AGAINST_OCCUPIED   = USER_REPORT_ADD_AGAINST_OCCUPIED,
+  USER_REP_TYPE_MODIF_AGAINST_EMPTY    = USER_REPORT_MODIFY_AGAINST_EMPTY,
+  USER_REP_TYPE_EXP_NZ_EXP_MIN_INVALID = USER_REPORT_NON_ZERO_EXPIRING_MINUTES_INVALID
+} u3c_user_report_type_t;
+
 typedef enum u3c_user_type_ {
   USER_TYPE_GENERAL = 0x00,
   USER_TYPE_PROGRAMMING = 0x03,
@@ -73,7 +101,8 @@ typedef enum u3c_user_type_ {
   USER_TYPE_DURESS = 0x05,
   USER_TYPE_DISPOSABLE = 0x06,
   USER_TYPE_EXPIRING = 0x07,
-  USER_TYPE_REMOTE_ONLY = 0x09
+  USER_TYPE_REMOTE_ONLY = 0x09,
+  USER_TYPE_END
 } u3c_user_type;
 
 typedef enum u3c_credential_rule_ {
@@ -87,6 +116,31 @@ typedef enum u3c_user_name_encoding_ {
   USER_NAME_ENCODING_STANDARD_AND_OEM_EXTENDED_ASCII,
   USER_NAME_ENCODING_UNICODE_UTF_16
 } u3c_user_name_encoding;
+
+/**
+ * @brief This operation result can optionally be injected 
+ * into an Admin Code Report to pass information back to 
+ * the controlling node, in lieu of another report type.
+ * 
+ * Reports MUST be sent for Get operations, but MAY be sent for Set operations.
+ * 
+ * See specification for more requirement details.
+ */
+typedef enum _u3c_admin_code_operation_result_ {
+  ADMIN_CODE_OPERATION_RESULT_MODIFIED = 0x01,                ///< Admin Code was modified (Set, External).
+  ADMIN_CODE_OPERATION_RESULT_UNMODIFIED = 0x03,              ///< Admin code was not modified as current code was identical.
+  ADMIN_CODE_OPERATION_RESULT_GET_RESP = 0x04,                ///< Default response, or response to successful Get.   
+  ADMIN_CODE_OPERATION_RESULT_FAIL_DUPLICATE_CRED = 0x07,     ///< Admin Code was not modified (Set) due to duplicate existing PIN code credential.
+  ADMIN_CODE_OPERATION_RESULT_FAIL_MANUF_RULE = 0x08,         ///< Admin Code was not modified (Set) due to a manufacturer security rule.
+  ADMIN_CODE_OPERATION_RESULT_ERROR_AC_NOT_SUPPORTED = 0x0D,  ///< Failed due to Admin Code not being supported (Get/Set).
+  ADMIN_CODE_OPERATION_RESULT_ERROR_ACD_NOT_SUPPORTED = 0x0E, ///< Failed due to Admin Code Deactivation not being supported (Set).
+  ADMIN_CODE_OPERATION_RESULT_ERROR_NODE = 0x0F,              ///< Failed due to unspecified node error 
+  // Internal result values selected to mask to appropriate result codes in the report
+  ADMIN_CODE_OPERATION_RESULT_INTERNAL_DUPLICATE_AC = 0x13,   ///< Internal validation result; Code is the same as the current admin code
+  ADMIN_CODE_OPERATION_RESULT_INTERNAL_NONE = 0x14,           ///< Internal validation result; No error 
+  ADMIN_CODE_OPERATION_RESULT_INTERNAL_INVALID_LENGTH = 0x1F, ///< Internal validation result; Code has an invalid length
+  ADMIN_CODE_OPERATION_RESULT_INTERNAL_INVALID_CHAR = 0x2F,   ///< Internal validation result; Code has one or more invalid characters
+} u3c_admin_code_operation_result;
 
 typedef struct u3c_user_ {
   uint16_t unique_identifier;
@@ -131,16 +185,24 @@ typedef struct u3c_event_data_validate_ {
   bool is_unlocked;
 } u3c_event_data_validate;
 
-typedef struct u3c_event_data_learn_start_ {
-  u3c_operation_type_t operation_type;
-  u3c_credential_identifier learn_target;
-  uint8_t timeout_seconds;
-} u3c_event_data_learn_start;
-
 typedef struct u3c_event_data_learn_read_done_ {
   uint8_t * data;
   uint8_t data_length;
 } u3c_event_data_learn_read_done;
+
+/// Credential Learn information passed to application layer
+typedef struct u3c_credential_learn_event_data_ {
+  u3c_credential_identifier target; 
+  u3c_operation_type_t operation_type;
+  uint16_t source_id;
+  uint8_t timeout_seconds;
+} u3c_credential_learn_event_data;
+
+typedef struct u3c_admin_code_metadata_{
+  u3c_admin_code_operation_result result; 
+  uint8_t code_length;
+  uint8_t * code_data;
+} u3c_admin_code_metadata_t;
 
 typedef enum u3c_event_ {
   CC_USER_CREDENTIAL_EVENT_VALIDATE            = 1,  ///< Application is requesting a Credential to be validated
@@ -170,6 +232,60 @@ typedef enum u3c_event_ {
 bool CC_UserCredential_manufacturer_validate_credential(
   u3c_credential * credential
   );
+
+/**
+ * @brief Validates the following conditions and requirements: 
+ * CC:0083.01.1A.11.011 - Code follows all manufacturer security rules.
+ * 
+ * Should not be called if AC is not supported. 
+ * 
+ * @param code Pointer to structure containing Admin Code information. 
+ * 
+ * @returns True if all checks pass. If checks do not pass, returns false, and 
+ * result code populated in code struct. 
+ * 
+ * @note result code of a successful check should be ignored, but in 
+ * practice ensure it is set to ADMIN_CODE_OPERATION_RESULT_NONE in this case.
+ */
+bool CC_UserCredential_manufacturer_validate_admin_pin_code(
+  u3c_admin_code_metadata_t * code
+  );
+
+/**
+ * Sends one or more User Report frames to the appropriate destinations
+ * depending on the type of the report
+ * 
+ * @param[in] report_type  The type of report to send
+ * @param[in] p_user       Pointer to the User metadata
+ * @param[in] p_name       Pointer to the User Name
+ * @param[in] next_uuid    The UUID of the next User
+ * @param[in] p_rx_options Pointer to the properties of the incoming frame
+ */
+void CC_UserCredential_UserReport_tx(
+  const u3c_user_report_type_t report_type,
+  const u3c_user * const p_user,
+  const uint8_t * const p_name,
+  const uint16_t next_uuid,
+  RECEIVE_OPTIONS_TYPE_EX * p_rx_options
+  );
+
+/**
+ * Sends one or more Credential Report frames to the appropriate destinations
+ * depending on the type of the report
+ * 
+ * @param[in] report_type          The type of report to send
+ * @param[in] p_credential         Pointer to the metadata and content of the credential
+ * @param[in] next_credential_type The type of the next credential
+ * @param[in] next_credential_slot The slot number of the next credential
+ * @param[in] p_rx_options         Pointer to the properties of the incoming frame
+ */
+void CC_UserCredential_CredentialReport_tx(
+  const u3c_credential_report_type_t report_type,
+  const u3c_credential * p_credential,
+  const u3c_credential_type next_credential_type,
+  const uint16_t next_credential_slot,
+  RECEIVE_OPTIONS_TYPE_EX * p_rx_options
+);
 
 /**
  * @}

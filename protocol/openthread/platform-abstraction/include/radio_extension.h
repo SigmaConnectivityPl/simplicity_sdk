@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Defines the Silicon Labs extension to the openthread platform radio interface.
  *******************************************************************************
@@ -54,12 +54,12 @@ extern "C" {
  *   This module includes the Silicon Labs extension to the openthread
  *   platform radio interface.
  *
- * The functions in this modules provide an API that can be called from 
+ * The functions in this modules provide an API that can be called from
  * SoC or host based openthread applications.
  *
  * @note Many of the functions defined in this module are wrappers on
  * top of the Silicon Labs RAIL API. For additional information on the
- * RAIl API please refer to the `Silicon Labs RAIL API Reference Guide`. 
+ * RAIl API please refer to the `Silicon Labs RAIL API Reference Guide`.
  * Those functions that are wrappers to RAIL functions include a
  * reference to the underlying RAIL function.
  *
@@ -240,7 +240,7 @@ otError otPlatRadioExtensionSetDpState(uint8_t aDpPulse);
  *                          - 0x02 = Grant GPIO index
  *                          - 0x03 = PHY Select index
  * @param[out]  aEnabled    A pointer to the location where the boolean override input
- *                          value will be returned. A TRUE value indicating the 
+ *                          value will be returned. A TRUE value indicating the
  *                          override input value is enabled, FALSE disabled. The return
  *                          is inverted if the selected GPIO is active low.
  *
@@ -267,7 +267,7 @@ otError otPlatRadioExtensionGetGpioInputOverride(uint8_t aGpioIndex, bool *aEnab
  *                         - 0x01 = Request GPIO index
  *                         - 0x02 = Grant GPIO index
  *                         - 0x03 = PHY Select index
- * @param[in]  aEnabled    The boolean override input value. A TRUE value indicating the 
+ * @param[in]  aEnabled    The boolean override input value. A TRUE value indicating the
  *                         override input value is enabled, FALSE disabled.
  *
  * @return Error code indicating success of the function call.
@@ -360,7 +360,7 @@ otError otPlatRadioExtensionSetPhySelectTimeout(uint8_t aTimeout);
  * @sa  RAIL API: **sl_rail_util_coex_get_options()**
  *
  * @param[out]  aPtaOptions  A pointer to the location where the coexistence
- *                           feature bitmask will be returned. The feature 
+ *                           feature bitmask will be returned. The feature
  *                           bitmask is defined by the set of macros making up
  *                           the RAIL `sl_rail_util_coex_options_t` type.
  *
@@ -382,7 +382,7 @@ otError otPlatRadioExtensionGetCoexOptions(uint32_t *aPtaOptions);
  *
  * @sa  RAIL API: **sl_rail_util_coex_set_options()**
  *
- * @param[in]  aPtaOptions  The coexistence feature bitmask to set. The feature 
+ * @param[in]  aPtaOptions  The coexistence feature bitmask to set. The feature
  *                          bitmask is defined by the set of macros making up
  *                          the RAIL `sl_rail_util_coex_options_t` type.
  *
@@ -406,7 +406,7 @@ otError otPlatRadioExtensionSetCoexOptions(uint32_t aPtaOptions);
  * @sa  RAIL API: **sl_rail_util_coex_get_constant_options()**
  *
  * @param[out]  aPtaOptions  A pointer to the location where the coexistence
- *                           constant PTA feature bitmask will be returned. The feature 
+ *                           constant PTA feature bitmask will be returned. The feature
  *                           bitmask is defined by the set of macros making up
  *                           the RAIL `sl_rail_util_coex_options_t` type.
  *
@@ -460,7 +460,7 @@ otError otPlatRadioExtensionIsCoexEnabled(bool *aPtaState);
  *                                    is not built with the required component.
  *
  */
-otError otPlatRadioExtensionSetCoexEnable(bool  aPtaState);
+otError otPlatRadioExtensionSetCoexEnable(bool aPtaState);
 
 /**
  * Get the coexistence PWM configuration.
@@ -470,18 +470,18 @@ otError otPlatRadioExtensionSetCoexEnable(bool  aPtaState);
  * @sa  RAIL API: **sl_rail_util_coex_get_request_pwm_args()**
  *
  * @param[out]  aPwmReq           A pointer to the location where the coexistence
- *                                PWM request is returned.  The value is defined 
- *                                as a bitmap using shift values from the RAIL 
+ *                                PWM request is returned.  The value is defined
+ *                                as a bitmap using shift values from the RAIL
  *                                `COEX_Req_t` enumeration.
  * @param[out]  aPwmDutyCycle     A pointer to the location where the coexistence
- *                                PWM duty cycle value is returned. 
+ *                                PWM duty cycle value is returned.
  * @param[out]  aPwmPeriodHalfMs  A pointer to the location where the coexistence
  *                                PWM period half MS value is returned.
  *
  * @return Error code indicating success of the function call.
  *
  * @retval  OT_ERROR_NONE             Successfully obtained the PWM configuration.
- * @retval  OT_ERROR_INVALID_ARGS     One or more of the parameters @p aPwmReq, 
+ * @retval  OT_ERROR_INVALID_ARGS     One or more of the parameters @p aPwmReq,
  *                                    @p aPwmDutyCycle, or @p aPwmPeriodHalfMs is NULL.
  * @retval  OT_ERROR_NOT_IMPLEMENTED  Coexistence is not implemented.
  * @retval  OT_ERROR_NOT_FOUND        Returned to host applications when the coprocessor
@@ -497,10 +497,10 @@ otError otPlatRadioExtensionGetRequestPwmArgs(uint8_t *aPwmReq, uint8_t *aPwmDut
  *
  * @sa  RAIL API: **sl_rail_util_coex_set_request_pwm()**
  *
- * @param[in]  aPwmReq           The coexistence PWM request.  The value is defined 
- *                               as a bitmap using shift values from the RAIL 
+ * @param[in]  aPwmReq           The coexistence PWM request.  The value is defined
+ *                               as a bitmap using shift values from the RAIL
  *                               `COEX_Req_t` enumeration.
- * @param[in]  aPwmDutyCycle     The coexistence PWM duty cycle. 
+ * @param[in]  aPwmDutyCycle     The coexistence PWM duty cycle.
  * @param[in]  aPwmPeriodHalfMs  The coexistencec PWM period half MS.
  *
  * @return Error code indicating success of the function call.
@@ -538,7 +538,7 @@ otError otPlatRadioExtensionClearCoexCounters(void);
  * @param[in]   aNumEntries    The number of entries in @p aCoexCounters
  *                             array where counters will be returned.
  * @param[out]  aCoexCounters  A pointer to an array where the coexistence
- *                             counters will be returned. See @ref 
+ *                             counters will be returned. See @ref
  *                             otPlatRadioExtensionCoexEvent_t which defines
  *                             what coexistence counter each array element stores.
  *
@@ -620,25 +620,26 @@ otError otPlatRadioExtensionSetCcaMode(uint8_t aMode);
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 /**
  * This enumeration defines the coex event counters and can be used as an
- * index into the `aCoexCounters` table returned in a call to 
+ * index into the `aCoexCounters` table returned in a call to
  * @ref otPlatRadioExtensionGetCoexCounters.
  *
  */
-typedef enum {
-  /** Low priority request initiated */
-  OT_PLAT_RADIO_EXTENSION_COEX_EVENT_LO_PRI_REQUESTED,
-  /** High priority request initiated */
-  OT_PLAT_RADIO_EXTENSION_COEX_EVENT_HI_PRI_REQUESTED,
-  /** Low priority request denied */
-  OT_PLAT_RADIO_EXTENSION_COEX_EVENT_LO_PRI_DENIED,
-  /** High priority request denied */
-  OT_PLAT_RADIO_EXTENSION_COEX_EVENT_HI_PRI_DENIED,
-  /** Low priority transmission aborted mid packet */
-  OT_PLAT_RADIO_EXTENSION_COEX_EVENT_LO_PRI_TX_ABORTED,
-  /** High priority transmission aborted mid packet */
-  OT_PLAT_RADIO_EXTENSION_COEX_EVENT_HI_PRI_TX_ABORTED,
-  /** Number of coexistence events */
-  OT_PLAT_RADIO_EXTENSION_COEX_EVENT_COUNT,
+typedef enum
+{
+    /** Low priority request initiated */
+    OT_PLAT_RADIO_EXTENSION_COEX_EVENT_LO_PRI_REQUESTED,
+    /** High priority request initiated */
+    OT_PLAT_RADIO_EXTENSION_COEX_EVENT_HI_PRI_REQUESTED,
+    /** Low priority request denied */
+    OT_PLAT_RADIO_EXTENSION_COEX_EVENT_LO_PRI_DENIED,
+    /** High priority request denied */
+    OT_PLAT_RADIO_EXTENSION_COEX_EVENT_HI_PRI_DENIED,
+    /** Low priority transmission aborted mid packet */
+    OT_PLAT_RADIO_EXTENSION_COEX_EVENT_LO_PRI_TX_ABORTED,
+    /** High priority transmission aborted mid packet */
+    OT_PLAT_RADIO_EXTENSION_COEX_EVENT_HI_PRI_TX_ABORTED,
+    /** Number of coexistence events */
+    OT_PLAT_RADIO_EXTENSION_COEX_EVENT_COUNT,
 } otPlatRadioExtensionCoexEvent_t;
 
 /**

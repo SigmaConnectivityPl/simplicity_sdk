@@ -436,14 +436,14 @@ CC_UserCode_reset_data(void)
 */
 ZW_WEAK void CC_UserCode_set_usercode(char* new_user_code)
 {
-  if(strlen(new_user_code) > USERCODE_MAX_LEN)
+  if(strnlen(new_user_code, USERCODE_MAX_LEN + 1) > USERCODE_MAX_LEN)
   {
     DPRINTF("User code too long. Max length is %d\n", USERCODE_MAX_LEN);
     assert(false);
   }
   SUserCode newUserCode;
   newUserCode.user_id_status = USER_ID_OCCUPIED;
-  newUserCode.userCodeLen = sizeof(new_user_code);
+  newUserCode.userCodeLen = strnlen(new_user_code, USERCODE_MAX_LEN);
   memcpy(newUserCode.userCode, new_user_code, newUserCode.userCodeLen);
   CC_UserCode_Write(1, &newUserCode);
 }

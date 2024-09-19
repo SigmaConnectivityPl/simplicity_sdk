@@ -559,7 +559,7 @@ sl_status_t sl_wisun_ota_dfu_stop_fw_update(void)
 
   flags = osEventFlagsGet(_ota_dfu_evt);
 
-  // error or already started
+  // error or already stopped
   if ((flags & SL_WISUN_OTA_DFU_EVT_FLAG_ERROR_MSK)
       || (flags & SL_WISUN_OTA_DFU_EVT_FLAG_STOP_FW_UPDATE_MSK)) {
     return SL_STATUS_FAIL;
@@ -1223,6 +1223,12 @@ static void _tftp_data_hnd(sl_tftp_clnt_t * const clnt,
   static uint32_t prev_offset = 0xFFFFFFFFUL;
   static sl_wisun_ota_dfu_error_ctx_t error_ctx = { 0U };
   static uint16_t chunk_cnt = 1U;
+  
+  // check stop request and terminate the session if stopped
+  if (sl_wisun_ota_dfu_get_fw_update_status_flag(SL_WISUN_OTA_DFU_STATUS_FW_UPDATE_STOPPED)) {
+    (void) sl_tftp_clnt_terminate_session(clnt);
+    return;
+  }
 
   // Calculate offset
   offset = (clnt->packet.content.data.block_num - 1UL) * SL_TFTP_DATA_BLOCK_SIZE;
@@ -1315,7 +1321,7 @@ static void _ota_dfu_thr_fnc(void * args)
   assert(info.numStorageSlots >= 1);
 
   SL_WISUN_OTA_DFU_SERVICE_LOOP() {
-    osEventFlagsClear(_ota_dfu_evt, SL_WISUN_OTA_DFU_EVT_FLAG_ALL_MSK);
+    osEventFlagsClear(_ota_dfu_evt, SL_WISUN_OTA_DFU_EVT_FLAG_START_FW_UPDATE_MSK);
     flags = osEventFlagsWait(_ota_dfu_evt,
                              SL_WISUN_OTA_DFU_EVT_FLAG_START_FW_UPDATE_MSK,
                              osFlagsWaitAny | osFlagsNoClear,
@@ -1326,6 +1332,11 @@ static void _ota_dfu_thr_fnc(void * args)
       continue;
     }
 
+    // Clear all mask except started flag
+    osEventFlagsClear(_ota_dfu_evt, 
+                      SL_WISUN_OTA_DFU_EVT_FLAG_ALL_MSK
+                      ^ SL_WISUN_OTA_DFU_EVT_FLAG_START_FW_UPDATE_MSK);
+    
     // Start tick count
     _start_tick_cnt = sl_sleeptimer_get_tick_count();
 
@@ -1383,7 +1394,10 @@ static void _ota_dfu_thr_fnc(void * args)
     }
 
     // check download error
-    if (sl_wisun_ota_dfu_get_fw_update_status_flag(SL_WISUN_OTA_DFU_STATUS_FW_DOWNLOAD_ERROR)) {
+    if (sl_tftp_clnt_is_op_rrq_wrq_failed(&tftp_clnt) 
+        || sl_wisun_ota_dfu_get_fw_update_status_flag(SL_WISUN_OTA_DFU_STATUS_FW_DOWNLOAD_ERROR)) {
+      _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_DOWNLOAD_ERROR_MSK);
+      sl_wisun_ota_dfu_log("TFTP download failed\n");
       osDelay(SL_WISUN_OTA_DFU_DELAY_MS);
       continue;
     }
@@ -1403,22 +1417,24 @@ static void _ota_dfu_thr_fnc(void * args)
     error_ctx.verify.ret_val = bootloader_verifyImage(0U, NULL);
     if (error_ctx.verify.ret_val != BOOTLOADER_OK) {
       _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_VERIFY_ERROR_MSK);
+      sl_wisun_ota_dfu_log("Verify image failed\n");
       sl_wisun_ota_dfu_error_hnd(SL_WISUN_OTA_DFU_ERROR_FW_VERIFY, &error_ctx);
       continue;
     }
     _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_VERIFIED_MSK);
-    sl_wisun_ota_dfu_log("Verify img finished\n");
+    sl_wisun_ota_dfu_log("Verify image finished\n");
     osDelay(SL_WISUN_OTA_DFU_DELAY_MS);
 
     // Set image
     error_ctx.set.ret_val = bootloader_setImageToBootload(0U);
     if (error_ctx.set.ret_val != BOOTLOADER_OK) {
       _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_SET_ERROR_MSK);
+      sl_wisun_ota_dfu_log("Set image failed");
       sl_wisun_ota_dfu_error_hnd(SL_WISUN_OTA_DFU_ERROR_FW_SET, &error_ctx);
       continue;
     }
     _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_SET_MSK);
-    sl_wisun_ota_dfu_log("Set img finished\n");
+    sl_wisun_ota_dfu_log("Set image finished\n");
 
     osDelay(SL_WISUN_OTA_DFU_SHUTDOWN_DELAY_MS);
 
@@ -1430,6 +1446,8 @@ static void _ota_dfu_thr_fnc(void * args)
     }
 
 #if SL_WISUN_OTA_DFU_AUTO_INSTALL_ENABLED
+    sl_wisun_ota_dfu_log("Starting reboot and install...\n");
+    osDelay(SL_WISUN_OTA_DFU_DELAY_MS);
     bootloader_rebootAndInstall();
 #endif
   }

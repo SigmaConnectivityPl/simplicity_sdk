@@ -1,4 +1,4 @@
-id: ot_rtos_wrappers_real
+id: ot_rtos_wrappers
 label: SL RTOS helper component
 package: OpenThread
 category: OpenThread

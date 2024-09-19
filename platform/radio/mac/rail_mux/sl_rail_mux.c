@@ -1712,6 +1712,45 @@ HIDDEN void fn_mux_rail_events_callback(RAIL_Handle_t railHandle, RAIL_Events_t 
       continue;
     }
 
+    // This code executes when we switch out of 15.4 in a DMP scenario
+    // This is the correct place to handle errors that would result in incomplete transmits and receives
+    // that would otherwise get the statemachine stuck; Note that some of these operations were previously
+    // being done upon receiving a configunscheduled event. While this might work, it is a bit overzealous
+    if ( events & RAIL_EVENT_SCHEDULER_STATUS ) {
+      switch (RAIL_GetSchedulerStatus(railHandle)) {
+        case RAIL_SCHEDULER_STATUS_SCHEDULE_FAIL:
+        case RAIL_SCHEDULER_STATUS_CCA_CSMA_TX_FAIL:
+        case RAIL_SCHEDULER_STATUS_CCA_LBT_TX_FAIL:
+        case RAIL_SCHEDULER_STATUS_SINGLE_TX_FAIL:
+        case RAIL_SCHEDULER_STATUS_SCHEDULED_TX_FAIL:
+        case RAIL_SCHEDULER_STATUS_UNSUPPORTED:
+        case RAIL_SCHEDULER_STATUS_SCHEDULED_RX_FAIL:
+        case RAIL_SCHEDULER_STATUS_INTERNAL_ERROR:
+        case RAIL_SCHEDULER_STATUS_TASK_FAIL:
+          // If we were waiting for an ACK: we will never get the ACK we were waiting for
+          // Clear flags to match lower mac statemachine and allow things to go back to idle
+          // and retry upon resuming 15.4
+          if (fn_get_context_flag_by_index(i, RAIL_MUX_PROTOCOL_FLAGS_WAIT_FOR_ACK)) {
+            fn_set_context_flag_by_index(i, RAIL_MUX_PROTOCOL_FLAGS_WAIT_FOR_ACK, false);
+          }
+
+          // If transmit was in progress, clear flags to match lower mac statemachine
+          // and allow things to go back to idle; retries if any, will happen when things
+          // resume
+          if ( fn_get_context_flag_by_index(i, RAIL_MUX_PROTOCOL_FLAGS_TX_IN_PROGRESS)) {
+            fn_set_context_flag_by_index(i, RAIL_MUX_PROTOCOL_FLAGS_TX_IN_PROGRESS, false);
+          }
+
+          // If tx was scheduled, DMP interruption will no longer allow it. clear flags
+          if (fn_get_context_flag_by_index(i, RAIL_MUX_PROTOCOL_FLAGS_TX_SCHEDULED)) {
+            fn_set_context_flag_by_index(i, RAIL_MUX_PROTOCOL_FLAGS_TX_SCHEDULED, false);
+          }
+          break;
+
+        default:
+          break;
+      }
+    }
     if (enabled_events & RAIL_EVENTS_TX_COMPLETION) {
       if (i != active_tx_protocol_index) {
         enabled_events &= ~RAIL_EVENTS_TX_COMPLETION;
@@ -1808,15 +1847,6 @@ HIDDEN void fn_mux_rail_events_callback(RAIL_Handle_t railHandle, RAIL_Events_t 
       }
     }
 
-    if (enabled_events & RAIL_EVENT_CONFIG_UNSCHEDULED) {
-      if (fn_get_context_flag_by_index(i, RAIL_MUX_PROTOCOL_FLAGS_WAIT_FOR_ACK)) {
-        fn_set_context_flag_by_index(i, RAIL_MUX_PROTOCOL_FLAGS_WAIT_FOR_ACK, false);
-      }
-      if ( fn_get_context_flag_by_index(i, RAIL_MUX_PROTOCOL_FLAGS_TX_IN_PROGRESS)) {
-        fn_set_context_flag_by_index(i, RAIL_MUX_PROTOCOL_FLAGS_TX_IN_PROGRESS, false);
-      }
-    }
-
     if (enabled_events & RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND) { // ToDo: do we also need to check the packet type?
       if (rx_channel != protocol_context[i].channel
           || (data_req_Info.filterMask & protocol_context[i].addr_filter_mask_802154) == 0) {
@@ -1858,6 +1888,10 @@ static RAIL_Status_t fn_start_pending_tx(void)
         // Post a tx blocked event to notify mac state machines
         fn_mux_rail_events_callback(mux_rail_handle, RAIL_EVENT_TX_BLOCKED);
         continue;
+      }
+      if (fn_get_context_flag_by_index(i, RAIL_MUX_PROTOCOL_FLAGS_CONFIG_REPEATED_TX)) {
+        RAIL_SetNextTxRepeat(mux_rail_handle, &protocol_context[i].tx_repeat_config);
+        fn_set_context_flag_by_index(i, RAIL_MUX_PROTOCOL_FLAGS_CONFIG_REPEATED_TX, false);
       }
       //TODO: we might need to check if there is already scheduled TX, and it is by somebody with higher priority?
       // a new scheduled TX can overwrite the existing one with no priority considerataions
@@ -2240,4 +2274,12 @@ RAIL_Status_t sl_rail_mux_StartTxStreamAlt(RAIL_Handle_t railHandle,
 {
   (void)railHandle;
   return RAIL_StartTxStreamAlt(mux_rail_handle, channel, mode, options);
+}
+RAIL_Status_t sl_rail_mux_GetRxTimeFrameEnd(RAIL_Handle_t railHandle,
+                                            uint16_t totalPacketBytes,
+                                            RAIL_Time_t *pPacketTime)
+{
+  return RAIL_GetRxTimeFrameEnd(mux_rail_handle,
+                                totalPacketBytes,
+                                pPacketTime);
 }

@@ -28,7 +28,7 @@
 
 /**
  * @file
- *   This file implements the OpenThread platform abstraction for radio coex metrics 
+ *   This file implements the OpenThread platform abstraction for radio coex metrics
  *   collection.
  *
  */
@@ -41,22 +41,26 @@
 
 #if OPENTHREAD_CONFIG_PLATFORM_RADIO_COEX_ENABLE
 
-static sl_ot_coex_counter_t sl_coex_counter; 
+static sl_ot_coex_counter_t sl_coex_counter;
 
-#define SL_INCREMENT_IF_NO_OVERFLOW(var, val, incr)                         \
-do                                                                          \
-{                                                                           \
-    uint32_t temp = val + incr;                                             \
-    otEXPECT_ACTION(temp >= var, sl_coex_counter.metrics.mStopped = true);  \
-    var = temp;                                                             \
-} while(0)  
+#define SL_INCREMENT_IF_NO_OVERFLOW(var, val, incr)                            \
+    do                                                                         \
+    {                                                                          \
+        uint32_t temp = val + incr;                                            \
+        otEXPECT_ACTION(temp >= var, sl_coex_counter.metrics.mStopped = true); \
+        var = temp;                                                            \
+    } while (0)
 
 void sl_rail_util_coex_ot_events(sl_rail_util_coex_ot_event_t event)
 {
-    bool isTxEvent = (event & SL_RAIL_UTIL_COEX_OT_TX_REQUEST);
-    sl_rail_util_coex_ot_event_t coexEvent = (event & ~(SL_RAIL_UTIL_COEX_OT_TX_REQUEST | SL_RAIL_UTIL_COEX_OT_RX_REQUEST));
-    uint32_t *metrics = (isTxEvent)? &sl_coex_counter.metrics.mNumTxRequest : &sl_coex_counter.metrics.mNumRxRequest;
-    uint64_t *totalReqToGrantDuration = (isTxEvent)?&sl_coex_counter.totalTxReqToGrantDuration:&sl_coex_counter.totalRxReqToGrantDuration;
+    bool                         isTxEvent = (event & SL_RAIL_UTIL_COEX_OT_TX_REQUEST);
+    sl_rail_util_coex_ot_event_t coexEvent =
+        (event & ~(SL_RAIL_UTIL_COEX_OT_TX_REQUEST | SL_RAIL_UTIL_COEX_OT_RX_REQUEST));
+    uint32_t *metrics = (isTxEvent) ? &sl_coex_counter.metrics.mNumTxRequest : &sl_coex_counter.metrics.mNumRxRequest;
+    uint64_t *totalReqToGrantDuration =
+        (isTxEvent) ? &sl_coex_counter.totalTxReqToGrantDuration : &sl_coex_counter.totalRxReqToGrantDuration;
+
+    /* clang-format off */
 
     // uint32_t mNumGrantGlitch;                       ///< Not available.
 
@@ -85,57 +89,74 @@ void sl_rail_util_coex_ot_events(sl_rail_util_coex_ot_event_t event)
     // uint32_t mAvgRxRequestToGrantTime;              ///< Average time in usec from rx request to grant.
     
     // uint32_t mNumRxGrantNone;                       ///< Number of rx requests that completed without receiving grant.
-    // bool     mStopped; 
+    // bool     mStopped;
+
+    /* clang-format on */
 
     otEXPECT(sl_coex_counter.metrics.mStopped == false);
 
     switch (coexEvent)
     {
-        case SL_RAIL_UTIL_COEX_OT_EVENT_GRANTED_IMMEDIATE:
+    case SL_RAIL_UTIL_COEX_OT_EVENT_GRANTED_IMMEDIATE:
+    {
+        SL_INCREMENT_IF_NO_OVERFLOW(metrics[SL_OT_COEX_EVENT_GRANT_IMMEDIATE_COUNT],
+                                    metrics[SL_OT_COEX_EVENT_GRANT_IMMEDIATE_COUNT],
+                                    1);
+    }
+    break;
+
+    case SL_RAIL_UTIL_COEX_OT_EVENT_REQUESTED:
+    {
+        sl_coex_counter.timestamp = otPlatAlarmMicroGetNow();
+        SL_INCREMENT_IF_NO_OVERFLOW(metrics[SL_OT_COEX_EVENT_REQUEST_COUNT],
+                                    metrics[SL_OT_COEX_EVENT_REQUEST_COUNT],
+                                    1);
+    }
+    break;
+
+    case SL_RAIL_UTIL_COEX_OT_EVENT_GRANTED:
+    {
+        uint32_t reqToGrantDuration = otPlatAlarmMicroGetNow() - sl_coex_counter.timestamp;
+        SL_INCREMENT_IF_NO_OVERFLOW(metrics[SL_OT_COEX_EVENT_GRANT_WAIT_ACTIVATED_COUNT],
+                                    metrics[SL_OT_COEX_EVENT_GRANT_WAIT_ACTIVATED_COUNT],
+                                    1);
+
+        if (reqToGrantDuration > 50)
         {
-            SL_INCREMENT_IF_NO_OVERFLOW(metrics[SL_OT_COEX_EVENT_GRANT_IMMEDIATE_COUNT], metrics[SL_OT_COEX_EVENT_GRANT_IMMEDIATE_COUNT], 1);
+            SL_INCREMENT_IF_NO_OVERFLOW(metrics[SL_OT_COEX_EVENT_DELAYED_GRANT_COUNT],
+                                        metrics[SL_OT_COEX_EVENT_DELAYED_GRANT_COUNT],
+                                        1);
         }
-        break;
-        
-        case SL_RAIL_UTIL_COEX_OT_EVENT_REQUESTED: 
-        {
-            sl_coex_counter.timestamp = otPlatAlarmMicroGetNow();
-            SL_INCREMENT_IF_NO_OVERFLOW(metrics[SL_OT_COEX_EVENT_REQUEST_COUNT], metrics[SL_OT_COEX_EVENT_REQUEST_COUNT], 1);
-        }
-        break;
 
-        case SL_RAIL_UTIL_COEX_OT_EVENT_GRANTED: 
-        {
-            uint32_t reqToGrantDuration = otPlatAlarmMicroGetNow() - sl_coex_counter.timestamp;
-            SL_INCREMENT_IF_NO_OVERFLOW(metrics[SL_OT_COEX_EVENT_GRANT_WAIT_ACTIVATED_COUNT], metrics[SL_OT_COEX_EVENT_GRANT_WAIT_ACTIVATED_COUNT], 1);
+        *totalReqToGrantDuration += reqToGrantDuration;
+    }
+    break;
 
-            if(reqToGrantDuration > 50)
-            {
-                SL_INCREMENT_IF_NO_OVERFLOW(metrics[SL_OT_COEX_EVENT_DELAYED_GRANT_COUNT], metrics[SL_OT_COEX_EVENT_DELAYED_GRANT_COUNT], 1);
-            }
+    case SL_RAIL_UTIL_COEX_OT_EVENT_DENIED:
+    {
+        SL_INCREMENT_IF_NO_OVERFLOW(metrics[SL_OT_COEX_EVENT_GRANT_WAIT_TIMEOUT_COUNT],
+                                    metrics[SL_OT_COEX_EVENT_GRANT_WAIT_TIMEOUT_COUNT],
+                                    1);
+    }
+    break;
 
-            *totalReqToGrantDuration += reqToGrantDuration;
-        }
-        break;
+    case SL_RAIL_UTIL_COEX_OT_EVENT_GRANT_ABORTED:
+    {
+        SL_INCREMENT_IF_NO_OVERFLOW(metrics[SL_OT_COEX_EVENT_GRANT_DEACTIVATED_DURING_REQUEST_COUNT],
+                                    metrics[SL_OT_COEX_EVENT_GRANT_DEACTIVATED_DURING_REQUEST_COUNT],
+                                    1);
+    }
+    break;
 
-        case SL_RAIL_UTIL_COEX_OT_EVENT_DENIED: 
-        {
-            SL_INCREMENT_IF_NO_OVERFLOW(metrics[SL_OT_COEX_EVENT_GRANT_WAIT_TIMEOUT_COUNT], metrics[SL_OT_COEX_EVENT_GRANT_WAIT_TIMEOUT_COUNT], 1);
-        }
-        break;
-
-        case SL_RAIL_UTIL_COEX_OT_EVENT_GRANT_ABORTED: 
-        {
-            SL_INCREMENT_IF_NO_OVERFLOW(metrics[SL_OT_COEX_EVENT_GRANT_DEACTIVATED_DURING_REQUEST_COUNT], metrics[SL_OT_COEX_EVENT_GRANT_DEACTIVATED_DURING_REQUEST_COUNT], 1);
-        }
-        break;
-
-        default:
+    default:
         break;
     }
-    
-    SL_INCREMENT_IF_NO_OVERFLOW(metrics[SL_OT_COEX_EVENT_GRANT_WAIT_COUNT], metrics[SL_OT_COEX_EVENT_GRANT_WAIT_TIMEOUT_COUNT], metrics[SL_OT_COEX_EVENT_GRANT_WAIT_ACTIVATED_COUNT]);
-    metrics[SL_OT_COEX_EVENT_AVG_REQUEST_TO_GRANT_TIME] = *totalReqToGrantDuration/metrics[SL_OT_COEX_EVENT_REQUEST_COUNT];
+
+    SL_INCREMENT_IF_NO_OVERFLOW(metrics[SL_OT_COEX_EVENT_GRANT_WAIT_COUNT],
+                                metrics[SL_OT_COEX_EVENT_GRANT_WAIT_TIMEOUT_COUNT],
+                                metrics[SL_OT_COEX_EVENT_GRANT_WAIT_ACTIVATED_COUNT]);
+    metrics[SL_OT_COEX_EVENT_AVG_REQUEST_TO_GRANT_TIME] =
+        *totalReqToGrantDuration / metrics[SL_OT_COEX_EVENT_REQUEST_COUNT];
 
 exit:
     return;
@@ -168,4 +189,4 @@ otError otPlatRadioGetCoexMetrics(otInstance *aInstance, otRadioCoexMetrics *aCo
     OT_UNUSED_VARIABLE(aCoexMetrics);
     return OT_ERROR_NOT_IMPLEMENTED;
 }
-#endif //OPENTHREAD_CONFIG_PLATFORM_RADIO_COEX_ENABLE
+#endif // OPENTHREAD_CONFIG_PLATFORM_RADIO_COEX_ENABLE

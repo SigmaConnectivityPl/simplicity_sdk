@@ -36,6 +36,34 @@ _Static_assert(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_HAND_BIOMETRIC <= U3C_BUFFER_S
 _Static_assert(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_UNSPECIFIED_BIOMETRIC <= U3C_BUFFER_SIZE_CREDENTIAL_DATA,
                "STATIC_ASSERT_FAILED_Maximum_length_Unspecified_Biometric_data_does_not_fit_in_buffer");
 
+// Ensure Min and Max User Name Length are even numbers for potential UTF-16 encoding
+_Static_assert((CC_USER_CREDENTIAL_MAX_LENGTH_USER_NAME & 0x01)  == 0,
+               "STATIC_ASSERT_FAILED_Maximum_length_User_Name_must_be_even_number");
+
+// Ensure data Min Length is not greater than data Max Length
+_Static_assert(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_PIN_CODE <= CC_USER_CREDENTIAL_MAX_DATA_LENGTH_PIN_CODE,
+               "STATIC_ASSERT_FAILED_Minimum_length_PIN_Code_data_must_be_less_than_maximum_length");
+_Static_assert(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_PASSWORD <= CC_USER_CREDENTIAL_MAX_DATA_LENGTH_PASSWORD,
+               "STATIC_ASSERT_FAILED_Minimum_length_Password_data_must_be_less_than_maximum_length");
+_Static_assert(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_RFID_CODE <= CC_USER_CREDENTIAL_MAX_DATA_LENGTH_RFID_CODE,
+               "STATIC_ASSERT_FAILED_Minimum_length_RFID_Code_data_must_be_less_than_maximum_length");
+_Static_assert(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_BLE <= CC_USER_CREDENTIAL_MAX_DATA_LENGTH_BLE,
+               "STATIC_ASSERT_FAILED_Minimum_length_BLE_data_must_be_less_than_maximum_length");
+_Static_assert(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_NFC <= CC_USER_CREDENTIAL_MAX_DATA_LENGTH_NFC,
+               "STATIC_ASSERT_FAILED_Minimum_length_NFC_data_must_be_less_than_maximum_length");
+_Static_assert(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_UWB <= CC_USER_CREDENTIAL_MAX_DATA_LENGTH_UWB,
+               "STATIC_ASSERT_FAILED_Minimum_length_UWB_data_must_be_less_than_maximum_length");
+_Static_assert(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_EYE_BIOMETRIC <= CC_USER_CREDENTIAL_MAX_DATA_LENGTH_EYE_BIOMETRIC,
+               "STATIC_ASSERT_FAILED_Minimum_length_Eye_Biometric_data_must_be_less_than_maximum_length");
+_Static_assert(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_FACE_BIOMETRIC <= CC_USER_CREDENTIAL_MAX_DATA_LENGTH_FACE_BIOMETRIC,
+               "STATIC_ASSERT_FAILED_Minimum_length_Face_Biometric_data_must_be_less_than_maximum_length");
+_Static_assert(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_FINGER_BIOMETRIC <= CC_USER_CREDENTIAL_MAX_DATA_LENGTH_FINGER_BIOMETRIC,
+               "STATIC_ASSERT_FAILED_Minimum_length_Finger_Biometric_data_must_be_less_than_maximum_length");
+_Static_assert(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_HAND_BIOMETRIC <= CC_USER_CREDENTIAL_MAX_DATA_LENGTH_HAND_BIOMETRIC,
+               "STATIC_ASSERT_FAILED_Minimum_length_Hand_Biometric_data_must_be_less_than_maximum_length");
+_Static_assert(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_UNSPECIFIED_BIOMETRIC <= CC_USER_CREDENTIAL_MAX_DATA_LENGTH_UNSPECIFIED_BIOMETRIC,
+               "STATIC_ASSERT_FAILED_Minimum_length_Unspecified_Biometric_data_must_be_less_than_maximum_length");
+
 /****************************************************************************/
 /*                               PRIVATE DATA                               */
 /****************************************************************************/
@@ -105,7 +133,7 @@ static uint8_t credential_rule_support = {
  * The n-1st element of the array corresponds to the minimum length of data for
  * the nth Credential Type, defined in the enum u3c_credential_type.
  */
-static uint16_t credential_min_length_of_data[] = {
+static uint8_t credential_min_length_of_data[] = {
   CC_USER_CREDENTIAL_MIN_DATA_LENGTH_PIN_CODE,
   CC_USER_CREDENTIAL_MIN_DATA_LENGTH_PASSWORD,
   CC_USER_CREDENTIAL_MIN_DATA_LENGTH_RFID_CODE,
@@ -123,7 +151,7 @@ static uint16_t credential_min_length_of_data[] = {
  * The n-1st element of the array corresponds to the maximum length of data for
  * the nth Credential Type, defined in the enum u3c_credential_rule.
  */
-static uint16_t credential_max_length_of_data[] = {
+static uint8_t credential_max_length_of_data[] = {
   CC_USER_CREDENTIAL_MAX_DATA_LENGTH_PIN_CODE,
   CC_USER_CREDENTIAL_MAX_DATA_LENGTH_PASSWORD,
   CC_USER_CREDENTIAL_MAX_DATA_LENGTH_RFID_CODE,
@@ -172,6 +200,24 @@ static uint8_t credential_learn_number_of_steps[] = {
   CC_USER_CREDENTIAL_CREDENTIAL_LEARN_NUMBER_OF_STEPS_FINGER_BIOMETRIC,
   CC_USER_CREDENTIAL_CREDENTIAL_LEARN_NUMBER_OF_STEPS_HAND_BIOMETRIC,
   CC_USER_CREDENTIAL_CREDENTIAL_LEARN_NUMBER_OF_STEPS_UNSPECIFIED_BIOMETRIC
+};
+
+/**
+ * The n-1st element of the array corresponds to the maximum length of hash for
+ * the nth Credential Type, defined in the enum u3c_credential_rule.
+ */
+static uint8_t credential_max_length_of_hash[] = {
+  CC_USER_CREDENTIAL_MAX_HASH_LENGTH_PIN_CODE,
+  CC_USER_CREDENTIAL_MAX_HASH_LENGTH_PASSWORD,
+  CC_USER_CREDENTIAL_MAX_HASH_LENGTH_RFID_CODE,
+  CC_USER_CREDENTIAL_MAX_HASH_LENGTH_BLE,
+  CC_USER_CREDENTIAL_MAX_HASH_LENGTH_NFC,
+  CC_USER_CREDENTIAL_MAX_HASH_LENGTH_UWB,
+  CC_USER_CREDENTIAL_MAX_HASH_LENGTH_EYE_BIOMETRIC,
+  CC_USER_CREDENTIAL_MAX_HASH_LENGTH_FACE_BIOMETRIC,
+  CC_USER_CREDENTIAL_MAX_HASH_LENGTH_FINGER_BIOMETRIC,
+  CC_USER_CREDENTIAL_MAX_HASH_LENGTH_HAND_BIOMETRIC,
+  CC_USER_CREDENTIAL_MAX_HASH_LENGTH_UNSPECIFIED_BIOMETRIC
 };
 
 /****************************************************************************/
@@ -241,22 +287,31 @@ bool cc_user_credential_is_credential_learn_supported(u3c_credential_type creden
   return (credential_learn_support >> credential_type) & 0x01;
 }
 
-uint16_t cc_user_credential_get_min_length_of_data(u3c_credential_type credential_type)
+uint8_t cc_user_credential_get_min_length_of_data(u3c_credential_type credential_type)
 {
-  uint16_t min_length = 0;
+  uint8_t min_length = 0;
   if (is_credential_type_in_range(credential_type)) {
     min_length = credential_min_length_of_data[credential_type - 1];
   }
   return min_length;
 }
 
-uint16_t cc_user_credential_get_max_length_of_data(u3c_credential_type credential_type)
+uint8_t cc_user_credential_get_max_length_of_data(u3c_credential_type credential_type)
 {
-  uint16_t max_length = 0;
+  uint8_t max_length = 0;
   if (is_credential_type_in_range(credential_type)) {
     max_length = credential_max_length_of_data[credential_type - 1];
   }
   return max_length;
+}
+
+uint8_t cc_user_credential_get_max_hash_length(u3c_credential_type type)
+{
+  uint8_t max_hash_length = 0;
+  if (is_credential_type_in_range(type)) {
+    max_hash_length = credential_max_length_of_hash[type - 1];
+  }
+  return max_hash_length;
 }
 
 uint8_t cc_user_credential_get_cl_recommended_timeout(u3c_credential_type credential_type)
@@ -292,4 +347,16 @@ bool cc_user_credential_is_user_checksum_supported(void)
 bool cc_user_credential_is_credential_checksum_supported(void)
 {
   return CC_USER_CREDENTIAL_CREDENTIAL_CHECKSUM_SUPPORTED;
+}
+
+ZW_WEAK bool cc_user_credential_get_admin_code_supported(void)
+{
+  return (CC_USER_CREDENTIAL_ADMIN_CODE_SUPPORTED == 1) &&
+          (CC_USER_CREDENTIAL_MAX_CREDENTIAL_SLOTS_PIN_CODE > 0); // Shorthand for pin code support. 
+}
+
+ZW_WEAK bool cc_user_credential_get_admin_code_deactivate_supported(void)
+{
+  return (CC_USER_CREDENTIAL_ADMIN_CODE_DEACTIVATE_SUPPORTED == 1) &&
+          (CC_USER_CREDENTIAL_MAX_CREDENTIAL_SLOTS_PIN_CODE > 0); 
 }

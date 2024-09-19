@@ -86,6 +86,10 @@
       instance: qwiic
     path: brd2606a/sl_i2cspm_qwiic_config.h
   - override:
+      component: icm40627_driver
+      file_id: icm40627_config
+    path: brd2606a/sl_icm40627_config.h
+  - override:
       component: iostream_eusart
       file_id: iostream_eusart_config
       instance: vcom
@@ -149,9 +153,17 @@
       instance: led1
     path: brd2606a/sl_pwm_init_led1_config.h
   - override:
+      component: rail_util_ant_div
+      file_id: rail_util_ant_div_config
+    path: brd2606a/sl_rail_util_ant_div_config.h
+  - override:
       component: rail_util_aox
       file_id: rail_util_aox_config
     path: brd2606a/sl_rail_util_aox_config.h
+  - override:
+      component: rail_util_pa
+      file_id: rail_util_pa_config
+    path: brd2606a/sl_rail_util_pa_config.h
   - override:
       component: rail_util_pti
       file_id: rail_util_pti_config

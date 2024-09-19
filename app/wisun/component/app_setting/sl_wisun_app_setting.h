@@ -78,7 +78,7 @@ typedef struct {
   /// Network size
   uint8_t network_size;
   /// TX Power
-  int8_t tx_power;
+  int16_t tx_power;
   /// Device type
   uint8_t device_type;
   /// LFN profile

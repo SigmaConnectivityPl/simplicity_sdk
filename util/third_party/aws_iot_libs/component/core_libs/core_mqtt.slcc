@@ -6,7 +6,16 @@ description: Lightweight MQTT client library for embedded devices.
 
 package: amazon_platform
 quality: production
-
+metadata:
+  sbom:
+    license: MIT
+    upstream:
+      name: coreMQTT
+      version: v1.1.0
+      supplier: FreeRTOS
+      url: https://github.com/FreeRTOS/coreMQTT
+      package_url: https://github.com/FreeRTOS/coreMQTT@ff9830
+      comment: Client implementation of the MQTT 3.1.1 specification for embedded devices
 provides:
   - name: core_mqtt
 

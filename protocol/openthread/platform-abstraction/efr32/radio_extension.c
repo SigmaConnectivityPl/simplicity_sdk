@@ -484,7 +484,7 @@ exit:
     return error;
 }
 #endif // SL_CATALOG_OPENTHREAD_TEST_CLI_PRESENT
-       
+
 #ifdef SL_CATALOG_OPENTHREAD_EFR32_EXT_PRESENT
 extern otError efr32GetRadioCounters(efr32RadioCounters *aRadioCounters);
 extern otError efr32ClearRadioCounters(void);

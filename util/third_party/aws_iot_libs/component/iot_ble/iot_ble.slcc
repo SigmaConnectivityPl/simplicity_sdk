@@ -4,6 +4,17 @@ package: amazon_bluetooth
 description: Silicon Labs' HAL Implementation of FreeRTOS Bluetooth Low Energy API
 category: Third Party|Amazon FreeRTOS - AWS Libraries|Bluetooth Low Energy
 quality: experimental
+metadata:
+  sbom:
+    license: MSLA AND MIT
+    upstream:
+      name: amazon-freertos
+      version: v202107.00
+      supplier: aws
+      url: https://github.com/aws/amazon-freertos
+      package_url: https://github.com/aws/amazon-freertos/tree/202107.00/
+      comment: FreeRTOS BLE HAL V5.1.0 with commit 7bab461, BLE V2.2.0 with 58ead2,Serializer V1.1.2 with b8ee97
+
 source:
   - path: util/third_party/aws_iot_libs/vendors/siliconlabs/boards/all/ports/ble/source/sl_bt_hal_common.c
   - path: util/third_party/aws_iot_libs/vendors/siliconlabs/boards/all/ports/ble/source/sl_bt_hal_manager.c

@@ -35,21 +35,21 @@
 #include <openthread-core-config.h>
 #include <openthread/error.h>
 #include <openthread/platform/crypto.h>
-#include "utils/code_utils.h"
 #include "common/debug.hpp"
+#include "utils/code_utils.h"
 
+#include "em_device.h"
+#include "em_system.h"
+#include "sl_psa_crypto.h"
 #include <mbedtls/ecdsa.h>
 #include <mbedtls/md.h>
 #include <mbedtls/pk.h>
 #include "mbedtls/psa_util.h"
-#include "em_device.h"
-#include "em_system.h"
-#include "sl_psa_crypto.h"
 
 #if OPENTHREAD_CONFIG_CRYPTO_LIB == OPENTHREAD_CONFIG_CRYPTO_LIB_PSA
 
-#define PERSISTENCE_KEY_ID_USED_MAX     (7)
-#define MAX_HMAC_KEY_SIZE               (32)
+#define PERSISTENCE_KEY_ID_USED_MAX (7)
+#define MAX_HMAC_KEY_SIZE (32)
 
 // Helper function to convert otCryptoKeyType to psa_key_type_t
 static psa_key_type_t getPsaKeyType(otCryptoKeyType aKeyType)
@@ -155,18 +155,18 @@ static psa_key_persistence_t getPsaKeyPersistence(otCryptoKeyStorage aKeyPersist
 #if defined(SEMAILBOX_PRESENT) && !defined(SL_TRUSTZONE_NONSECURE)
 static bool shouldWrap(psa_key_attributes_t *key_attr)
 {
-    psa_key_location_t  keyLocation = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(key_attr));
-    psa_key_type_t      keyType = psa_get_key_type(key_attr);
+    psa_key_location_t keyLocation = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(key_attr));
+    psa_key_type_t     keyType     = psa_get_key_type(key_attr);
 
     return ((keyLocation != SL_PSA_KEY_LOCATION_WRAPPED) && (keyType != PSA_KEY_TYPE_HMAC));
 }
 
 static void checkAndWrapKeys(void)
 {
-    for(int index = 1; index <= PERSISTENCE_KEY_ID_USED_MAX; index++)
+    for (int index = 1; index <= PERSISTENCE_KEY_ID_USED_MAX; index++)
     {
-        otCryptoKeyRef          key_ref = OPENTHREAD_CONFIG_PSA_ITS_NVM_OFFSET + index;
-        psa_key_attributes_t    key_attr = PSA_KEY_ATTRIBUTES_INIT;
+        otCryptoKeyRef       key_ref  = OPENTHREAD_CONFIG_PSA_ITS_NVM_OFFSET + index;
+        psa_key_attributes_t key_attr = PSA_KEY_ATTRIBUTES_INIT;
 
         // If there is a key present in the location..
         if (sl_sec_man_get_key_attributes(key_ref, &key_attr) == PSA_SUCCESS)
@@ -174,9 +174,10 @@ static void checkAndWrapKeys(void)
             if (shouldWrap(&key_attr))
             {
                 // Wrap the key..
-                otCryptoKeyRef dst_key_ref = key_ref;
+                otCryptoKeyRef     dst_key_ref = key_ref;
                 psa_key_lifetime_t key_lifetime =
-                PSA_KEY_LIFETIME_FROM_PERSISTENCE_AND_LOCATION(PSA_KEY_PERSISTENCE_DEFAULT, SL_PSA_KEY_LOCATION_WRAPPED);
+                    PSA_KEY_LIFETIME_FROM_PERSISTENCE_AND_LOCATION(PSA_KEY_PERSISTENCE_DEFAULT,
+                                                                   SL_PSA_KEY_LOCATION_WRAPPED);
 
                 psa_set_key_lifetime(&key_attr, key_lifetime);
                 sl_sec_man_copy_key(key_ref, &key_attr, &dst_key_ref);
@@ -191,10 +192,10 @@ void otPlatCryptoInit(void)
     (void)sl_sec_man_init();
 
 #if defined(SEMAILBOX_PRESENT) && !defined(SL_TRUSTZONE_NONSECURE)
-  if (SYSTEM_GetSecurityCapability() == securityCapabilityVault) 
-  {
-    checkAndWrapKeys();
-  }
+    if (SYSTEM_GetSecurityCapability() == securityCapabilityVault)
+    {
+        checkAndWrapKeys();
+    }
 #endif
 }
 
@@ -362,9 +363,9 @@ exit:
 
 static psa_status_t reImportUnwrapped(const otCryptoKey *aKey, otCryptoKeyRef *aHmacKeyRef)
 {
-    psa_status_t         status = PSA_SUCCESS;
+    psa_status_t status = PSA_SUCCESS;
 
-#if defined (SEMAILBOX_PRESENT)
+#if defined(SEMAILBOX_PRESENT)
     uint8_t              hmacKeyBytes[MAX_HMAC_KEY_SIZE];
     size_t               key_size;
     psa_key_attributes_t key_attr = PSA_KEY_ATTRIBUTES_INIT;
@@ -373,23 +374,20 @@ static psa_status_t reImportUnwrapped(const otCryptoKey *aKey, otCryptoKeyRef *a
 
     otEXPECT(status == PSA_SUCCESS);
 
-    status = sl_sec_man_export_key(aKey->mKeyRef,
-                                   hmacKeyBytes,
-                                   sizeof(hmacKeyBytes),
-                                   &key_size);
+    status = sl_sec_man_export_key(aKey->mKeyRef, hmacKeyBytes, sizeof(hmacKeyBytes), &key_size);
 
     otEXPECT(status == PSA_SUCCESS);
 
-    status = sl_sec_man_import_key( aHmacKeyRef,
-                                    psa_get_key_type(&key_attr),
-                                    psa_get_key_algorithm(&key_attr),
-                                    psa_get_key_usage_flags(&key_attr),
-                                    PSA_KEY_PERSISTENCE_VOLATILE,
-                                    hmacKeyBytes,
-                                    key_size);
+    status = sl_sec_man_import_key(aHmacKeyRef,
+                                   psa_get_key_type(&key_attr),
+                                   psa_get_key_algorithm(&key_attr),
+                                   psa_get_key_usage_flags(&key_attr),
+                                   PSA_KEY_PERSISTENCE_VOLATILE,
+                                   hmacKeyBytes,
+                                   key_size);
 
     memset(hmacKeyBytes, 0, sizeof(hmacKeyBytes));
-    
+
     otEXPECT(status == PSA_SUCCESS);
 
 exit:
@@ -412,10 +410,10 @@ otError otPlatCryptoHmacSha256Start(otCryptoContext *aContext, const otCryptoKey
     status = sl_sec_man_hmac_start(mMacOperation, hmacKeyRef);
     otEXPECT_ACTION((status == PSA_SUCCESS), error = OT_ERROR_FAILED);
 
-#if defined (SEMAILBOX_PRESENT)
+#if defined(SEMAILBOX_PRESENT)
     sl_sec_man_destroy_key(hmacKeyRef);
 #else
-    hmacKeyRef = 0;
+    hmacKeyRef   = 0;
 #endif
 
 exit:
@@ -659,19 +657,19 @@ otError otPlatCryptoPbkdf2GenerateKey(const uint8_t *aPassword,
                                       uint16_t       aKeyLen,
                                       uint8_t       *aKey)
 {
-    otError         error = OT_ERROR_NONE;
-    psa_status_t    status;
-    size_t          outSize;
-    psa_key_id_t    passwordKeyId = 0;
-    psa_key_id_t    saltKeyId = 0;
-    psa_key_id_t    keyId = 0;
+    otError      error = OT_ERROR_NONE;
+    psa_status_t status;
+    size_t       outSize;
+    psa_key_id_t passwordKeyId = 0;
+    psa_key_id_t saltKeyId     = 0;
+    psa_key_id_t keyId         = 0;
 
     // Algorithm is PBKDF2-AES-CMAC-PRF-128
     psa_algorithm_t algo = PSA_ALG_PBKDF2_AES_CMAC_PRF_128;
 
     // Initialize key derivation
     psa_key_derivation_operation_t operation = psa_key_derivation_operation_init();
-    status = psa_key_derivation_setup(&operation, algo);
+    status                                   = psa_key_derivation_setup(&operation, algo);
     otEXPECT_ACTION((status == PSA_SUCCESS), error = OT_ERROR_FAILED);
 
     // Set capacity
@@ -679,9 +677,7 @@ otError otPlatCryptoPbkdf2GenerateKey(const uint8_t *aPassword,
     otEXPECT_ACTION((status == PSA_SUCCESS), error = OT_ERROR_FAILED);
 
     // Set iteration count as cost
-    status = psa_key_derivation_input_integer(&operation,
-                                                PSA_KEY_DERIVATION_INPUT_COST,
-                                                aIterationCounter);
+    status = psa_key_derivation_input_integer(&operation, PSA_KEY_DERIVATION_INPUT_COST, aIterationCounter);
     otEXPECT_ACTION((status == PSA_SUCCESS), error = OT_ERROR_FAILED);
 
     // Create salt as a key
@@ -691,16 +687,11 @@ otError otPlatCryptoPbkdf2GenerateKey(const uint8_t *aPassword,
     psa_set_key_algorithm(&saltKeyAttr, algo);
     otEXPECT_ACTION((status == PSA_SUCCESS), error = OT_ERROR_FAILED);
 
-    status = psa_import_key(&saltKeyAttr,
-                            aSalt,
-                            aSaltLen,
-                            &saltKeyId);
+    status = psa_import_key(&saltKeyAttr, aSalt, aSaltLen, &saltKeyId);
     otEXPECT_ACTION((status == PSA_SUCCESS), error = OT_ERROR_FAILED);
 
     // Provide salt
-    status = psa_key_derivation_input_key(&operation,
-                                            PSA_KEY_DERIVATION_INPUT_SALT,
-                                            saltKeyId);
+    status = psa_key_derivation_input_key(&operation, PSA_KEY_DERIVATION_INPUT_SALT, saltKeyId);
     otEXPECT_ACTION((status == PSA_SUCCESS), error = OT_ERROR_FAILED);
 
     // Create key for password (key)
@@ -709,16 +700,11 @@ otError otPlatCryptoPbkdf2GenerateKey(const uint8_t *aPassword,
     psa_set_key_type(&passwordKeyAttr, PSA_KEY_TYPE_PASSWORD);
     psa_set_key_algorithm(&passwordKeyAttr, algo);
 
-    status = psa_import_key(&passwordKeyAttr,
-                            aPassword,
-                            aPasswordLen,
-                            &passwordKeyId);
+    status = psa_import_key(&passwordKeyAttr, aPassword, aPasswordLen, &passwordKeyId);
     otEXPECT_ACTION((status == PSA_SUCCESS), error = OT_ERROR_FAILED);
 
     // Provide password (key)
-    status = psa_key_derivation_input_key(&operation,
-                                            PSA_KEY_DERIVATION_INPUT_PASSWORD,
-                                            passwordKeyId);
+    status = psa_key_derivation_input_key(&operation, PSA_KEY_DERIVATION_INPUT_PASSWORD, passwordKeyId);
     otEXPECT_ACTION((status == PSA_SUCCESS), error = OT_ERROR_FAILED);
 
     // Configure output as a key
@@ -728,16 +714,11 @@ otError otPlatCryptoPbkdf2GenerateKey(const uint8_t *aPassword,
     psa_set_key_type(&keyAttrResult, PSA_KEY_TYPE_RAW_DATA);
     psa_set_key_algorithm(&keyAttrResult, PSA_ALG_CTR);
 
-    status = psa_key_derivation_output_key(&keyAttrResult,
-                                            &operation,
-                                            &keyId);
+    status = psa_key_derivation_output_key(&keyAttrResult, &operation, &keyId);
     otEXPECT_ACTION((status == PSA_SUCCESS), error = OT_ERROR_FAILED);
 
     // Export output key
-    status = psa_export_key(keyId,
-                            aKey,
-                            aKeyLen,
-                            &outSize);
+    status = psa_export_key(keyId, aKey, aKeyLen, &outSize);
     otEXPECT_ACTION((status == PSA_SUCCESS), error = OT_ERROR_FAILED);
 
     // Release keys used

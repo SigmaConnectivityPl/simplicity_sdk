@@ -49,9 +49,12 @@
 // Version 1 format:
 //   version:1 creator[0]:2 isCnt[0]:1 size[0]:1 arraySize[0]:1 data[0]:m_0 ...
 //   creator[n]:2 isCnt[n]:1 size[n]:1 arraySize[n]:1 data[n]:m_n
-#define VERSION 1
+// Version 2 format:
+//   version:1 creator[0]:4 isCnt[0]:1 size[0]:1 arraySize[0]:1 data[0]:m_0 ...
+//   creator[n]:2 isCnt[n]:1 size[n]:1 arraySize[n]:1 data[n]:m_n
+#define VERSION 2
 
-extern const uint16_t tokenCreators[];
+extern const uint32_t tokenNvm3Keys[];
 extern const bool tokenIsCnt[];
 extern const uint8_t tokenSize[];
 extern const uint8_t tokenArraySize[];
@@ -72,6 +75,7 @@ static const uint16_t addresses[] = {
 static void initializeTokenSystem(void);
 static void resetTokenData(void);
 static size_t getNvmOffset(uint16_t token, uint8_t index, uint8_t len);
+static void upgradeTokenFileToVersion2(int fd);
 
 #ifndef SL_ZIGBEE_AF_TOKEN_FILENAME
     #define SL_ZIGBEE_AF_TOKEN_FILENAME "host_token.nvm"
@@ -90,7 +94,7 @@ static uint8_t *nvm = MAP_FAILED;
 #define isInitialized() (nvm != MAP_FAILED)
 
 #define PER_TOKEN_OVERHEAD  \
-  (sizeof(tokenCreators[0]) \
+  (sizeof(tokenNvm3Keys[0]) \
    + sizeof(tokenIsCnt[0])  \
    + sizeof(tokenSize[0])   \
    + sizeof(tokenArraySize[0]))
@@ -106,7 +110,7 @@ typedef struct {
 
 // keeps track of token offsets in nvm file (helps with rearranged tokens)
 // when populating, each index is maintained to be the same as the creator's
-// index in tokenCreators[], tokenIsCnt[] etc.
+// index in tokenNvm3Keys[], tokenIsCnt[] etc.
 static nvmCreatorOffsetType nvmCreatorOffset[TOKEN_COUNT];
 
 void halInternalGetTokenData(void *data, uint16_t token, uint8_t index, uint8_t len)
@@ -147,11 +151,11 @@ void halInternalSetMfgTokenData(uint16_t token, void *data, uint8_t len)
 }
 
 // check if token in nvm file is still present in stack/app
-// if present, return new index in tokenCreators, else return false
-static bool isOldToken(uint16_t tokCreator, size_t* index)
+// if present, return new index in tokenNvm3Keys, else return false
+static bool isOldToken(uint32_t tokCreator, size_t* index)
 {
   for (size_t i = 0; i < TOKEN_COUNT; i++) {
-    if (tokenCreators[i] == tokCreator) {
+    if (tokenNvm3Keys[i] == tokCreator) {
       *index = i;
       return true;
     }
@@ -172,29 +176,30 @@ static bool copyNvm(uint8_t* nvmData,
 
   if (nvmCreatorOffset[index].present) {
     nvmTokFinger = nvmData + nvmCreatorOffset[index].offset;
-    assert(tokenCreators[index] == (nvmTokFinger[0] << 8) + nvmTokFinger[1]);
-    nvmTokIsCnt = nvmTokFinger[2];
-    nvmTokSize = nvmTokFinger[3];
-    nvmTokArraySize = nvmTokFinger[4];
+    uint32_t tokCreator = (nvmTokFinger[0] << 24) + (nvmTokFinger[1] << 16) + (nvmTokFinger[2] << 8) + nvmTokFinger[3];
+    assert(tokenNvm3Keys[index] == tokCreator);
+    nvmTokIsCnt = nvmTokFinger[4];
+    nvmTokSize = nvmTokFinger[5];
+    nvmTokArraySize = nvmTokFinger[6];
 
     if (tokenIsCnt[index] == nvmTokIsCnt
         && tokenSize[index] == nvmTokSize) {
       if (tokenArraySize[index] < nvmTokArraySize) {
-        hostTokenDebugPrintf("Changed Token - array size reduced: %2x\n", tokenCreators[index]);
+        hostTokenDebugPrintf("Changed Token - array size reduced: %4x\n", tokenNvm3Keys[index]);
       } else if (tokenArraySize[index] > nvmTokArraySize) {
-        hostTokenDebugPrintf("Changed Token - array size increased: %2x\n", tokenCreators[index]);
+        hostTokenDebugPrintf("Changed Token - array size increased: %4x\n", tokenNvm3Keys[index]);
       } else {
-        hostTokenDebugPrintf("Unchanged Token: %2x\n", tokenCreators[index]);
+        hostTokenDebugPrintf("Unchanged Token: %4x\n", tokenNvm3Keys[index]);
       }
       *tokOffset = nvmCreatorOffset[index].offset;
       return true;
     } else { // reset resized token
-      hostTokenDebugPrintf("Changed Token - reset: %2x\n", tokenCreators[index]);
+      hostTokenDebugPrintf("Changed Token - reset: %4x\n", tokenNvm3Keys[index]);
       return false;
     }
   }
 
-  hostTokenDebugPrintf("New Token: %2x\n", tokenCreators[index]);
+  hostTokenDebugPrintf("New Token: %4x\n", tokenNvm3Keys[index]);
   return false;
 }
 
@@ -231,28 +236,36 @@ static void initializeTokenSystem(void)
 
   // TODO: Handle older token files.
   if (!reset) {
+    if (*nvm == 1 && VERSION == 2) {
+      // upgrade token file from version 1 to version 2
+      upgradeTokenFileToVersion2(fd);
+      // we upgraded the token file then need to refresh its metadata info
+      if (fstat(fd, &buf) == -1) {
+        err(EX_IOERR, "Could not determine size of " SL_ZIGBEE_AF_TOKEN_FILENAME);
+      }
+    }
     reset = (*nvm != VERSION);
   }
 
   if (!reset) {
     // save original content as we keep modifying "nvm"
-    uint8_t origNvm[buf.st_size];
+    uint8_t *origNvm = (uint8_t*)malloc(buf.st_size * sizeof(uint8_t));
     memcpy(origNvm, nvm, buf.st_size);
 
     uint8_t *finger = origNvm + 1; // skip version; already verified
 
     // read token file and save old token offsets (helps with rearranged tokens)
     while ((finger - origNvm) < buf.st_size) { // iterate through origNvm
-      uint16_t tokCreator = (finger[0] << 8) + finger[1];
-      uint8_t tokSize = finger[3];
-      uint8_t tokArraySize = finger[4];
+      uint32_t tokCreator = (finger[0] << 24) + (finger[1] << 16) + (finger[2] << 8) + finger[3];
+      uint8_t tokSize = finger[5];
+      uint8_t tokArraySize = finger[6];
       size_t newIndex;
       if (isOldToken(tokCreator, &newIndex)) { // if token is old, save its offset in new index
         assert(!nvmCreatorOffset[newIndex].present); // should not have already been set
         nvmCreatorOffset[newIndex].offset = (finger - origNvm);
         nvmCreatorOffset[newIndex].present = true;
       } else { // token is removed so ignore it
-        hostTokenDebugPrintf("Removed Token: %2x\n", tokCreator);
+        hostTokenDebugPrintf("Removed Token: %4x\n", tokCreator);
       }
       finger += PER_TOKEN_OVERHEAD + (tokSize * tokArraySize);
     }
@@ -268,8 +281,10 @@ static void initializeTokenSystem(void)
     size_t i, j, nvmArraySizeToCopy, nvmTokOffset, nvmTokArraySize;
     uint8_t* nvmTokFinger;
     for (i = 0; i < TOKEN_COUNT; i++) { // iterate through stack/app tokens
-      *finger++ = HIGH_BYTE(tokenCreators[i]);
-      *finger++ = LOW_BYTE(tokenCreators[i]);
+      *finger++ = (uint8_t)((tokenNvm3Keys[i] & 0xFF000000) >> 24);
+      *finger++ = (uint8_t)((tokenNvm3Keys[i] & 0x00FF0000) >> 16);
+      *finger++ = (uint8_t)((tokenNvm3Keys[i] & 0x0000FF00) >> 8);
+      *finger++ = (uint8_t)(tokenNvm3Keys[i] & 0x000000FF);
       *finger++ = tokenIsCnt[i];
       *finger++ = tokenSize[i];
       *finger++ = tokenArraySize[i];
@@ -277,7 +292,7 @@ static void initializeTokenSystem(void)
 
       if (copyNvm(origNvm, i, &nvmTokOffset)) { // if true, get token offset from nvm
         nvmTokFinger = origNvm + nvmTokOffset;
-        nvmTokArraySize = nvmTokFinger[4];
+        nvmTokArraySize = nvmTokFinger[4 + 1 + 1];
         nvmArraySizeToCopy = nvmTokArraySize < tokenArraySize[i] ? nvmTokArraySize : tokenArraySize[i];
         nvmTokFinger += PER_TOKEN_OVERHEAD;
       }
@@ -297,6 +312,8 @@ static void initializeTokenSystem(void)
         finger += tokenSize[i];
       }
     }
+    free(origNvm);
+    origNvm = NULL;
   }
 
   if (reset) {
@@ -311,8 +328,10 @@ static void resetTokenData(void)
   uint8_t *finger = nvm;
   *finger++ = VERSION;
   for (size_t i = 0; i < TOKEN_COUNT; i++) {
-    *finger++ = HIGH_BYTE(tokenCreators[i]);
-    *finger++ = LOW_BYTE(tokenCreators[i]);
+    *finger++ = (uint8_t)((tokenNvm3Keys[i] & 0xFF000000) >> 24);
+    *finger++ = (uint8_t)((tokenNvm3Keys[i] & 0x00FF0000) >> 16);
+    *finger++ = (uint8_t)((tokenNvm3Keys[i] & 0x0000FF00) >> 8);
+    *finger++ = (uint8_t)(tokenNvm3Keys[i] & 0x000000FF);
     *finger++ = tokenIsCnt[i];
     *finger++ = tokenSize[i];
     *finger++ = tokenArraySize[i];
@@ -351,4 +370,42 @@ static size_t getNvmOffset(uint16_t token, uint8_t index, uint8_t len)
     offset += (index * len);
   }
   return offset;
+}
+
+static void upgradeTokenFileToVersion2(int fd)
+{
+  struct stat buf;
+  if (fstat(fd, &buf) == -1) {
+    err(EX_IOERR, "Could not determine size of " SL_ZIGBEE_AF_TOKEN_FILENAME);
+  }
+
+  // backup version 1 token file so we can use that to copy data to version 2 token file
+  uint8_t *oldTokenFileBuf = (uint8_t*)malloc(buf.st_size * sizeof(uint8_t));
+  memcpy(oldTokenFileBuf, nvm, buf.st_size);
+
+  if (ftruncate(fd, TOTAL_SIZE) == -1) {
+    err(EX_IOERR, "Could not set size of " SL_ZIGBEE_AF_TOKEN_FILENAME);
+  }
+
+  // initialize new version 2 token file
+  resetTokenData();
+
+  uint8_t *newTokenFileFinger = nvm + 1; // skip version
+  const uint8_t *oldTokenFileFinger = oldTokenFileBuf + 1; // skip version
+
+  for (size_t token = 0; token < TOKEN_COUNT; token++) {
+    size_t nByteToCopy = (tokenSize[token] * tokenArraySize[token]);
+    newTokenFileFinger += PER_TOKEN_OVERHEAD;
+    oldTokenFileFinger += (PER_TOKEN_OVERHEAD - 2); // version 1 overhead is 2 byte less than version 2 overhead
+    assert(oldTokenFileFinger < (oldTokenFileBuf + buf.st_size));
+    memcpy(newTokenFileFinger, oldTokenFileFinger, nByteToCopy);
+    newTokenFileFinger += nByteToCopy;
+    oldTokenFileFinger += nByteToCopy;
+  }
+
+  if (msync(nvm, TOTAL_SIZE, MS_SYNC) == -1) {
+    err(EX_IOERR, "Could not write " SL_ZIGBEE_AF_TOKEN_FILENAME " to disk");
+  }
+  free(oldTokenFileBuf);
+  oldTokenFileBuf = NULL;
 }

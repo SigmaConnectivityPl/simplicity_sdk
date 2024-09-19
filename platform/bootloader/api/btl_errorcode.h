@@ -296,6 +296,9 @@
 /// A GBL tag occurred in an order forbidden by the GBL format spec
 #define BOOTLOADER_ERROR_PARSER_INVALID_TAG_ORDER \
   (BOOTLOADER_ERROR_PARSER_BASE | 0x0EL)
+/// OOB write in the storage slot while parsing the GBL file
+#define BOOTLOADER_ERROR_PARSER_OOB_WRITE \
+  (BOOTLOADER_ERROR_PARSER_BASE | 0x0FL)
 
 /** @} addtogroup ParserError */
 

@@ -390,12 +390,7 @@ sl_status_t sl_memory_alloc_advanced(size_t size,
       allocated_blk->offset_neighbour_next = new_free_blk->offset_neighbour_prev;
 
       // Update head pointers. See Note #1.
-      if (sli_free_lt_list_head == old_block_metadata) {
-        sli_free_lt_list_head = new_free_blk;
-      }
-      if (sli_free_st_list_head == old_block_metadata) {
-        sli_free_st_list_head = new_free_blk;
-      }
+      sli_update_free_list_heads(new_free_blk, old_block_metadata, false);
     } else {
       // Create a new block = allocated block returned to requester. This new block is the nearest to the heap end.
       allocated_blk = (sli_block_metadata_t *)((uint8_t *)current_block_metadata + block_size_remaining);
@@ -449,19 +444,7 @@ sl_status_t sl_memory_alloc_advanced(size_t size,
     allocated_blk->block_in_use = true; // This setting must be done prior to calling sli_memory_find_head_free_block().
 
     // Update head pointers accordingly.
-    if (sli_free_blocks_number != 0) {
-      // There is at least one other free block in the heap.
-      if (sli_free_lt_list_head == old_block_metadata) {
-        sli_free_lt_list_head = sli_memory_find_head_free_block(BLOCK_TYPE_LONG_TERM, allocated_blk);
-      }
-      if (sli_free_st_list_head == old_block_metadata) {
-        sli_free_st_list_head = sli_memory_find_head_free_block(BLOCK_TYPE_SHORT_TERM, allocated_blk);
-      }
-    } else {
-      // No more free blocks.
-      sli_free_lt_list_head = NULL;
-      sli_free_st_list_head = NULL;
-    }
+    sli_update_free_list_heads(allocated_blk, old_block_metadata, true);
   }
 
   heap_size += size_adjusted;
@@ -551,7 +534,11 @@ sl_status_t sl_memory_free(void *block)
   if (current_metadata->offset_neighbour_prev > 0) {
     sli_block_metadata_t *metadata_prev_blk = (sli_block_metadata_t *)((uint64_t *)current_metadata - current_metadata->offset_neighbour_prev);
 
-    if (!metadata_prev_blk->block_in_use && !current_metadata->heap_start_align) {
+    // Check that there is no reservation between current block and previous block.
+    uint32_t reservations_size_prev = metadata_prev_blk->offset_neighbour_next - metadata_prev_blk->length;
+
+    if ((!metadata_prev_blk->block_in_use && !current_metadata->heap_start_align)
+        && (reservations_size_prev <= SLI_BLOCK_METADATA_SIZE_DWORD)) {
       // Merge current block to free with previous adjacent block.
       free_block = metadata_prev_blk;
       total_size_free_block += metadata_prev_blk->length + SLI_BLOCK_METADATA_SIZE_DWORD;
@@ -565,8 +552,8 @@ sl_status_t sl_memory_free(void *block)
       free_block = metadata_prev_blk;
       total_size_free_block += current_metadata->offset_neighbour_prev;
       current_metadata->heap_start_align = false;
-      free_block->offset_neighbour_prev = 0; // heap start.
-    } // Else previous block is in used, nothing to merge.
+      free_block->offset_neighbour_prev = 0;   // heap start.
+    }   // Else previous block is in used, nothing to merge.
   }
 
   // Check if next block exists and is free.
@@ -574,7 +561,10 @@ sl_status_t sl_memory_free(void *block)
       && (((size_t)current_metadata + SLI_BLOCK_LEN_DWORD_TO_BYTE(current_metadata->offset_neighbour_next)) < ((size_t)heap_region.addr + heap_region.size))) {
     next_block = (sli_block_metadata_t *)((uint64_t *)current_metadata + (current_metadata->offset_neighbour_next));
 
-    if (!next_block->block_in_use) {
+    // Check that there is no reservation between current block and next block.
+    uint32_t reservations_size_next = current_metadata->offset_neighbour_next - current_metadata->length;
+
+    if ((!next_block->block_in_use) && (reservations_size_next <= SLI_BLOCK_METADATA_SIZE_DWORD)) {
       // Merge block with next adjacent block.
       total_size_free_block += next_block->length + SLI_BLOCK_METADATA_SIZE_DWORD;
       // Invalidate the next block metadata.
@@ -715,6 +705,7 @@ sl_status_t sl_memory_realloc(void *ptr,
   sli_block_metadata_t *next_block = NULL;
   size_t current_block_len;
   size_t size_real;
+  uint16_t reservation_offset;
 
   // Verify that the block pointer isn't NULL.
   if (block == NULL) {
@@ -771,25 +762,19 @@ sl_status_t sl_memory_realloc(void *ptr,
           if (next_block->offset_neighbour_next != 0) {
             sli_block_metadata_t *next_next_block = (sli_block_metadata_t *)((uint64_t *)next_block + next_block->offset_neighbour_next);
 
-            adjusted_next_block->offset_neighbour_next = adjusted_next_block->length + SLI_BLOCK_METADATA_SIZE_DWORD;
+            // Add reservations offset.
+            reservation_offset = next_block->offset_neighbour_next - next_block->length;
+
+            adjusted_next_block->offset_neighbour_next = adjusted_next_block->length + reservation_offset;
             next_next_block->offset_neighbour_prev = adjusted_next_block->offset_neighbour_next;
           } else {
             adjusted_next_block->offset_neighbour_next = 0; // End of heap
           }
 
+          // Update head pointers accordingly.
+          sli_update_free_list_heads(adjusted_next_block, next_block, false);
           // Ensure old next block metadata is invalid.
           sli_memory_metadata_init(next_block);
-
-          // Update head pointers accordingly.
-          if (sli_free_blocks_number != 0) {
-            // There is at least one other free block in the heap.
-            sli_free_lt_list_head = sli_memory_find_head_free_block(BLOCK_TYPE_LONG_TERM, adjusted_next_block);
-            sli_free_st_list_head = sli_memory_find_head_free_block(BLOCK_TYPE_SHORT_TERM, adjusted_next_block);
-          } else {
-            // No more free blocks.
-            sli_free_lt_list_head = NULL;
-            sli_free_st_list_head = NULL;
-          }
         } else {
           // Not enough space in next block, simply append all next block to current one.
           sli_free_blocks_number--;
@@ -802,19 +787,12 @@ sl_status_t sl_memory_realloc(void *ptr,
           } else {
             current_block->offset_neighbour_next = 0; // End of heap
           }
-          // Ensure old next block metadata is invalid.
-          sli_memory_metadata_init(next_block);
 
           // Update head pointers accordingly.
-          if (sli_free_blocks_number != 0) {
-            // There is at least one other free block in the heap.
-            sli_free_lt_list_head = sli_memory_find_head_free_block(BLOCK_TYPE_LONG_TERM, current_block);
-            sli_free_st_list_head = sli_memory_find_head_free_block(BLOCK_TYPE_SHORT_TERM, current_block);
-          } else {
-            // No more free blocks.
-            sli_free_lt_list_head = NULL;
-            sli_free_st_list_head = NULL;
-          }
+          sli_update_free_list_heads(current_block, next_block, true);
+
+          // Ensure old next block metadata is invalid.
+          sli_memory_metadata_init(next_block);
         }
 
         // At this point, current block data payload do not need to be copied. See Note #2.
@@ -895,19 +873,12 @@ sl_status_t sl_memory_realloc(void *ptr,
         } else {
           adjusted_next_block->offset_neighbour_next = 0; // End of heap
         }
-        // Ensure old next block metadata is invalid.
-        sli_memory_metadata_init(next_block);
 
         // Update head pointers accordingly.
-        if (sli_free_blocks_number != 0) {
-          // There is at least one other free block in the heap.
-          sli_free_lt_list_head = sli_memory_find_head_free_block(BLOCK_TYPE_LONG_TERM, adjusted_next_block);
-          sli_free_st_list_head = sli_memory_find_head_free_block(BLOCK_TYPE_SHORT_TERM, adjusted_next_block);
-        } else {
-          // No more free blocks.
-          sli_free_lt_list_head = NULL;
-          sli_free_st_list_head = NULL;
-        }
+        sli_update_free_list_heads(adjusted_next_block, next_block, false);
+
+        // Ensure old next block metadata is invalid.
+        sli_memory_metadata_init(next_block);
       } else {
         // Next block is in use and cannot be merged with the newly unallocated portion.
         create_new_block = true;
@@ -940,15 +911,7 @@ sl_status_t sl_memory_realloc(void *ptr,
 
         sli_free_blocks_number++;
         // Update head pointers accordingly.
-        if (sli_free_blocks_number != 0) {
-          // There is at least one other free block in the heap.
-          sli_free_lt_list_head = sli_memory_find_head_free_block(BLOCK_TYPE_LONG_TERM, adjusted_next_block);
-          sli_free_st_list_head = sli_memory_find_head_free_block(BLOCK_TYPE_SHORT_TERM, adjusted_next_block);
-        } else {
-          // No more free blocks.
-          sli_free_lt_list_head = NULL;
-          sli_free_st_list_head = NULL;
-        }
+        sli_update_free_list_heads(adjusted_next_block, NULL, true);
       } else {
         // Not enough space in current block remaining area to create a new free block.
         // consider the current block unallocated portion as lost for now until the current block is freed.

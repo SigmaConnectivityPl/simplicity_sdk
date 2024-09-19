@@ -948,8 +948,13 @@ typedef union {
     uint32_t  syncSet    : 8;   /**< Set bits in LDMA_CTRL.SYNCTRIG register.        */
     uint32_t  syncClr    : 8;   /**< Clear bits in LDMA_CTRL.SYNCTRIG register.      */
     uint32_t  reserved1  : 16;  /**< Reserved.                                       */
+#if defined(_LDMA_CH_CTRL_EXTEND_MASK)
+    uint32_t  matchEn    : 8;   /**< Sync trigger match enable.                      */
+    uint32_t  matchVal   : 8;   /**< Sync trigger match value.                       */
+#else
     uint32_t  matchVal   : 8;   /**< Sync trigger match value.                       */
     uint32_t  matchEn    : 8;   /**< Sync trigger match enable.                      */
+#endif
     uint32_t  reserved2  : 16;  /**< Reserved.                                       */
 
     uint32_t  linkMode   : 1;   /**< Select absolute or relative link address.       */

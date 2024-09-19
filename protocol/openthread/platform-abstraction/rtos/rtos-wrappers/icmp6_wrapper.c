@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Icmp6 APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,29 +29,32 @@
  *
  ******************************************************************************/
 
-#include <openthread/icmp6.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/icmp6.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern otError OT_API_REAL_NAME(otIcmp6RegisterHandler)(otInstance * aInstance,otIcmp6Handler * aHandler);
-extern otError OT_API_REAL_NAME(otIcmp6SendEchoRequest)(otInstance * aInstance,otMessage * aMessage,const otMessageInfo * aMessageInfo,uint16_t aIdentifier);
-extern otIcmp6EchoMode OT_API_REAL_NAME(otIcmp6GetEchoMode)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otIcmp6SetEchoMode)(otInstance * aInstance,otIcmp6EchoMode aMode);
+extern otError         OT_API_REAL_NAME(otIcmp6RegisterHandler)(otInstance *aInstance, otIcmp6Handler *aHandler);
+extern otError         OT_API_REAL_NAME(otIcmp6SendEchoRequest)(otInstance          *aInstance,
+                                                        otMessage           *aMessage,
+                                                        const otMessageInfo *aMessageInfo,
+                                                        uint16_t             aIdentifier);
+extern otIcmp6EchoMode OT_API_REAL_NAME(otIcmp6GetEchoMode)(otInstance *aInstance);
+extern void            OT_API_REAL_NAME(otIcmp6SetEchoMode)(otInstance *aInstance, otIcmp6EchoMode aMode);
 
-otError OT_API_WRAPPER_NAME(otIcmp6RegisterHandler)(otInstance * aInstance,otIcmp6Handler * aHandler)
+otError OT_API_WRAPPER_NAME(otIcmp6RegisterHandler)(otInstance *aInstance, otIcmp6Handler *aHandler)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otIcmp6RegisterHandler)(aInstance, aHandler);
@@ -59,7 +62,10 @@ otError OT_API_WRAPPER_NAME(otIcmp6RegisterHandler)(otInstance * aInstance,otIcm
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otIcmp6SendEchoRequest)(otInstance * aInstance,otMessage * aMessage,const otMessageInfo * aMessageInfo,uint16_t aIdentifier)
+otError OT_API_WRAPPER_NAME(otIcmp6SendEchoRequest)(otInstance          *aInstance,
+                                                    otMessage           *aMessage,
+                                                    const otMessageInfo *aMessageInfo,
+                                                    uint16_t             aIdentifier)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otIcmp6SendEchoRequest)(aInstance, aMessage, aMessageInfo, aIdentifier);
@@ -67,7 +73,7 @@ otError OT_API_WRAPPER_NAME(otIcmp6SendEchoRequest)(otInstance * aInstance,otMes
     return ret;
 }
 
-otIcmp6EchoMode OT_API_WRAPPER_NAME(otIcmp6GetEchoMode)(otInstance * aInstance)
+otIcmp6EchoMode OT_API_WRAPPER_NAME(otIcmp6GetEchoMode)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otIcmp6EchoMode ret = OT_API_REAL_NAME(otIcmp6GetEchoMode)(aInstance);
@@ -75,10 +81,9 @@ otIcmp6EchoMode OT_API_WRAPPER_NAME(otIcmp6GetEchoMode)(otInstance * aInstance)
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otIcmp6SetEchoMode)(otInstance * aInstance,otIcmp6EchoMode aMode)
+void OT_API_WRAPPER_NAME(otIcmp6SetEchoMode)(otInstance *aInstance, otIcmp6EchoMode aMode)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otIcmp6SetEchoMode)(aInstance, aMode);
     sl_ot_rtos_release_stack_mutex();
 }
-

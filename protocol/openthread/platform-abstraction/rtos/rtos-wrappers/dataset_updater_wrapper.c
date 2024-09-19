@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Dataset Updater APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,28 +29,31 @@
  *
  ******************************************************************************/
 
-#include <openthread/dataset_updater.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/dataset_updater.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern bool OT_API_REAL_NAME(otDatasetUpdaterIsUpdateOngoing)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otDatasetUpdaterRequestUpdate)(otInstance * aInstance,const otOperationalDataset * aDataset,otDatasetUpdaterCallback aCallback,void * aContext);
-extern void OT_API_REAL_NAME(otDatasetUpdaterCancelUpdate)(otInstance * aInstance);
+extern bool    OT_API_REAL_NAME(otDatasetUpdaterIsUpdateOngoing)(otInstance *aInstance);
+extern otError OT_API_REAL_NAME(otDatasetUpdaterRequestUpdate)(otInstance                 *aInstance,
+                                                               const otOperationalDataset *aDataset,
+                                                               otDatasetUpdaterCallback    aCallback,
+                                                               void                       *aContext);
+extern void    OT_API_REAL_NAME(otDatasetUpdaterCancelUpdate)(otInstance *aInstance);
 
-bool OT_API_WRAPPER_NAME(otDatasetUpdaterIsUpdateOngoing)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otDatasetUpdaterIsUpdateOngoing)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otDatasetUpdaterIsUpdateOngoing)(aInstance);
@@ -58,7 +61,10 @@ bool OT_API_WRAPPER_NAME(otDatasetUpdaterIsUpdateOngoing)(otInstance * aInstance
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetUpdaterRequestUpdate)(otInstance * aInstance,const otOperationalDataset * aDataset,otDatasetUpdaterCallback aCallback,void * aContext)
+otError OT_API_WRAPPER_NAME(otDatasetUpdaterRequestUpdate)(otInstance                 *aInstance,
+                                                           const otOperationalDataset *aDataset,
+                                                           otDatasetUpdaterCallback    aCallback,
+                                                           void                       *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDatasetUpdaterRequestUpdate)(aInstance, aDataset, aCallback, aContext);
@@ -66,10 +72,9 @@ otError OT_API_WRAPPER_NAME(otDatasetUpdaterRequestUpdate)(otInstance * aInstanc
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otDatasetUpdaterCancelUpdate)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otDatasetUpdaterCancelUpdate)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otDatasetUpdaterCancelUpdate)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
-

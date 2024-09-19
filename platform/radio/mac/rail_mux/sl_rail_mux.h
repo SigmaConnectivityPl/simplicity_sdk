@@ -460,6 +460,9 @@ RAIL_Status_t sl_rail_mux_StartTxStreamAlt(RAIL_Handle_t railHandle,
                                            uint16_t channel,
                                            RAIL_StreamMode_t mode,
                                            RAIL_TxOptions_t options);
+RAIL_Status_t sl_rail_mux_GetRxTimeFrameEnd(RAIL_Handle_t railHandle,
+                                            uint16_t totalPacketBytes,
+                                            RAIL_Time_t *pPacketTime);
 //------------------------------------------------------------------------------
 // Internals
 

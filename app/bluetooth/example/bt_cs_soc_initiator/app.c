@@ -27,6 +27,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+// -----------------------------------------------------------------------------
+// Includes
 #include <stdint.h>
 #include <stdbool.h>
 #include "sl_bluetooth.h"
@@ -52,14 +54,24 @@
 #include "ble_peer_manager_connections.h"
 #include "ble_peer_manager_central.h"
 #include "ble_peer_manager_filter.h"
-#include "sl_simple_button.h"
-#include "sl_simple_button_instances.h"
+
 #ifdef SL_CATALOG_CS_INITIATOR_CLI_PRESENT
 #include "cs_initiator_cli.h"
 #endif // SL_CATALOG_CS_INITIATOR_CLI_PRESENT
 
-#define PB0                              SL_SIMPLE_BUTTON_INSTANCE(0)
-#define PB1                              SL_SIMPLE_BUTTON_INSTANCE(1)
+#ifdef SL_CATALOG_SIMPLE_BUTTON_PRESENT
+#include "sl_simple_button.h"
+#include "sl_simple_button_instances.h"
+
+// -----------------------------------------------------------------------------
+// Macros
+#if (SL_SIMPLE_BUTTON_COUNT < 1)
+#warning "Selecting CS mode and Object tracking mode with push buttons is not configured!"
+#endif
+#if (SL_SIMPLE_BUTTON_COUNT == 1)
+#warning "Only one push button configured: only CS mode can be selected by push button."
+#endif
+#endif // SL_CATALOG_SIMPLE_BUTTON_PRESENT
 
 #define MAX_PERCENTAGE                   100u
 #define NL                               APP_LOG_NL
@@ -67,12 +79,24 @@
 #define INSTANCE_PREFIX                  "[%u] "
 #define APP_INSTANCE_PREFIX              APP_PREFIX INSTANCE_PREFIX
 
+// -----------------------------------------------------------------------------
+// Static function declarations
 static void cs_on_result(const cs_result_t *result, const void *user_data);
 static void cs_on_intermediate_result(const cs_intermediate_result_t *intermediate_result,
                                       const void *user_data);
 static void cs_on_error(uint8_t conn_handle, cs_error_event_t err_evt, sl_status_t sc);
 
-static bool mode_button_pressed = false, algo_mode_button_pressed = false;
+// -----------------------------------------------------------------------------
+// Static variables
+
+#if (SL_SIMPLE_BUTTON_COUNT > 0)
+static bool mode_button_pressed = false;
+#endif
+
+#if (SL_SIMPLE_BUTTON_COUNT > 1)
+static bool algo_mode_button_pressed = false;
+#endif
+
 static bool measurement_arrived = false;
 static bool measurement_progress_changed = false;
 static uint32_t measurement_cnt = 0u;
@@ -93,26 +117,28 @@ SL_WEAK void app_init(void)
 
   app_log_filter_threshold_set(APP_LOG_LEVEL_INFO);
   app_log_filter_threshold_enable(true);
-  app_log_info(NL);
-  app_log_append_info("+-[CS initiator by Silicon Labs]--------------------------+" NL);
-  app_log_append_info("+---------------------------------------------------------+" APP_LOG_NL APP_LOG_NL);
+  app_log_info("+-[CS initiator by Silicon Labs]--------------------------+" NL);
+  app_log_append_info("+---------------------------------------------------------+" NL);
 
   app_log_append_info(APP_PREFIX "Default measurement mode: %s" NL,
                       MEASUREMENT_MODE == sl_bt_cs_mode_rtt ? "RTT" : "PBR");
 
-  app_log_append_info(APP_PREFIX "Press PB0 while reset to select %s measurement mode!" NL,
+#if (SL_SIMPLE_BUTTON_COUNT > 0)
+  app_log_append_info(APP_PREFIX "Press BTN0 while reset to select %s measurement mode!" NL,
                       MEASUREMENT_MODE == sl_bt_cs_mode_rtt ? "PBR" : "RTT");
+#endif // (SL_SIMPLE_BUTTON_COUNT > 0)
   app_log_append_info("+---------------------------------------------------------+" NL);
   app_log_append_info(APP_PREFIX "Default object tracking mode: %s" NL,
                       OBJECT_TRACKING_MODE == SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY
                       ? "stationary object tracking"
                       : "moving object tracking    ");
-
-  app_log_append_info(APP_PREFIX "Press PB1 while reset to select object tracking mode:" NL);
+#if (SL_SIMPLE_BUTTON_COUNT > 1)
+  app_log_append_info(APP_PREFIX "Press BTN1 while reset to select object tracking mode:" NL);
   app_log_append_info("%s" NL,
                       OBJECT_TRACKING_MODE == SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY
                       ? "moving object tracking    "
                       : "stationary object tracking");
+#endif // (SL_SIMPLE_BUTTON_COUNT > 1)
 
   app_log_append_info("+---------------------------------------------------------+" NL);
 
@@ -144,44 +170,39 @@ SL_WEAK void app_init(void)
   app_log_append_info(NL);
   app_log_info("+-------------------------------------------------------+" NL);
 
-  if (SL_SIMPLE_BUTTON_COUNT > 1) {
-    mode_button_pressed = sl_button_get_state(PB0);
-    algo_mode_button_pressed = sl_button_get_state(PB1);
-  } else {
-    app_assert_status_f(SL_STATUS_FAIL, "Not enough buttons configured!"
-                                        "BTN0 and BTN1 are required for this example!");
-  }
+#if (SL_SIMPLE_BUTTON_COUNT > 0)
+  mode_button_pressed = sl_button_get_state(SL_SIMPLE_BUTTON_INSTANCE(0));
 
-  // Start with a different mode when buttons pressed!
-  if (algo_mode_button_pressed == SL_SIMPLE_BUTTON_PRESSED
-      && OBJECT_TRACKING_MODE == SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC) {
-    algo_mode = SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY;
-  } else if (algo_mode_button_pressed == SL_SIMPLE_BUTTON_PRESSED
-             && OBJECT_TRACKING_MODE == SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY) {
-    algo_mode = SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC;
+  if (mode_button_pressed == SL_SIMPLE_BUTTON_PRESSED) {
+    mode = MEASUREMENT_MODE == sl_bt_cs_mode_pbr
+           ? sl_bt_cs_mode_rtt
+           : sl_bt_cs_mode_pbr;
   }
-
   app_log_info(APP_PREFIX "Measurement mode selected: ");
-  if (mode_button_pressed == SL_SIMPLE_BUTTON_PRESSED
-      && MEASUREMENT_MODE == sl_bt_cs_mode_pbr) {
-    mode = sl_bt_cs_mode_rtt;
-  } else if (mode_button_pressed == SL_SIMPLE_BUTTON_PRESSED
-             && MEASUREMENT_MODE == sl_bt_cs_mode_rtt) {
-    mode = sl_bt_cs_mode_pbr;
-  }
   app_log_append_info("%s" NL, mode == sl_bt_cs_mode_rtt ? "RTT" : "PBR");
+#endif // (SL_SIMPLE_BUTTON_COUNT > 0)
   initiator_config.cs_mode = mode;
+
+#if (SL_SIMPLE_BUTTON_COUNT > 1)
+  algo_mode_button_pressed = sl_button_get_state(SL_SIMPLE_BUTTON_INSTANCE(1));
+
+  if (algo_mode_button_pressed == SL_SIMPLE_BUTTON_PRESSED) {
+    algo_mode = OBJECT_TRACKING_MODE == SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC
+                ? SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY
+                : SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC;
+  }
 
   app_log_info(APP_PREFIX "Object tracking mode selected: %s" NL,
                algo_mode == SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY
                ? "stationary object tracking"
                : "moving object tracking");
+#endif // (SL_SIMPLE_BUTTON_COUNT > 1)
   rtl_config.algo_mode = algo_mode;
 
-#ifdef SL_CATALOG_CS_INITIATOR_CLI_PRESENT
+#if defined(SL_CATALOG_CS_INITIATOR_CLI_PRESENT) && defined(SL_CATALOG_SIMPLE_BUTTON_PRESENT)
   app_log_warning(APP_PREFIX "Measurement mode and Object tracking mode selected by "
                              "push buttons may be overruled by CLI configuration!" NL);
-#endif // SL_CATALOG_CS_INITIATOR_CLI_PRESENT
+#endif // defined (SL_CATALOG_CS_INITIATOR_CLI_PRESENT) && defined(SL_CATALOG_SIMPLE_BUTTON_PRESENT)
 
   // Show the first LCD screen
   sc = cs_initiator_display_init();
@@ -274,7 +295,7 @@ SL_WEAK void app_process_action(void)
 }
 
 // -----------------------------------------------------------------------------
-// Static function declarations
+// Static function definitions
 
 /******************************************************************************
  * Extract measurement results
@@ -313,7 +334,7 @@ static void cs_on_error(uint8_t conn_handle, cs_error_event_t err_evt, sl_status
     case CS_ERROR_EVENT_CS_PROCEDURE_UNEXPECTED_DATA:
       app_assert(false,
                  APP_INSTANCE_PREFIX "Unrecoverable CS procedure error happened!"
-                                     "[E: 0x%x sc: 0x%lx]" APP_LOG_NL,
+                                     "[E: 0x%x sc: 0x%lx]" NL,
                  conn_handle,
                  err_evt,
                  sc);
@@ -321,7 +342,7 @@ static void cs_on_error(uint8_t conn_handle, cs_error_event_t err_evt, sl_status
     // Discard
     case CS_ERROR_EVENT_RTL_PROCESS_ERROR:
       app_log_error(APP_INSTANCE_PREFIX "RTL processing error happened!"
-                                        "[E: 0x%x sc: 0x%lx]" APP_LOG_NL,
+                                        "[E: 0x%x sc: 0x%lx]" NL,
                     conn_handle,
                     err_evt,
                     sc);
@@ -329,15 +350,15 @@ static void cs_on_error(uint8_t conn_handle, cs_error_event_t err_evt, sl_status
     // Close connection
     default:
       app_log_error(APP_INSTANCE_PREFIX "Error happened! Closing connection."
-                                        "[E: 0x%x sc: 0x%lx]" APP_LOG_NL,
+                                        "[E: 0x%x sc: 0x%lx]" NL,
                     conn_handle,
                     err_evt,
                     sc);
       // Common errors
       if (err_evt == CS_ERROR_EVENT_TIMER_ELAPSED) {
-        app_log_error(APP_INSTANCE_PREFIX "Operation timeout." APP_LOG_NL, conn_handle);
+        app_log_error(APP_INSTANCE_PREFIX "Operation timeout." NL, conn_handle);
       } else if (err_evt == CS_ERROR_EVENT_INITIATOR_FAILED_TO_INCREASE_SECURITY) {
-        app_log_error(APP_INSTANCE_PREFIX "Security level increase failed." APP_LOG_NL, conn_handle);
+        app_log_error(APP_INSTANCE_PREFIX "Security level increase failed." NL, conn_handle);
       }
       // Close the connection
       (void)ble_peer_manager_central_close_connection(conn_handle);
@@ -372,8 +393,8 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
                                      &min_tx_power_x10,
                                      &max_tx_power_x10);
       app_assert_status(sc);
-      app_log_info(APP_PREFIX "Minimum system TX power is set to: %d dBm" APP_LOG_NL, min_tx_power_x10 / 10);
-      app_log_info(APP_PREFIX "Maximum system TX power is set to: %d dBm" APP_LOG_NL, max_tx_power_x10 / 10);
+      app_log_info(APP_PREFIX "Minimum system TX power is set to: %d dBm" NL, min_tx_power_x10 / 10);
+      app_log_info(APP_PREFIX "Maximum system TX power is set to: %d dBm" NL, max_tx_power_x10 / 10);
 
       // Print the Bluetooth address
       bd_addr address;
@@ -405,7 +426,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       // Start scanning for reflector connections
       app_log_info(APP_PREFIX "Scanning started for reflector connections..." NL);
 #else
-      app_log_info("CS CLI is active." APP_LOG_NL);
+      app_log_info("CS CLI is active." NL);
 #endif // SL_CATALOG_CS_INITIATOR_CLI_PRESENT
 
       break;

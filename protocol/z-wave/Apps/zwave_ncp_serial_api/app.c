@@ -17,6 +17,10 @@
 #include "zpal_retention_register.h"
 /* Include app header file - containing version and */
 /* SerialAPI functionality support definitions */
+#ifdef ZW_SECURITY_PROTOCOL
+#include "ZW_security_api.h"
+#include "ZW_TransportSecProtocol.h"
+#endif
 #include "DebugPrintConfig.h"
 // SerialAPI uses SWO for debug output.
 // For example SWO Terminal in  Studio commander can be used to get the output.
@@ -47,7 +51,11 @@
 #define TX_POWER_LR_20_DBM    200
 #define TX_POWER_LR_14_DBM    140
 
+#ifdef ZW_SECURITY_PROTOCOL
+#define REQUESTED_SECURITY_KEYS   ( SECURITY_KEY_S0_BIT | SECURITY_KEY_S2_UNAUTHENTICATED_BIT | SECURITY_KEY_S2_AUTHENTICATED_BIT | SECURITY_KEY_S2_ACCESS_BIT)
+#else
 #define REQUESTED_SECURITY_KEYS   0
+#endif  /* ZW_SECURITY_PROTOCOL */
 
 /* Accept all incoming command classes, regardless of NIF contents. */
 #define ACCEPT_ALL_CMD_CLASSES

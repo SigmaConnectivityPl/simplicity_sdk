@@ -109,6 +109,12 @@ typedef enum measurement_type {
 #define JSON_REQUIRED_PAYALOAD_SIZE \
   (SL_WISUN_METER_MEASUREMENT_BUFFER_SIZE * 36 + 64)
 
+/// CoAP RD well-known core URI path for dummy RD request
+#define COAP_RD_WELL_KNOWN_CORE_URI_PATH ".well-known/core"
+
+/// CoAP RD well-known core URI path length for dummy RD request
+#define COAP_RD_WELL_KNOWN_CORE_URI_PATH_LEN (sizeof(COAP_RD_WELL_KNOWN_CORE_URI_PATH) - 1)
+
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
 // -----------------------------------------------------------------------------
@@ -196,8 +202,8 @@ static sl_wisun_coap_packet_t dummy_req_pkt = {
   .msg_id = SL_WISUN_COAP_METER_COLLECTOR_DEFAULT_MESSAGE_ID,
   .payload_len = 0,
   .payload_ptr = NULL,
-  .uri_path_ptr = (uint8_t *)SLI_WISUN_COAP_RD_CORE_STR,
-  .uri_path_len = 0,
+  .uri_path_ptr = (uint8_t *)COAP_RD_WELL_KNOWN_CORE_URI_PATH,
+  .uri_path_len = COAP_RD_WELL_KNOWN_CORE_URI_PATH_LEN,
   .options_list_ptr = NULL
 };
 
@@ -225,7 +231,6 @@ void sl_wisun_coap_meter_init(void)
 #endif
   sl_wisun_meter_init_hnd(&_coap_meter_hnd);
 
-  dummy_req_pkt.uri_path_len = strlen((char *)dummy_req_pkt.uri_path_ptr);
 }
 
 #if !SL_WISUN_COAP_MC_OPTIMIZED_MODE_ENABLE
@@ -288,7 +293,7 @@ static sl_status_t _coap_meter_parse_request(const void * const raw,
                                              int32_t packet_data_len,
                                              sl_wisun_request_type_t * const req)
 {
-  const sl_wisun_coap_packet_t *parsed  = NULL;
+  sl_wisun_coap_packet_t *parsed  = NULL;
   char *raw_ptr                         = NULL;
 
   if ((raw == NULL) || (packet_data_len == 0) || (req == NULL)) {
@@ -305,6 +310,7 @@ static sl_status_t _coap_meter_parse_request(const void * const raw,
   // Handling response and empty packets
   if (!sl_wisun_coap_rhnd_is_request_packet(parsed)) {
     *req = SL_WISUN_MC_REQ_UNKNOWN;
+    sl_wisun_coap_destroy_packet(parsed);
     return SL_STATUS_FAIL;
   }
 
@@ -313,6 +319,7 @@ static sl_status_t _coap_meter_parse_request(const void * const raw,
                parsed->uri_path_len) == 0)
       && parsed->msg_code == COAP_MSG_CODE_REQUEST_GET) {
     *req = SL_WISUN_MC_REQ_RD;
+    sl_wisun_coap_destroy_packet(parsed);
     return SL_STATUS_OK;
   }
 
@@ -320,6 +327,7 @@ static sl_status_t _coap_meter_parse_request(const void * const raw,
               (char *)&SL_WISUN_COAP_METER_COLLECTOR_MEASUREMENT_URI_PATH[1],
               parsed->uri_path_len) != 0) {
     *req = SL_WISUN_MC_REQ_UNKNOWN;
+    sl_wisun_coap_destroy_packet(parsed);
     return SL_STATUS_FAIL;
   }
 
@@ -343,7 +351,7 @@ static sl_status_t _coap_meter_parse_request(const void * const raw,
   } else {
     *req = SL_WISUN_MC_REQ_UNKNOWN;
   }
-
+  sl_wisun_coap_destroy_packet(parsed);
   return SL_STATUS_OK;
 }
 

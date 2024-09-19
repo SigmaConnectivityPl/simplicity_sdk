@@ -37,8 +37,8 @@
 // // <h> App OS Statistic configuration
 
 // <o APP_OS_STAT_THREAD_PRIO> App OS statistic thread priority
-// <i> Default: osPriorityLow3
-#define APP_OS_STAT_THREAD_PRIO                  osPriorityLow3
+// <i> Default: osPriorityHigh
+#define APP_OS_STAT_THREAD_PRIO                  osPriorityHigh
 
 // <o APP_OS_STAT_STACK_SIZE_WORD> App OS statistic thread stack size in word
 // <i> Default: 256

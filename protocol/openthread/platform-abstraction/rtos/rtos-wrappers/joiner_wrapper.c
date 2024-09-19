@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Joiner APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,30 +29,38 @@
  *
  ******************************************************************************/
 
-#include <openthread/joiner.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/joiner.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern const char *OT_API_REAL_NAME(otJoinerStateToString)(otJoinerState aState);
-extern const otExtAddress *OT_API_REAL_NAME(otJoinerGetId)(otInstance * aInstance);
-extern const otJoinerDiscerner *OT_API_REAL_NAME(otJoinerGetDiscerner)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otJoinerSetDiscerner)(otInstance * aInstance,otJoinerDiscerner * aDiscerner);
-extern otError OT_API_REAL_NAME(otJoinerStart)(otInstance * aInstance,const char * aPskd,const char * aProvisioningUrl,const char * aVendorName,const char * aVendorModel,const char * aVendorSwVersion,const char * aVendorData,otJoinerCallback aCallback,void * aContext);
-extern otJoinerState OT_API_REAL_NAME(otJoinerGetState)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otJoinerStop)(otInstance * aInstance);
+extern const char              *OT_API_REAL_NAME(otJoinerStateToString)(otJoinerState aState);
+extern const otExtAddress      *OT_API_REAL_NAME(otJoinerGetId)(otInstance *aInstance);
+extern const otJoinerDiscerner *OT_API_REAL_NAME(otJoinerGetDiscerner)(otInstance *aInstance);
+extern otError       OT_API_REAL_NAME(otJoinerSetDiscerner)(otInstance *aInstance, otJoinerDiscerner *aDiscerner);
+extern otError       OT_API_REAL_NAME(otJoinerStart)(otInstance      *aInstance,
+                                               const char      *aPskd,
+                                               const char      *aProvisioningUrl,
+                                               const char      *aVendorName,
+                                               const char      *aVendorModel,
+                                               const char      *aVendorSwVersion,
+                                               const char      *aVendorData,
+                                               otJoinerCallback aCallback,
+                                               void            *aContext);
+extern otJoinerState OT_API_REAL_NAME(otJoinerGetState)(otInstance *aInstance);
+extern void          OT_API_REAL_NAME(otJoinerStop)(otInstance *aInstance);
 
 const char *OT_API_WRAPPER_NAME(otJoinerStateToString)(otJoinerState aState)
 {
@@ -62,7 +70,7 @@ const char *OT_API_WRAPPER_NAME(otJoinerStateToString)(otJoinerState aState)
     return ret;
 }
 
-const otExtAddress *OT_API_WRAPPER_NAME(otJoinerGetId)(otInstance * aInstance)
+const otExtAddress *OT_API_WRAPPER_NAME(otJoinerGetId)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otExtAddress *ret = OT_API_REAL_NAME(otJoinerGetId)(aInstance);
@@ -70,7 +78,7 @@ const otExtAddress *OT_API_WRAPPER_NAME(otJoinerGetId)(otInstance * aInstance)
     return ret;
 }
 
-const otJoinerDiscerner *OT_API_WRAPPER_NAME(otJoinerGetDiscerner)(otInstance * aInstance)
+const otJoinerDiscerner *OT_API_WRAPPER_NAME(otJoinerGetDiscerner)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otJoinerDiscerner *ret = OT_API_REAL_NAME(otJoinerGetDiscerner)(aInstance);
@@ -78,7 +86,7 @@ const otJoinerDiscerner *OT_API_WRAPPER_NAME(otJoinerGetDiscerner)(otInstance * 
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otJoinerSetDiscerner)(otInstance * aInstance,otJoinerDiscerner * aDiscerner)
+otError OT_API_WRAPPER_NAME(otJoinerSetDiscerner)(otInstance *aInstance, otJoinerDiscerner *aDiscerner)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otJoinerSetDiscerner)(aInstance, aDiscerner);
@@ -86,15 +94,31 @@ otError OT_API_WRAPPER_NAME(otJoinerSetDiscerner)(otInstance * aInstance,otJoine
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otJoinerStart)(otInstance * aInstance,const char * aPskd,const char * aProvisioningUrl,const char * aVendorName,const char * aVendorModel,const char * aVendorSwVersion,const char * aVendorData,otJoinerCallback aCallback,void * aContext)
+otError OT_API_WRAPPER_NAME(otJoinerStart)(otInstance      *aInstance,
+                                           const char      *aPskd,
+                                           const char      *aProvisioningUrl,
+                                           const char      *aVendorName,
+                                           const char      *aVendorModel,
+                                           const char      *aVendorSwVersion,
+                                           const char      *aVendorData,
+                                           otJoinerCallback aCallback,
+                                           void            *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otJoinerStart)(aInstance, aPskd, aProvisioningUrl, aVendorName, aVendorModel, aVendorSwVersion, aVendorData, aCallback, aContext);
+    otError ret = OT_API_REAL_NAME(otJoinerStart)(aInstance,
+                                                  aPskd,
+                                                  aProvisioningUrl,
+                                                  aVendorName,
+                                                  aVendorModel,
+                                                  aVendorSwVersion,
+                                                  aVendorData,
+                                                  aCallback,
+                                                  aContext);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otJoinerState OT_API_WRAPPER_NAME(otJoinerGetState)(otInstance * aInstance)
+otJoinerState OT_API_WRAPPER_NAME(otJoinerGetState)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otJoinerState ret = OT_API_REAL_NAME(otJoinerGetState)(aInstance);
@@ -102,10 +126,9 @@ otJoinerState OT_API_WRAPPER_NAME(otJoinerGetState)(otInstance * aInstance)
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otJoinerStop)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otJoinerStop)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otJoinerStop)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
-

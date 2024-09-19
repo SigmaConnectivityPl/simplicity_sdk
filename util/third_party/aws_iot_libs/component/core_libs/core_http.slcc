@@ -6,12 +6,23 @@ description: Lightweight HTTP client library for embedded devices.
 
 package: amazon_platform
 quality: production
-
+metadata:
+  sbom:
+    license: MIT
+    upstream:
+      name: coreHTTP
+      version: v2.0.0
+      supplier: FreeRTOS
+      url: https://github.com/FreeRTOS/coreHTTP
+      package_url: https://github.com/FreeRTOS/coreHTTP/tree/b349f89
+      comment: Client implementation of a subset of HTTP 1.1 protocol designed for embedded devices.
 provides:
   - name: core_http
 
 requires:
   - name: iot_logging
+  - name: iot_sbom_lib_abstraction_common_io
+  - name: lib_abstract_backoff_algorithm
 
 root_path: util/third_party/aws_iot_libs
 
@@ -20,8 +31,6 @@ source:
   - path: libraries/coreHTTP/source/dependency/3rdparty/http_parser/http_parser.c
   # Test related files
   - path: tests/integration_test/core_http_system_test.c
-    condition: ["aws_tests_defs"]
-  - path: libraries/abstractions/backoff_algorithm/source/backoff_algorithm.c
     condition: ["aws_tests_defs"]
   #- path: libraries/coreHTTP/test/unit-test/core_http_send_utest.c
   #- path: libraries/coreHTTP/test/unit-test/core_http_utest.c
@@ -38,7 +47,3 @@ include:
   - path: libraries/coreHTTP/source/dependency/3rdparty/http_parser
     file_list:
       - path: http_parser.h
-  - path: libraries/abstractions/backoff_algorithm/source/include
-    file_list:
-      - path: backoff_algorithm.h
-    condition: ["aws_tests_defs"]

@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Definitions for a CPC based NCP interface to the OpenThread stack
  *******************************************************************************
@@ -45,8 +45,7 @@
 #define SL_CPC_APP_DATA_MAX_LENGTH SL_CPC_TX_PAYLOAD_MAX_LENGTH_WITH_SECURITY
 #endif
 
-static_assert(OPENTHREAD_CONFIG_NCP_CPC_TX_CHUNK_SIZE <= SL_CPC_APP_DATA_MAX_LENGTH, 
-              "TX buffer size is too large!");
+static_assert(OPENTHREAD_CONFIG_NCP_CPC_TX_CHUNK_SIZE <= SL_CPC_APP_DATA_MAX_LENGTH, "TX buffer size is too large!");
 
 namespace ot {
 namespace Ncp {
@@ -89,10 +88,10 @@ private:
 
     void HandleFrameAddedToNcpBuffer(void);
 
-    static void HandleFrameAddedToNcpBuffer(void *                   aContext,
+    static void HandleFrameAddedToNcpBuffer(void                    *aContext,
                                             Spinel::Buffer::FrameTag aTag,
                                             Spinel::Buffer::Priority aPriority,
-                                            Spinel::Buffer *         aBuffer);
+                                            Spinel::Buffer          *aBuffer);
 
     void        SendToCPC(void);
     static void SendToCPC(Tasklet &aTasklet);

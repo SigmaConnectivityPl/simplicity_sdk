@@ -26,9 +26,11 @@ uint8_t cc_user_credential_get_number_of_supported_credential_types(void);
 
 uint16_t cc_user_credential_get_max_credential_slots(u3c_credential_type credential_type);
 
-uint16_t cc_user_credential_get_min_length_of_data(u3c_credential_type credential_type);
+uint8_t cc_user_credential_get_min_length_of_data(u3c_credential_type credential_type);
 
-uint16_t cc_user_credential_get_max_length_of_data(u3c_credential_type credential_type);
+uint8_t cc_user_credential_get_max_length_of_data(u3c_credential_type credential_type);
+
+uint8_t cc_user_credential_get_max_hash_length(u3c_credential_type type);
 
 uint8_t cc_user_credential_get_cl_recommended_timeout(u3c_credential_type credential_type);
 
@@ -40,10 +42,8 @@ bool cc_user_credential_is_user_checksum_supported(void);
 
 bool cc_user_credential_is_credential_checksum_supported(void);
 
-bool cc_user_credential_is_all_users_checksum_supported(void);
+bool cc_user_credential_get_admin_code_supported(void);
 
-bool cc_user_credential_is_user_checksum_supported(void);
-
-bool cc_user_credential_is_credential_checksum_supported(void);
+bool cc_user_credential_get_admin_code_deactivate_supported(void);
 
 #endif /* CC_USER_CREDENTIAL_CONFIG_API_H */

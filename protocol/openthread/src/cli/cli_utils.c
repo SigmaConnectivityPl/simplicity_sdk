@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Utility functions for handling CLI list of CLI commands
  *******************************************************************************
@@ -29,10 +29,10 @@
  ******************************************************************************/
 
 #include "sl_ot_custom_cli.h"
-#include "common/code_utils.hpp"
 #include <string.h>
+#include "common/code_utils.hpp"
 
-otError processCommand(void *aContext,
+otError processCommand(void              *aContext,
                        uint8_t            aArgsLength,
                        char              *aArgs[],
                        uint8_t            aCommandsLength,
@@ -58,8 +58,8 @@ exit:
 
 void printCommands(otCliCommand commands[], size_t commandCount)
 {
-    for (size_t i = 0; i < commandCount; i++) {
+    for (size_t i = 0; i < commandCount; i++)
+    {
         otCliOutputFormat("%s\r\n", commands[i].mName);
     }
 }
-

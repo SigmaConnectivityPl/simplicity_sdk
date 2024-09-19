@@ -48,6 +48,8 @@ configuration:
     value: 1
   - name: BOOTLOADER_FALLBACK_LEGACY_KEY
     value: 1
+  - name: BTL_STORAGE_BASE_ADDRESS
+    value: 0x8044000
     
 post_build:
   profile: bootloader

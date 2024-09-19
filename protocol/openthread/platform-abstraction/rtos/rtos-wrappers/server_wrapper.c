@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Server APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,30 +29,38 @@
  *
  ******************************************************************************/
 
-#include <openthread/server.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/server.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern otError OT_API_REAL_NAME(otServerAddService)(otInstance * aInstance,const otServiceConfig * aConfig);
-extern otError OT_API_REAL_NAME(otServerGetNetDataLocal)(otInstance * aInstance,bool aStable,uint8_t * aData,uint8_t * aDataLength);
-extern otError OT_API_REAL_NAME(otServerGetNextService)(otInstance * aInstance,otNetworkDataIterator * aIterator,otServiceConfig * aConfig);
-extern otError OT_API_REAL_NAME(otServerRegister)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otServerRemoveService)(otInstance * aInstance,uint32_t aEnterpriseNumber,const uint8_t * aServiceData,uint8_t aServiceDataLength);
+extern otError OT_API_REAL_NAME(otServerAddService)(otInstance *aInstance, const otServiceConfig *aConfig);
+extern otError OT_API_REAL_NAME(otServerGetNetDataLocal)(otInstance *aInstance,
+                                                         bool        aStable,
+                                                         uint8_t    *aData,
+                                                         uint8_t    *aDataLength);
+extern otError OT_API_REAL_NAME(otServerGetNextService)(otInstance            *aInstance,
+                                                        otNetworkDataIterator *aIterator,
+                                                        otServiceConfig       *aConfig);
+extern otError OT_API_REAL_NAME(otServerRegister)(otInstance *aInstance);
+extern otError OT_API_REAL_NAME(otServerRemoveService)(otInstance    *aInstance,
+                                                       uint32_t       aEnterpriseNumber,
+                                                       const uint8_t *aServiceData,
+                                                       uint8_t        aServiceDataLength);
 
-otError OT_API_WRAPPER_NAME(otServerAddService)(otInstance * aInstance,const otServiceConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otServerAddService)(otInstance *aInstance, const otServiceConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otServerAddService)(aInstance, aConfig);
@@ -60,7 +68,10 @@ otError OT_API_WRAPPER_NAME(otServerAddService)(otInstance * aInstance,const otS
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otServerGetNetDataLocal)(otInstance * aInstance,bool aStable,uint8_t * aData,uint8_t * aDataLength)
+otError OT_API_WRAPPER_NAME(otServerGetNetDataLocal)(otInstance *aInstance,
+                                                     bool        aStable,
+                                                     uint8_t    *aData,
+                                                     uint8_t    *aDataLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otServerGetNetDataLocal)(aInstance, aStable, aData, aDataLength);
@@ -68,7 +79,9 @@ otError OT_API_WRAPPER_NAME(otServerGetNetDataLocal)(otInstance * aInstance,bool
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otServerGetNextService)(otInstance * aInstance,otNetworkDataIterator * aIterator,otServiceConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otServerGetNextService)(otInstance            *aInstance,
+                                                    otNetworkDataIterator *aIterator,
+                                                    otServiceConfig       *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otServerGetNextService)(aInstance, aIterator, aConfig);
@@ -76,7 +89,7 @@ otError OT_API_WRAPPER_NAME(otServerGetNextService)(otInstance * aInstance,otNet
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otServerRegister)(otInstance * aInstance)
+otError OT_API_WRAPPER_NAME(otServerRegister)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otServerRegister)(aInstance);
@@ -84,11 +97,14 @@ otError OT_API_WRAPPER_NAME(otServerRegister)(otInstance * aInstance)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otServerRemoveService)(otInstance * aInstance,uint32_t aEnterpriseNumber,const uint8_t * aServiceData,uint8_t aServiceDataLength)
+otError OT_API_WRAPPER_NAME(otServerRemoveService)(otInstance    *aInstance,
+                                                   uint32_t       aEnterpriseNumber,
+                                                   const uint8_t *aServiceData,
+                                                   uint8_t        aServiceDataLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otServerRemoveService)(aInstance, aEnterpriseNumber, aServiceData, aServiceDataLength);
+    otError ret =
+        OT_API_REAL_NAME(otServerRemoveService)(aInstance, aEnterpriseNumber, aServiceData, aServiceDataLength);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
-

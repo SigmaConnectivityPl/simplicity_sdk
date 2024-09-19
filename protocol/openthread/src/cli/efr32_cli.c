@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Efr32 CLI
  *******************************************************************************
@@ -30,12 +30,12 @@
 
 #if SL_OPENTHREAD_EFR32_CLI_ENABLE
 
-#include <openthread/cli.h>
-#include <string.h>
-#include "common/code_utils.hpp"
+#include "radio_counters.h"
 #include "radio_extension.h"
 #include "sl_ot_custom_cli.h"
-#include "radio_counters.h"
+#include <string.h>
+#include <openthread/cli.h>
+#include "common/code_utils.hpp"
 
 #define PRINT_RADIO_COUNTER_FIELD(label, counter) \
     (otCliOutputFormat("  %-s:%*s%12u\r\n", label, (40 - strlen(label)), "", counter));
@@ -44,8 +44,7 @@ static otError helpCommand(void *context, uint8_t argc, char *argv[]);
 
 //-----------------------------------------------------------------------------
 // List of accepted counter labels
-static const char *counterLabels[] = 
-{
+static const char *counterLabels[] = {
     "radio",
 };
 
@@ -53,34 +52,34 @@ static const char *counterLabels[] =
 // Prints radio debug counter values
 static otError getRadioCountersCommand(void)
 {
-    otError error = OT_ERROR_NONE;
+    otError            error = OT_ERROR_NONE;
     efr32RadioCounters counters;
 
     SuccessOrExit(error = otPlatRadioExtensionGetRadioCounters(&counters));
 
-    PRINT_RADIO_COUNTER_FIELD("RailPlatTxTriggered",                   counters.mRailPlatTxTriggered);
-    PRINT_RADIO_COUNTER_FIELD("RailPlatRadioReceiveDoneCbCount",       counters.mRailPlatRadioReceiveDoneCbCount);
-    PRINT_RADIO_COUNTER_FIELD("RailPlatRadioReceiveProcessedCount",    counters.mRailPlatRadioReceiveProcessedCount);
-    PRINT_RADIO_COUNTER_FIELD("RailPlatRadioEnergyScanDoneCbCount",    counters.mRailPlatRadioEnergyScanDoneCbCount);
-    PRINT_RADIO_COUNTER_FIELD("RailPlatRadioTxDoneCbCount",            counters.mRailPlatRadioTxDoneCbCount);
-    PRINT_RADIO_COUNTER_FIELD("RailTxStarted",                         counters.mRailTxStarted);
-    PRINT_RADIO_COUNTER_FIELD("RailTxStartFailed",                     counters.mRailTxStartFailed);
-    PRINT_RADIO_COUNTER_FIELD("RailEventAcksReceived",                 counters.mRailEventAcksReceived);
-    PRINT_RADIO_COUNTER_FIELD("RailEventConfigScheduled",              counters.mRailEventConfigScheduled);
-    PRINT_RADIO_COUNTER_FIELD("RailEventConfigUnScheduled",            counters.mRailEventConfigUnScheduled);
-    PRINT_RADIO_COUNTER_FIELD("RailEventPacketSent",                   counters.mRailEventPacketSent);
-    PRINT_RADIO_COUNTER_FIELD("RailEventChannelBusy",                  counters.mRailEventChannelBusy);
-    PRINT_RADIO_COUNTER_FIELD("RailEventEnergyScanCompleted",          counters.mRailEventEnergyScanCompleted);
-    PRINT_RADIO_COUNTER_FIELD("RailEventCalNeeded",                    counters.mRailEventCalNeeded);
-    PRINT_RADIO_COUNTER_FIELD("RailEventPacketReceived",               counters.mRailEventPacketReceived);
-    PRINT_RADIO_COUNTER_FIELD("RailEventNoAck",                        counters.mRailEventNoAck);
-    PRINT_RADIO_COUNTER_FIELD("RailEventTxAbort",                      counters.mRailEventTxAbort);
-    PRINT_RADIO_COUNTER_FIELD("RailEventSchedulerStatusError",         counters.mRailEventSchedulerStatusError);
+    PRINT_RADIO_COUNTER_FIELD("RailPlatTxTriggered", counters.mRailPlatTxTriggered);
+    PRINT_RADIO_COUNTER_FIELD("RailPlatRadioReceiveDoneCbCount", counters.mRailPlatRadioReceiveDoneCbCount);
+    PRINT_RADIO_COUNTER_FIELD("RailPlatRadioReceiveProcessedCount", counters.mRailPlatRadioReceiveProcessedCount);
+    PRINT_RADIO_COUNTER_FIELD("RailPlatRadioEnergyScanDoneCbCount", counters.mRailPlatRadioEnergyScanDoneCbCount);
+    PRINT_RADIO_COUNTER_FIELD("RailPlatRadioTxDoneCbCount", counters.mRailPlatRadioTxDoneCbCount);
+    PRINT_RADIO_COUNTER_FIELD("RailTxStarted", counters.mRailTxStarted);
+    PRINT_RADIO_COUNTER_FIELD("RailTxStartFailed", counters.mRailTxStartFailed);
+    PRINT_RADIO_COUNTER_FIELD("RailEventAcksReceived", counters.mRailEventAcksReceived);
+    PRINT_RADIO_COUNTER_FIELD("RailEventConfigScheduled", counters.mRailEventConfigScheduled);
+    PRINT_RADIO_COUNTER_FIELD("RailEventConfigUnScheduled", counters.mRailEventConfigUnScheduled);
+    PRINT_RADIO_COUNTER_FIELD("RailEventPacketSent", counters.mRailEventPacketSent);
+    PRINT_RADIO_COUNTER_FIELD("RailEventChannelBusy", counters.mRailEventChannelBusy);
+    PRINT_RADIO_COUNTER_FIELD("RailEventEnergyScanCompleted", counters.mRailEventEnergyScanCompleted);
+    PRINT_RADIO_COUNTER_FIELD("RailEventCalNeeded", counters.mRailEventCalNeeded);
+    PRINT_RADIO_COUNTER_FIELD("RailEventPacketReceived", counters.mRailEventPacketReceived);
+    PRINT_RADIO_COUNTER_FIELD("RailEventNoAck", counters.mRailEventNoAck);
+    PRINT_RADIO_COUNTER_FIELD("RailEventTxAbort", counters.mRailEventTxAbort);
+    PRINT_RADIO_COUNTER_FIELD("RailEventSchedulerStatusError", counters.mRailEventSchedulerStatusError);
     PRINT_RADIO_COUNTER_FIELD("RailEventsSchedulerStatusTransmitBusy", counters.mRailEventsSchedulerStatusTransmitBusy);
-    PRINT_RADIO_COUNTER_FIELD("RailEventsSchedulerStatusLastStatus",   counters.mRailEventsSchedulerStatusLastStatus);
-    PRINT_RADIO_COUNTER_FIELD("RailEventsEnhAckTxFailed",              counters.mRailEventsEnhAckTxFailed);
-    PRINT_RADIO_COUNTER_FIELD("RailEventsScheduledTxTriggeredCount",   counters.mRailEventsScheduledTxTriggeredCount);
-    PRINT_RADIO_COUNTER_FIELD("RailEventsScheduledTxStartedCount",     counters.mRailEventsScheduledTxStartedCount);
+    PRINT_RADIO_COUNTER_FIELD("RailEventsSchedulerStatusLastStatus", counters.mRailEventsSchedulerStatusLastStatus);
+    PRINT_RADIO_COUNTER_FIELD("RailEventsEnhAckTxFailed", counters.mRailEventsEnhAckTxFailed);
+    PRINT_RADIO_COUNTER_FIELD("RailEventsScheduledTxTriggeredCount", counters.mRailEventsScheduledTxTriggeredCount);
+    PRINT_RADIO_COUNTER_FIELD("RailEventsScheduledTxStartedCount", counters.mRailEventsScheduledTxStartedCount);
 
 exit:
     return error;
@@ -158,7 +157,6 @@ static otError countersClearCommand(uint8_t argc, char *argv[])
     return error;
 }
 
-
 //-----------------------------------------------------------------------------
 // Handles argument count and selects appropriate counter subcommand
 static otError countersCommand(void *context, uint8_t argc, char *argv[])
@@ -166,16 +164,16 @@ static otError countersCommand(void *context, uint8_t argc, char *argv[])
     OT_UNUSED_VARIABLE(context);
     otError error = OT_ERROR_NONE;
 
-    switch(argc)
+    switch (argc)
     {
-        case 1:
-            error = countersGetCommand(argc, argv);
-            break;
-        case 2:
-            error = countersClearCommand(argc, argv); 
-            break;
-        default:
-            error = countersHelpCommand(argc, argv);
+    case 1:
+        error = countersGetCommand(argc, argv);
+        break;
+    case 2:
+        error = countersClearCommand(argc, argv);
+        break;
+    default:
+        error = countersHelpCommand(argc, argv);
     }
 
     return error;
@@ -191,10 +189,10 @@ static otCliCommand efr32Commands[] = {
 otError efr32Command(void *context, uint8_t argc, char *argv[])
 {
     otError error = processCommand(context, argc, argv, OT_ARRAY_LENGTH(efr32Commands), efr32Commands);
-    
+
     if (error == OT_ERROR_INVALID_COMMAND)
     {
-        (void) helpCommand(NULL, 0, NULL);
+        (void)helpCommand(NULL, 0, NULL);
     }
 
     return error;

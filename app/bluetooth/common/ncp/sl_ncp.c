@@ -695,6 +695,10 @@ static void cmd_timer_cb2(app_timer_t *timer, void *data)
 #endif // SL_CATALOG_WAKE_LOCK_PRESENT
   // Transmit command error response
   sl_simple_com_transmit((uint32_t)(MSG_GET_LEN(response)), rsp_buf);
+#if SL_NCP_EMIT_SYSTEM_ERROR_EVT
+  // Sending system error event as well to help app devs to give async response
+  sl_bt_send_system_error(SL_STATUS_COMMAND_INCOMPLETE, sizeof(cmd_hdr), rsp_buf);
+#endif // SL_NCP_EMIT_SYSTEM_ERROR_EVT
 }
 
 // -----------------------------------------------------------------------------

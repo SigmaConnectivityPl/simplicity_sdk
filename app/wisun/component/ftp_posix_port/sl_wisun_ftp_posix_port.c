@@ -194,7 +194,7 @@ int32_t sl_ftp_tcp_socket_recv(int32_t sockid, void *buff, uint32_t len)
  ******************************************************************************/
 int32_t sl_tftp_udp_socket_create(void)
 {
-  return socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
+  return socket(AF_INET6, SOCK_DGRAM | SOCK_NONBLOCK, IPPROTO_UDP);
 }
 
 /**************************************************************************//**

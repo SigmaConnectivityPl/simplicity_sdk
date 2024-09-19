@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Antenna Diversity CLI support
  *******************************************************************************
@@ -30,10 +30,10 @@
 
 #if SL_OPENTHREAD_ANT_DIV_CLI_ENABLE
 
-#include <openthread/cli.h>
-#include "common/code_utils.hpp"
 #include "radio_extension.h"
 #include "sl_ot_custom_cli.h"
+#include <openthread/cli.h>
+#include "common/code_utils.hpp"
 
 #ifdef SL_COMPONENT_CATALOG_PRESENT
 #include "sl_component_catalog.h"
@@ -82,7 +82,6 @@ exit:
     return error;
 }
 
-
 //-----------------------------------------------------------------------------
 // Get RX antenna mode (0-don't switch,1-primary,2-secondary,3-RX antenna diversity)
 // Console Command : "antenna get-rx-mode"
@@ -104,7 +103,6 @@ exit:
     return error;
 }
 
-
 //-----------------------------------------------------------------------------
 // Set RX antenna mode (0-don't switch,1-primary,2-secondary,3-RX antenna diversity)
 // Console Command : "antenna set-rx-mode <antennaMode>"
@@ -117,7 +115,8 @@ static otError setAntennaRxModeCommand(void *context, uint8_t argc, char *argv[]
 
     uint8_t antennaMode = (uint8_t)strtoul(argv[0], NULL, 10);
 
-    if (otPlatRadioExtensionSetRxAntennaMode(antennaMode) != OT_ERROR_NONE) {
+    if (otPlatRadioExtensionSetRxAntennaMode(antennaMode) != OT_ERROR_NONE)
+    {
         otCliOutputFormat("Requires switching from standard PHY to diversity PHY. Not supported.");
     }
     otCliOutputFormat("\r\n");
@@ -131,16 +130,16 @@ exit:
 // Console Command : "antenna get-active-phy"
 // Console Response: "Active Radio PHY:<activePhy>"
 
-static const char * const phyNames[] = {
-  "RADIO_CONFIG_154_2P4_DEFAULT",
-  "RADIO_CONFIG_154_2P4_ANTDIV",
-  "RADIO_CONFIG_154_2P4_COEX",
-  "RADIO_CONFIG_154_2P4_ANTDIV_COEX",
-  "RADIO_CONFIG_154_2P4_FEM",
-  "RADIO_CONFIG_154_2P4_ANTDIV_FEM",
-  "RADIO_CONFIG_154_2P4_COEX_FEM",
-  "RADIO_CONFIG_154_2P4_ANTDIV_COEX_FEM",
-  "INVALID_PHY_SELECTION",
+static const char *const phyNames[] = {
+    "RADIO_CONFIG_154_2P4_DEFAULT",
+    "RADIO_CONFIG_154_2P4_ANTDIV",
+    "RADIO_CONFIG_154_2P4_COEX",
+    "RADIO_CONFIG_154_2P4_ANTDIV_COEX",
+    "RADIO_CONFIG_154_2P4_FEM",
+    "RADIO_CONFIG_154_2P4_ANTDIV_FEM",
+    "RADIO_CONFIG_154_2P4_COEX_FEM",
+    "RADIO_CONFIG_154_2P4_ANTDIV_COEX_FEM",
+    "INVALID_PHY_SELECTION",
 };
 
 #define PHY_COUNT ((sizeof(phyNames) / sizeof(phyNames[0])) - 1)
@@ -156,7 +155,8 @@ static otError getActivePhyCommand(void *context, uint8_t argc, char *argv[])
 
     SuccessOrExit(error = otPlatRadioExtensionGetActivePhy(&activePhy));
 
-    if (activePhy >= PHY_COUNT) {
+    if (activePhy >= PHY_COUNT)
+    {
         activePhy = PHY_COUNT;
     }
     otCliOutputFormat("Active Radio PHY:%s", phyNames[activePhy]);
@@ -183,9 +183,9 @@ otError antennaCommand(void *context, uint8_t argc, char *argv[])
 
     if (error == OT_ERROR_INVALID_COMMAND)
     {
-        (void) helpCommand(NULL, 0, NULL);
+        (void)helpCommand(NULL, 0, NULL);
     }
-    
+
     return error;
 }
 

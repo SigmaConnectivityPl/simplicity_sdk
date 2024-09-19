@@ -6,6 +6,16 @@ description: FreeRTOS Plus POSIX implementation.
 
 package: amazon_platform
 quality: production
+metadata:
+  sbom:
+    license: MIT
+    upstream:
+      name: FreeRTOS POSIX
+      version: 1.2.0
+      supplier: aws
+      url: https://github.com/aws/amazon-freertos
+      package_url: https://github.com/aws/amazon-freertos/tree/23dc85
+      comment: Having both POSIX 1.2.0 and 1.2.1 library versions but considered the least one
 
 provides:
   - name: freertos_posix
@@ -64,6 +74,3 @@ include:
       - path: FreeRTOS_POSIX/time.h
       - path: FreeRTOS_POSIX/unistd.h
       - path: FreeRTOS_POSIX/utils.h
-  - path: libraries/abstractions/posix/include/FreeRTOS_POSIX
-    file_list:
-      - path: pthread.h

@@ -1047,6 +1047,9 @@ int8_t sl_zigbee_af_compare_values(uint8_t* val1,
                                    bool signedNumber)
 {
   uint8_t i, j, k;
+
+  SL_ZIGBEE_TEST_ASSERT(len > 0);
+
   if (signedNumber) { // signed number comparison
     if (len <= 4) { // only number with 32-bits or less is supported
       int32_t accum1 = 0x0;

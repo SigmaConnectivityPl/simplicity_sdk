@@ -88,7 +88,7 @@ class AccessPoint():
         self.esl_command_queue_lock = threading.Lock()
         self.esl_pending_commands_lock = threading.Lock()
         # Shutdown timer is executed if boot event fails
-        self.shutdown_timer = threading.Timer(3.0, self.shutdown_timeout)
+        self.shutdown_timer = threading.Timer(5.0, self.shutdown_timeout)
         self.shutdown_timer.daemon = True
         self.shutdown_timer.start()
         # ESL Demo controller related attributes
@@ -1004,13 +1004,13 @@ class AccessPoint():
                         self.remove_esl_pending_command(cmd) # this will remove given command from self.esl_pending_commands
                         # Tag must be in IDLE state to send the command
                         if tag.state == TagState.IDLE and tag.unresp_command_number < ESL_CMD_MAX_RETRY_COUNT:
-                            self.log.info("Resending command: (0x%s) to ESL %d in group %d", cmd.params.hex(), tag.esl_id, tag.group_id)
+                            self.log.info("Resending command: (0x%s) to ESL ID %d in group %d", cmd.params.hex(), tag.esl_id, tag.group_id)
                             self.requeue_pawr_command(cmd.group_id, cmd.params) # and then re-queuing it to the bottom of the "FIFO"
                             if cmd.slot_number not in already_sent:
                                 tag.unresp_command_number += 1
                                 already_sent.append(cmd.slot_number)
                         elif tag.unresp_command_number >= ESL_CMD_MAX_RETRY_COUNT:
-                            self.log.warning("Tag at address %s does not respond to synchronization packets, stop retrying", tag.ble_address)
+                            self.log.warning(" ESL ID %d in group %d at address %s does not respond to synchronization packets, stop retrying", tag.esl_id, tag.group_id, tag.ble_address)
                             tag.unresp_command_number = 0
 
         unsyncronized_tags = self.tag_db.list_esl_state(EslState.UNSYNCHRONIZED)
@@ -1200,7 +1200,7 @@ class AccessPoint():
             if tag.provisioned and not tag.advertising and evt.reason == elw.SL_STATUS_BT_CTRL_CONNECTION_TIMEOUT:
                 # Handle a special edge case in which the synced flag is not set after "succesfully failed" disconnection
                 # i.e. the very last LL handshake can be lost due to radio noise -> sl_status is reported as 0x1008 yet the connection is in fact closed
-                self.log.debug("Check if Tag at address %s got synchronized despite the reported hypervisor timeout.", tag.ble_address)
+                self.log.debug("Check if ESL ID %d in group %d at address %s got synchronized despite the reported hypervisor timeout.", tag.esl_id, tag.group_id, tag.ble_address)
                 self.ap_ping(tag.esl_id, tag.group_id)
             if self.cmd_mode or (logLevel() <= LEVELS['DEBUG'] and tag.associated):
                 log("Tag info about disconnected device:", _half_indent_log=True)
@@ -1251,12 +1251,12 @@ class AccessPoint():
             if tag is not None and not tag.provisioned:
                 if evt.sl_status == elw.SL_STATUS_ABORT or evt.sl_status == elw.SL_STATUS_BT_CTRL_AUTHENTICATION_FAILURE: # handle advertisers that refuse connection retry attempts - e.g. because bonded to other AP
                     if not tag.blocked:
-                        self.log.warning("ESL at address %s has been blocked due to unsuccessful connection attempt(s).", evt.node_id)
+                        self.log.warning("Tag at address %s has been blocked due to unsuccessful connection attempt(s).", evt.node_id)
                         tag.block(elw.ESL_LIB_STATUS_BONDING_FAILED)
                 elif evt.sl_status == elw.SL_STATUS_BT_CTRL_CONNECTION_TERMINATED_BY_LOCAL_HOST and (evt.data == elw.ESL_LIB_CONNECTION_STATE_ESL_DISCOVERY or evt.data == elw.ESL_LIB_CONNECTION_STATE_SERVICE_DISCOVERY):
                     if tag.blocked:
                         self.key_db.delete_ltk(tag.ble_address) # remove key of ESLs which are violating the spec (that is, which are lack of any mandatory GATT entries)
-                        self.log.debug("Bonding for ESL at address %s deleted due to ESL Profile/Service violation.", tag.ble_address)
+                        self.log.debug("Bonding for tag at address %s deleted due to ESL Profile/Service violation.", tag.ble_address)
             if evt.sl_status in [elw.SL_STATUS_NO_MORE_RESOURCE, elw.SL_STATUS_BT_CTRL_CONNECTION_LIMIT_EXCEEDED] and not self.max_conn_count_reached:
                 self.max_conn_count_reached = True
                 self.log.warning("Access point connection limit reached - suspend connect requests until a connection is closed.")
@@ -1291,7 +1291,7 @@ class AccessPoint():
         elif evt.lib_status == elw.ESL_LIB_STATUS_CONN_DISCOVERY_FAILED and evt.sl_status == elw.SL_STATUS_BT_ATT_REQUEST_NOT_SUPPORTED and evt.data == elw.ESL_LIB_CONNECTION_STATE_SERVICE_DISCOVERY:
             tag = self.tag_db.find(evt.node_id)
             if tag is not None and not tag.blocked:
-                self.log.warning("ESL at address %s has been blocked due to missing mandatory service!", evt.node_id)
+                self.log.warning("Device at address %s has been blocked due to missing mandatory service!", evt.node_id)
                 tag.block(evt.lib_status)
     def esl_event_image_type(self, evt: esl_lib.EventImageType):
         """ ESL event handler """
@@ -1312,7 +1312,7 @@ class AccessPoint():
         if evt.lib_status in [elw.ESL_LIB_STATUS_CONN_FAILED, elw.ESL_LIB_STATUS_CONN_CLOSE_FAILED, elw.ESL_LIB_STATUS_CONN_TIMEOUT]:
             if evt.lib_status == elw.ESL_LIB_STATUS_CONN_FAILED:
                 if evt.sl_status == elw.SL_STATUS_BT_CTRL_AUTHENTICATION_FAILURE or evt.data == elw.ESL_LIB_CONNECTION_STATE_NEW_BOND_REQUIRED: # handle advertisers bonded to different AP
-                    self.log.info("ESL at address %s refused connection attempts - seemingly bonded to other AP", evt.node_id)
+                    self.log.info("Tag at address %s refused connection attempts - seemingly bonded to other AP", evt.node_id)
             elif evt.lib_status == elw.ESL_LIB_STATUS_CONN_TIMEOUT:
                 if evt.data == elw.ESL_LIB_CONNECTION_STATE_CONNECTING:
                     self.log.error("Timeout occured on connection attempt to address %s", evt.node_id)
@@ -2173,7 +2173,7 @@ class AccessPoint():
                                 # Resend retry error responses
                                 if response_data[0] == TLV_RESPONSE_ERROR:
                                     if response_data[1] == ERROR_RESPONSE_RETRY or response_data[1] == ERROR_RESPONSE_CAPACITY_LIMIT:
-                                        self.log.info("Resending command: (0x%s) to ESL %d in group %d", cmd.params.hex(), tag.esl_id, tag.group_id)
+                                        self.log.info("Resending command: (0x%s) to ESL ID %d in group %d", cmd.params.hex(), tag.esl_id, tag.group_id)
                                         self.queue_pawr_command(cmd.group_id, cmd.params)
                             # pop_list is for already processed answers - will skip those in any next round of this the for cycle
                             pop_list.append(self.esl_pending_commands[subevent].index(cmd))

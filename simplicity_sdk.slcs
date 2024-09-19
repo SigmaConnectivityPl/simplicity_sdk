@@ -2,7 +2,7 @@ id: "simplicity_sdk"
 label: "Simplicity SDK Suite"
 description: |-
   Simplicity SDK Suite for EFM32 and EFR32 microcontrollers and radios.
-sdk_version: "2024.6.1"
+sdk_version: "2024.6.2"
 specification_version: 10
 component_path:
   - path: "app/amazon/component"
@@ -94,27 +94,27 @@ component_path:
 toolchain_mapping: "platform/common/toolchain/toolchains.slct"
 documentation:
   - docset: gecko-platform
-    version: "5.0.1"
+    version: "5.0.2"
   - docset: mbed-tls
     version: "3.5.0"
   - docset: connect-stack
-    version: "3.8.1"
+    version: "3.8.2"
   - docset: mcu-bootloader
-    version: "2.5.1"
+    version: "2.5.2"
   - docset: openthread
-    version: "2.5.1"
+    version: "2.5.2"
   - docset: rail
-    version: "2.17.1"
+    version: "2.17.2"
   - docset: wifi/wf200/rtos
-    version: "4.0.1"
+    version: "3.5.0"
   - docset: wisun
-    version: "2.1.0"
+    version: "2.2.0"
   - docset: zigbee
-    version: "8.0.1"
+    version: "8.0.2"
   - docset: rtl-lib
-    version: "8.1.0"
+    version: "8.2.0"
   - docset: bluetooth
-    version: "8.1.0"
+    version: "8.2.0"
   - docset: protocol-usb
     version: "1.3.0"
   - docset: machine-learning
@@ -137,6 +137,7 @@ post_build_profile:
 compatible_sdk:
   - id: gecko_sdk
     versions:
+      "4.4.4": "4.4.4"
       "4.4.3": "4.4.3"
       "4.4.2": "4.4.2"
       "4.4.1": "4.4.1"

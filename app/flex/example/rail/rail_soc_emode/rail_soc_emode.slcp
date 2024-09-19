@@ -29,6 +29,7 @@ component:
   - id: radio_config_simple_rail_singlephy
   - id: app_log
   - id: app_assert
+  - id: sl_flex_rail_sleep
   - id: power_manager
   - id: sl_flex_rail_package_assistant
   - id: simple_rail_assistance

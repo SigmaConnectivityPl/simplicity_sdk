@@ -85,6 +85,13 @@ typedef struct {
 /// Soft-reset was forced to handle a security fault
 #define BOOTLOADER_RESET_REASON_TZ_FAULT      0x020Cu
 
+/// Insufficient slot space to re-create a new firmware
+#define BOOTLOADER_RESET_REASON_NO_SLOT_SPACE 0x020Du
+/// CRC mismatch of the newly re-constructed firmware
+#define BOOTLOADER_RESET_REASON_BADCRC        0x020Eu
+/// Re-creation of the new application using the DDFU library failed
+#define BOOTLOADER_RESET_REASON_DDFU_FAIL     0x020Fu
+
 /// Reset signature is valid
 #define BOOTLOADER_RESET_SIGNATURE_VALID      0xF00Fu
 /// Reset signature is invalid

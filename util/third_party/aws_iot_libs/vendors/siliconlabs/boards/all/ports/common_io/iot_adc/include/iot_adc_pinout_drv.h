@@ -41,7 +41,7 @@
 
 #include "sl_status.h"
 
-#include "em_core.h"
+#include "sl_core.h"
 #include "em_device.h"
 #include "em_gpio.h"
 

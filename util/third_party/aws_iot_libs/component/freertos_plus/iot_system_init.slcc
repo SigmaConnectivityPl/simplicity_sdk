@@ -6,6 +6,9 @@ description: FreeRTOS Plus Utilities - System Initialization
 
 package: amazon_platform
 quality: production
+metadata:
+  sbom:
+    reference: iot_sbom_lib_abstraction_common_io
 
 provides:
   - name: iot_system_init

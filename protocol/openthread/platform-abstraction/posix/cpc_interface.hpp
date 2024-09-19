@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief This file includes the implementation for the CPCd interface to radio (RCP).
  *******************************************************************************
@@ -28,8 +28,8 @@
  *
  ******************************************************************************/
 
-#include "vendor_interface.hpp"
 #include "platform-posix.h"
+#include "vendor_interface.hpp"
 
 #include "sl_cpc.h"
 
@@ -92,9 +92,7 @@ public:
      * @retval OT_ERROR_FAILED     Failed to initialize the interface.
      *
      */
-    otError Init(ReceiveFrameCallback aCallback,
-                 void *aCallbackContext,
-                 RxFrameBuffer &aFrameBuffer);
+    otError Init(ReceiveFrameCallback aCallback, void *aCallbackContext, RxFrameBuffer &aFrameBuffer);
 
     /**
      * This method deinitializes the interface to the RCP.
@@ -258,10 +256,10 @@ private:
     // 0x72 -> STATUS_RESET_SOFTWARE
     uint8_t mResetResponse[kResetCMDSize] = {0x80, 0x06, 0x00, 0x72};
 
-    const uint8_t       mId = SL_CPC_ENDPOINT_15_4;
-    typedef uint8_t     cpcError;
+    const uint8_t                mId = SL_CPC_ENDPOINT_15_4;
+    typedef uint8_t              cpcError;
     static volatile sig_atomic_t sCpcResetReq;
-    static bool sIsCpcInitialized;
+    static bool                  sIsCpcInitialized;
 
     otRcpInterfaceMetrics mInterfaceMetrics;
 

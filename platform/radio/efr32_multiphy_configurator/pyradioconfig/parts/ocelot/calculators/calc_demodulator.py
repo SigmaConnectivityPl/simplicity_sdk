@@ -90,7 +90,7 @@ class CALC_Demodulator_ocelot(ICalculator):
         self._addModelVariable(model, 'maximize_bwsel_range', bool, ModelVariableFormat.DECIMAL)
 
     def _add_demod_rate_variable(self, model):
-        self._addModelActual(model, 'demod_rate', int, ModelVariableFormat.DECIMAL)
+        self._addModelActual(model, 'demod_rate', float, ModelVariableFormat.DECIMAL)
 
     def _add_demod_select_variable(self, model):
         model.vars.demod_select.var_enum = CreateModelVariableEnum(
@@ -1171,7 +1171,7 @@ class CALC_Demodulator_ocelot(ICalculator):
     def calc_iq_rate_actual(self, model):
         demod_rate_actual = model.vars.demod_rate_actual.value
         dec2_actual = model.vars.dec2_actual.value
-        model.vars.iq_rate_actual.value = demod_rate_actual / dec2_actual
+        model.vars.iq_rate_actual.value = demod_rate_actual * dec2_actual
 
     def calc_digmixfreq_val(self,model):
         digmix_res = model.vars.digmix_res_actual.value
@@ -1235,7 +1235,7 @@ class CALC_Demodulator_ocelot(ICalculator):
         dec2_actual = model.vars.dec2_actual.value
         src2_actual = model.vars.src2_ratio_actual.value
 
-        demod_rate_actual = int(adc_freq_actual * src2_actual / (8 * dec0_actual * dec1_actual * dec2_actual))
+        demod_rate_actual = adc_freq_actual * src2_actual / (8 * dec0_actual * dec1_actual * dec2_actual)
 
         #Load local variables back into model variables
         model.vars.demod_rate_actual.value = demod_rate_actual

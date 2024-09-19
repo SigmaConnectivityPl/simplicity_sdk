@@ -45,7 +45,7 @@ bool sl_is_multi_channel_enabled(void);
  * Get the channel switching configuration.
  *
  * @param[out]   channelSwitchingCfg   Pointer to memory to store the switching config into.
- * 
+ *
  * @retval  OT_ERROR_NONE           Channel switching config was copied succesfully.
  * @retval  OT_ERROR_INVALID_ARGS   Argument passed was invalid.
  *

@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Dataset Ftd APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,28 +29,28 @@
  *
  ******************************************************************************/
 
-#include <openthread/dataset_ftd.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/dataset_ftd.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern otError OT_API_REAL_NAME(otDatasetCreateNewNetwork)(otInstance * aInstance,otOperationalDataset * aDataset);
-extern otError OT_API_REAL_NAME(otDatasetSetDelayTimerMinimal)(otInstance * aInstance,uint32_t aDelayTimerMinimal);
-extern uint32_t OT_API_REAL_NAME(otDatasetGetDelayTimerMinimal)(otInstance * aInstance);
+extern otError  OT_API_REAL_NAME(otDatasetCreateNewNetwork)(otInstance *aInstance, otOperationalDataset *aDataset);
+extern otError  OT_API_REAL_NAME(otDatasetSetDelayTimerMinimal)(otInstance *aInstance, uint32_t aDelayTimerMinimal);
+extern uint32_t OT_API_REAL_NAME(otDatasetGetDelayTimerMinimal)(otInstance *aInstance);
 
-otError OT_API_WRAPPER_NAME(otDatasetCreateNewNetwork)(otInstance * aInstance,otOperationalDataset * aDataset)
+otError OT_API_WRAPPER_NAME(otDatasetCreateNewNetwork)(otInstance *aInstance, otOperationalDataset *aDataset)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDatasetCreateNewNetwork)(aInstance, aDataset);
@@ -58,7 +58,7 @@ otError OT_API_WRAPPER_NAME(otDatasetCreateNewNetwork)(otInstance * aInstance,ot
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otDatasetSetDelayTimerMinimal)(otInstance * aInstance,uint32_t aDelayTimerMinimal)
+otError OT_API_WRAPPER_NAME(otDatasetSetDelayTimerMinimal)(otInstance *aInstance, uint32_t aDelayTimerMinimal)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otDatasetSetDelayTimerMinimal)(aInstance, aDelayTimerMinimal);
@@ -66,11 +66,10 @@ otError OT_API_WRAPPER_NAME(otDatasetSetDelayTimerMinimal)(otInstance * aInstanc
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otDatasetGetDelayTimerMinimal)(otInstance * aInstance)
+uint32_t OT_API_WRAPPER_NAME(otDatasetGetDelayTimerMinimal)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otDatasetGetDelayTimerMinimal)(aInstance);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
-

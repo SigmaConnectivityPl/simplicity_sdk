@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Link Metrics APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,32 +29,56 @@
  *
  ******************************************************************************/
 
-#include <openthread/link_metrics.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/link_metrics.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern bool OT_API_REAL_NAME(otLinkMetricsManagerIsEnabled)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otLinkMetricsConfigEnhAckProbing)(otInstance * aInstance,const otIp6Address * aDestination,otLinkMetricsEnhAckFlags aEnhAckFlags,const otLinkMetrics * aLinkMetricsFlags,otLinkMetricsMgmtResponseCallback aCallback,void * aCallbackContext,otLinkMetricsEnhAckProbingIeReportCallback aEnhAckCallback,void * aEnhAckCallbackContext);
-extern otError OT_API_REAL_NAME(otLinkMetricsConfigForwardTrackingSeries)(otInstance * aInstance,const otIp6Address * aDestination,uint8_t aSeriesId,otLinkMetricsSeriesFlags aSeriesFlags,const otLinkMetrics * aLinkMetricsFlags,otLinkMetricsMgmtResponseCallback aCallback,void * aCallbackContext);
-extern otError OT_API_REAL_NAME(otLinkMetricsManagerGetMetricsValueByExtAddr)(otInstance * aInstance,const otExtAddress * aExtAddress,otLinkMetricsValues * aLinkMetricsValues);
-extern otError OT_API_REAL_NAME(otLinkMetricsQuery)(otInstance * aInstance,const otIp6Address * aDestination,uint8_t aSeriesId,const otLinkMetrics * aLinkMetricsFlags,otLinkMetricsReportCallback aCallback,void * aCallbackContext);
-extern otError OT_API_REAL_NAME(otLinkMetricsSendLinkProbe)(otInstance * aInstance,const otIp6Address * aDestination,uint8_t aSeriesId,uint8_t aLength);
-extern void OT_API_REAL_NAME(otLinkMetricsManagerSetEnabled)(otInstance * aInstance,bool aEnable);
+extern bool    OT_API_REAL_NAME(otLinkMetricsManagerIsEnabled)(otInstance *aInstance);
+extern otError OT_API_REAL_NAME(otLinkMetricsConfigEnhAckProbing)(
+    otInstance                                *aInstance,
+    const otIp6Address                        *aDestination,
+    otLinkMetricsEnhAckFlags                   aEnhAckFlags,
+    const otLinkMetrics                       *aLinkMetricsFlags,
+    otLinkMetricsMgmtResponseCallback          aCallback,
+    void                                      *aCallbackContext,
+    otLinkMetricsEnhAckProbingIeReportCallback aEnhAckCallback,
+    void                                      *aEnhAckCallbackContext);
+extern otError OT_API_REAL_NAME(otLinkMetricsConfigForwardTrackingSeries)(otInstance              *aInstance,
+                                                                          const otIp6Address      *aDestination,
+                                                                          uint8_t                  aSeriesId,
+                                                                          otLinkMetricsSeriesFlags aSeriesFlags,
+                                                                          const otLinkMetrics     *aLinkMetricsFlags,
+                                                                          otLinkMetricsMgmtResponseCallback aCallback,
+                                                                          void *aCallbackContext);
+extern otError OT_API_REAL_NAME(otLinkMetricsManagerGetMetricsValueByExtAddr)(otInstance          *aInstance,
+                                                                              const otExtAddress  *aExtAddress,
+                                                                              otLinkMetricsValues *aLinkMetricsValues);
+extern otError OT_API_REAL_NAME(otLinkMetricsQuery)(otInstance                 *aInstance,
+                                                    const otIp6Address         *aDestination,
+                                                    uint8_t                     aSeriesId,
+                                                    const otLinkMetrics        *aLinkMetricsFlags,
+                                                    otLinkMetricsReportCallback aCallback,
+                                                    void                       *aCallbackContext);
+extern otError OT_API_REAL_NAME(otLinkMetricsSendLinkProbe)(otInstance         *aInstance,
+                                                            const otIp6Address *aDestination,
+                                                            uint8_t             aSeriesId,
+                                                            uint8_t             aLength);
+extern void    OT_API_REAL_NAME(otLinkMetricsManagerSetEnabled)(otInstance *aInstance, bool aEnable);
 
-bool OT_API_WRAPPER_NAME(otLinkMetricsManagerIsEnabled)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otLinkMetricsManagerIsEnabled)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otLinkMetricsManagerIsEnabled)(aInstance);
@@ -62,39 +86,78 @@ bool OT_API_WRAPPER_NAME(otLinkMetricsManagerIsEnabled)(otInstance * aInstance)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otLinkMetricsConfigEnhAckProbing)(otInstance * aInstance,const otIp6Address * aDestination,otLinkMetricsEnhAckFlags aEnhAckFlags,const otLinkMetrics * aLinkMetricsFlags,otLinkMetricsMgmtResponseCallback aCallback,void * aCallbackContext,otLinkMetricsEnhAckProbingIeReportCallback aEnhAckCallback,void * aEnhAckCallbackContext)
+otError OT_API_WRAPPER_NAME(otLinkMetricsConfigEnhAckProbing)(
+    otInstance                                *aInstance,
+    const otIp6Address                        *aDestination,
+    otLinkMetricsEnhAckFlags                   aEnhAckFlags,
+    const otLinkMetrics                       *aLinkMetricsFlags,
+    otLinkMetricsMgmtResponseCallback          aCallback,
+    void                                      *aCallbackContext,
+    otLinkMetricsEnhAckProbingIeReportCallback aEnhAckCallback,
+    void                                      *aEnhAckCallbackContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otLinkMetricsConfigEnhAckProbing)(aInstance, aDestination, aEnhAckFlags, aLinkMetricsFlags, aCallback, aCallbackContext, aEnhAckCallback, aEnhAckCallbackContext);
+    otError ret = OT_API_REAL_NAME(otLinkMetricsConfigEnhAckProbing)(aInstance,
+                                                                     aDestination,
+                                                                     aEnhAckFlags,
+                                                                     aLinkMetricsFlags,
+                                                                     aCallback,
+                                                                     aCallbackContext,
+                                                                     aEnhAckCallback,
+                                                                     aEnhAckCallbackContext);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otLinkMetricsConfigForwardTrackingSeries)(otInstance * aInstance,const otIp6Address * aDestination,uint8_t aSeriesId,otLinkMetricsSeriesFlags aSeriesFlags,const otLinkMetrics * aLinkMetricsFlags,otLinkMetricsMgmtResponseCallback aCallback,void * aCallbackContext)
+otError OT_API_WRAPPER_NAME(otLinkMetricsConfigForwardTrackingSeries)(otInstance              *aInstance,
+                                                                      const otIp6Address      *aDestination,
+                                                                      uint8_t                  aSeriesId,
+                                                                      otLinkMetricsSeriesFlags aSeriesFlags,
+                                                                      const otLinkMetrics     *aLinkMetricsFlags,
+                                                                      otLinkMetricsMgmtResponseCallback aCallback,
+                                                                      void *aCallbackContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otLinkMetricsConfigForwardTrackingSeries)(aInstance, aDestination, aSeriesId, aSeriesFlags, aLinkMetricsFlags, aCallback, aCallbackContext);
+    otError ret = OT_API_REAL_NAME(otLinkMetricsConfigForwardTrackingSeries)(aInstance,
+                                                                             aDestination,
+                                                                             aSeriesId,
+                                                                             aSeriesFlags,
+                                                                             aLinkMetricsFlags,
+                                                                             aCallback,
+                                                                             aCallbackContext);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otLinkMetricsManagerGetMetricsValueByExtAddr)(otInstance * aInstance,const otExtAddress * aExtAddress,otLinkMetricsValues * aLinkMetricsValues)
+otError OT_API_WRAPPER_NAME(otLinkMetricsManagerGetMetricsValueByExtAddr)(otInstance          *aInstance,
+                                                                          const otExtAddress  *aExtAddress,
+                                                                          otLinkMetricsValues *aLinkMetricsValues)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otLinkMetricsManagerGetMetricsValueByExtAddr)(aInstance, aExtAddress, aLinkMetricsValues);
+    otError ret =
+        OT_API_REAL_NAME(otLinkMetricsManagerGetMetricsValueByExtAddr)(aInstance, aExtAddress, aLinkMetricsValues);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otLinkMetricsQuery)(otInstance * aInstance,const otIp6Address * aDestination,uint8_t aSeriesId,const otLinkMetrics * aLinkMetricsFlags,otLinkMetricsReportCallback aCallback,void * aCallbackContext)
+otError OT_API_WRAPPER_NAME(otLinkMetricsQuery)(otInstance                 *aInstance,
+                                                const otIp6Address         *aDestination,
+                                                uint8_t                     aSeriesId,
+                                                const otLinkMetrics        *aLinkMetricsFlags,
+                                                otLinkMetricsReportCallback aCallback,
+                                                void                       *aCallbackContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otLinkMetricsQuery)(aInstance, aDestination, aSeriesId, aLinkMetricsFlags, aCallback, aCallbackContext);
+    otError ret = OT_API_REAL_NAME(
+        otLinkMetricsQuery)(aInstance, aDestination, aSeriesId, aLinkMetricsFlags, aCallback, aCallbackContext);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otLinkMetricsSendLinkProbe)(otInstance * aInstance,const otIp6Address * aDestination,uint8_t aSeriesId,uint8_t aLength)
+otError OT_API_WRAPPER_NAME(otLinkMetricsSendLinkProbe)(otInstance         *aInstance,
+                                                        const otIp6Address *aDestination,
+                                                        uint8_t             aSeriesId,
+                                                        uint8_t             aLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otLinkMetricsSendLinkProbe)(aInstance, aDestination, aSeriesId, aLength);
@@ -102,10 +165,9 @@ otError OT_API_WRAPPER_NAME(otLinkMetricsSendLinkProbe)(otInstance * aInstance,c
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otLinkMetricsManagerSetEnabled)(otInstance * aInstance,bool aEnable)
+void OT_API_WRAPPER_NAME(otLinkMetricsManagerSetEnabled)(otInstance *aInstance, bool aEnable)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otLinkMetricsManagerSetEnabled)(aInstance, aEnable);
     sl_ot_rtos_release_stack_mutex();
 }
-

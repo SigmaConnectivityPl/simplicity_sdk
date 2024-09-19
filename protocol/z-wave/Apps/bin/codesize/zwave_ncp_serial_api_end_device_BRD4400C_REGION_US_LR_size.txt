@@ -7,38 +7,38 @@ zwave_ncp_serial_api_end_device.out  :
 section                    size         addr
 .vectors                  0x17c    0x8006000
 .stack                   0x1000   0x20000000
-.bss                     0x930c   0x20001000
-text_application_ram      0x1ac   0x2000a30c
-.rodata                   0x248    0x8006328
-.text                   0x33cd0    0x8006570
-.ARM.exidx                  0x8    0x803a240
-.copy.table                 0xc    0x803a248
-.zero.table                 0x0    0x803a254
-.data                     0x3c4   0x2000a4b8
-.memory_manager_heap        0x4   0x2000a87c
-.zwave_nvm                  0x0    0x803a618
-.nvm                     0x8000    0x803a618
+.bss                     0x9320   0x20001000
+text_application_ram      0x1c0   0x2000a320
+.rodata                   0x258    0x800633c
+.text                   0x33da4    0x80065a0
+.ARM.exidx                  0x8    0x803a344
+.copy.table                 0xc    0x803a34c
+.zero.table                 0x0    0x803a358
+.data                     0x3c4   0x2000a4e0
+.memory_manager_heap        0x4   0x2000a8a4
+.zwave_nvm                  0x0    0x803a71c
+.nvm                     0x8000    0x803a71c
 .ARM.attributes            0x36          0x0
 .comment                   0x45          0x0
 .debug_line_str           0x29a          0x0
-.debug_frame            0x1181c          0x0
-.debug_info            0x41dfa5          0x0
-.debug_abbrev           0x23bfb          0x0
-.debug_loclists         0x2ba45          0x0
-.debug_aranges           0x6440          0x0
-.debug_rnglists          0x47d8          0x0
-.debug_line             0x73823          0x0
-.debug_str              0x96219          0x0
+.debug_frame            0x118c8          0x0
+.debug_info            0x41b0b8          0x0
+.debug_abbrev           0x23e93          0x0
+.debug_loclists         0x2bc92          0x0
+.debug_aranges           0x6478          0x0
+.debug_rnglists          0x4844          0x0
+.debug_line             0x73e86          0x0
+.debug_str              0x964d5          0x0
 .debug_loc              0x296dd          0x0
 .debug_ranges            0x48a8          0x0
-Total                  0x608017
+Total                  0x60618a
 
 The calculated FLASH and SRAM usage summary:
 ============================================
 FLASH used as program memory:  (Including only the sections: .text, .ARM.exidx, .data, _cc_handlers_v3)
-   214124
+   214352
 FLASH used for storage: (Including only the sections: .zwavenvm, .simee, .nvm, .zwave_nvm)
    32768
 SRAM usage:             (Including only the sections: .data, .bss, .heap (limited to 2048 per sl_memory_config.h), .stack_dummy, .reset_info)
-   43136
+   43176
 

@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Definitions for a spinel extension to support the efr32/platform API
  *******************************************************************************
@@ -29,9 +29,9 @@
  ******************************************************************************/
 
 #include "ncp_efr32.hpp"
-#include "vendor_spinel.hpp"
-#include "radio_extension.h"
 #include "radio_counters.h"
+#include "radio_extension.h"
+#include "vendor_spinel.hpp"
 
 #include "common/code_utils.hpp"
 
@@ -52,11 +52,11 @@ otError getEfr32Property(Spinel::Decoder &aDecoder, Spinel::Encoder &aEncoder)
 
     SuccessOrExit(aDecoder.ReadUint8(cmdKey));
 
-    switch(cmdKey)
+    switch (cmdKey)
     {
-        case Efr32Cmd::EFR32_RADIO_COUNTERS_COMMAND:
-            error = getRadioCounters(aEncoder);
-            break;
+    case Efr32Cmd::EFR32_RADIO_COUNTERS_COMMAND:
+        error = getRadioCounters(aEncoder);
+        break;
     }
 
 exit:
@@ -70,11 +70,11 @@ otError setEfr32Property(Spinel::Decoder &aDecoder)
 
     SuccessOrExit(aDecoder.ReadUint8(cmdKey));
 
-    switch(cmdKey)
+    switch (cmdKey)
     {
-        case Efr32Cmd::EFR32_RADIO_COUNTERS_COMMAND:
-            error = clearRadioCounters();
-            break;
+    case Efr32Cmd::EFR32_RADIO_COUNTERS_COMMAND:
+        error = clearRadioCounters();
+        break;
     }
 
 exit:
@@ -83,7 +83,7 @@ exit:
 
 otError getRadioCounters(Spinel::Encoder &aEncoder)
 {
-    otError error = OT_ERROR_NONE;
+    otError            error = OT_ERROR_NONE;
     efr32RadioCounters radioCounters;
 
     SuccessOrExit(error = otPlatRadioExtensionGetRadioCounters(&radioCounters));
@@ -101,4 +101,3 @@ otError clearRadioCounters(void)
 } // namespace Vendor
 } // namespace Ncp
 } // namespace ot
-

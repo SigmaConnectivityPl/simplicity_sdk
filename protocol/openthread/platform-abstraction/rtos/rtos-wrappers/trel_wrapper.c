@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Trel APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,34 +29,34 @@
  *
  ******************************************************************************/
 
-#include <openthread/trel.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/trel.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern bool OT_API_REAL_NAME(otTrelIsEnabled)(otInstance * aInstance);
-extern bool OT_API_REAL_NAME(otTrelIsFilterEnabled)(otInstance * aInstance);
-extern const otTrelCounters *OT_API_REAL_NAME(otTrelGetCounters)(otInstance * aInstance);
-extern const otTrelPeer *OT_API_REAL_NAME(otTrelGetNextPeer)(otInstance * aInstance,otTrelPeerIterator * aIterator);
-extern uint16_t OT_API_REAL_NAME(otTrelGetNumberOfPeers)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otTrelInitPeerIterator)(otInstance * aInstance,otTrelPeerIterator * aIterator);
-extern void OT_API_REAL_NAME(otTrelResetCounters)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otTrelSetEnabled)(otInstance * aInstance,bool aEnable);
-extern void OT_API_REAL_NAME(otTrelSetFilterEnabled)(otInstance * aInstance,bool aEnable);
+extern bool                  OT_API_REAL_NAME(otTrelIsEnabled)(otInstance *aInstance);
+extern bool                  OT_API_REAL_NAME(otTrelIsFilterEnabled)(otInstance *aInstance);
+extern const otTrelCounters *OT_API_REAL_NAME(otTrelGetCounters)(otInstance *aInstance);
+extern const otTrelPeer     *OT_API_REAL_NAME(otTrelGetNextPeer)(otInstance *aInstance, otTrelPeerIterator *aIterator);
+extern uint16_t              OT_API_REAL_NAME(otTrelGetNumberOfPeers)(otInstance *aInstance);
+extern void OT_API_REAL_NAME(otTrelInitPeerIterator)(otInstance *aInstance, otTrelPeerIterator *aIterator);
+extern void OT_API_REAL_NAME(otTrelResetCounters)(otInstance *aInstance);
+extern void OT_API_REAL_NAME(otTrelSetEnabled)(otInstance *aInstance, bool aEnable);
+extern void OT_API_REAL_NAME(otTrelSetFilterEnabled)(otInstance *aInstance, bool aEnable);
 
-bool OT_API_WRAPPER_NAME(otTrelIsEnabled)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otTrelIsEnabled)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otTrelIsEnabled)(aInstance);
@@ -64,7 +64,7 @@ bool OT_API_WRAPPER_NAME(otTrelIsEnabled)(otInstance * aInstance)
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otTrelIsFilterEnabled)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otTrelIsFilterEnabled)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otTrelIsFilterEnabled)(aInstance);
@@ -72,7 +72,7 @@ bool OT_API_WRAPPER_NAME(otTrelIsFilterEnabled)(otInstance * aInstance)
     return ret;
 }
 
-const otTrelCounters *OT_API_WRAPPER_NAME(otTrelGetCounters)(otInstance * aInstance)
+const otTrelCounters *OT_API_WRAPPER_NAME(otTrelGetCounters)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otTrelCounters *ret = OT_API_REAL_NAME(otTrelGetCounters)(aInstance);
@@ -80,7 +80,7 @@ const otTrelCounters *OT_API_WRAPPER_NAME(otTrelGetCounters)(otInstance * aInsta
     return ret;
 }
 
-const otTrelPeer *OT_API_WRAPPER_NAME(otTrelGetNextPeer)(otInstance * aInstance,otTrelPeerIterator * aIterator)
+const otTrelPeer *OT_API_WRAPPER_NAME(otTrelGetNextPeer)(otInstance *aInstance, otTrelPeerIterator *aIterator)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otTrelPeer *ret = OT_API_REAL_NAME(otTrelGetNextPeer)(aInstance, aIterator);
@@ -88,7 +88,7 @@ const otTrelPeer *OT_API_WRAPPER_NAME(otTrelGetNextPeer)(otInstance * aInstance,
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otTrelGetNumberOfPeers)(otInstance * aInstance)
+uint16_t OT_API_WRAPPER_NAME(otTrelGetNumberOfPeers)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otTrelGetNumberOfPeers)(aInstance);
@@ -96,31 +96,30 @@ uint16_t OT_API_WRAPPER_NAME(otTrelGetNumberOfPeers)(otInstance * aInstance)
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otTrelInitPeerIterator)(otInstance * aInstance,otTrelPeerIterator * aIterator)
+void OT_API_WRAPPER_NAME(otTrelInitPeerIterator)(otInstance *aInstance, otTrelPeerIterator *aIterator)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otTrelInitPeerIterator)(aInstance, aIterator);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otTrelResetCounters)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otTrelResetCounters)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otTrelResetCounters)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otTrelSetEnabled)(otInstance * aInstance,bool aEnable)
+void OT_API_WRAPPER_NAME(otTrelSetEnabled)(otInstance *aInstance, bool aEnable)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otTrelSetEnabled)(aInstance, aEnable);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otTrelSetFilterEnabled)(otInstance * aInstance,bool aEnable)
+void OT_API_WRAPPER_NAME(otTrelSetFilterEnabled)(otInstance *aInstance, bool aEnable)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otTrelSetFilterEnabled)(aInstance, aEnable);
     sl_ot_rtos_release_stack_mutex();
 }
-

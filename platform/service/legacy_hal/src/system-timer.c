@@ -14,20 +14,25 @@
  * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
-#include <sys/time.h>
+// _POSIX_C_SOURCE >= 199309L for clock_gettime with CLOCK_MONOTONIC clockId
+// Link with -lrt (only for glibc versions before 2.17).
+#define _POSIX_C_SOURCE 200809L
+#include <time.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+
+#include <assert.h>
 
 bool halUseRealtime = false; // needed in ncp-common
 
 uint32_t halCommonGetInt32uMillisecondTick(void)
 {
-  struct timeval tv;
-  uint32_t now;
-
-  gettimeofday(&tv, NULL);
-  now = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+  // Get monotonic time and derive the milliseconds tick.
+  struct timespec ts;
+  // Assert the call for success(0)
+  assert(0 == clock_gettime(CLOCK_MONOTONIC, &ts));
+  uint32_t now = (uint32_t)((ts.tv_sec * 1000) + (ts.tv_nsec / 1000000));
   return now;
 }
 

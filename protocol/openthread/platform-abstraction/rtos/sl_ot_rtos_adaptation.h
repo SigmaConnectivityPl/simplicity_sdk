@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief CMSIS RTOS2 adaptation for running OpenThread in RTOS
  *******************************************************************************
@@ -46,24 +46,24 @@ typedef enum sl_ot_rtos_event_t
  * Calling this API results in stack and CLI tasks being created. CLI
  * task creation is controlled by the config item @p SL_OPENTHREAD_ENABLE_CLI_TASK.
  * This is enabled by default.
- * 
+ *
  */
 void sl_ot_rtos_stack_init(void);
 
 /**
  * API to initialize RTOS App task.
  *
- * Calling this API results in app task being created. based on the config item 
+ * Calling this API results in app task being created. based on the config item
  * @p SL_OPENTHREAD_ENABLE_APP_TASK.
- * 
+ *
  * This is enabled by default.
- * 
+ *
  */
 void sl_ot_rtos_app_init(void);
 
 /**
  * Pend an event to a task based on the event received.
- * 
+ *
  * Based on the event received as input pend one of the tasks for operation
  *
  * @param[in]   event    Type of event received, can take the values indicated in @p sl_ot_rtos_event_t
@@ -77,37 +77,37 @@ void sl_ot_rtos_set_pending_event(sl_ot_rtos_event_t event);
 void sl_ot_rtos_application_tick(void);
 
 /**
- * Mutex handler, API to obtain access to the stack. 
- * 
+ * Mutex handler, API to obtain access to the stack.
+ *
  * A weak implementation is provided, user can implement their own mutex handlers.
- * 
+ *
  */
 void sl_ot_rtos_acquire_stack_mutex(void);
 
 /**
- * Mutex handler, API to relinquish access to the stack. 
- * 
+ * Mutex handler, API to relinquish access to the stack.
+ *
  * A weak implementation is provided, user can implement their own mutex handlers.
- * 
+ *
  */
 void sl_ot_rtos_release_stack_mutex(void);
 
 /**
- * Mutex handler, API to try to obtain access to the stack. 
- * 
+ * Mutex handler, API to try to obtain access to the stack.
+ *
  * Return true if access granted, false otherwise.
- * 
+ *
  * A weak implementation is provided, user can implement their own mutex handlers.
- * 
+ *
  */
 bool sl_ot_rtos_try_acquire_stack_mutex(void);
 
 /**
- * Return if the current thread can access the PAL APIs. 
- * 
+ * Return if the current thread can access the PAL APIs.
+ *
  * @retval  True    Current thread can access the PAL APIs.
  * @retval  False   Current thread cannot access the PAL APIs.
- * 
+ *
  */
 bool sl_ot_rtos_task_can_access_pal(void);
 

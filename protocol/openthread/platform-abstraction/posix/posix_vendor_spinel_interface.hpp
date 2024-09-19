@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief This file contains definitions for functions to interact with the
  *        posix spinel interface to build vendor specific spinel frames.
@@ -32,8 +32,8 @@
 #ifndef _POSIX_VENDOR_SPINEL_INTERFACE_HPP
 #define _POSIX_VENDOR_SPINEL_INTERFACE_HPP
 
-#include <openthread/error.h>
 #include <cstdint>
+#include <openthread/error.h>
 
 #include "radio_counters.h"
 
@@ -47,7 +47,7 @@ otError setTxAntennaMode(uint8_t aMode);
 otError getRxAntennaMode(uint8_t &aMode);
 otError setRxAntennaMode(uint8_t aMode);
 otError getActivePhy(uint8_t &aActivePhy);
-}
+} // namespace Antenna
 
 namespace Coex {
 otError getDpState(uint8_t &dpPulse);
@@ -67,17 +67,17 @@ otError setRequestPwmArgs(uint8_t pwmReq, uint8_t pwmDutyCycle, uint8_t pwmPerio
 otError clearCoexCounters();
 otError getCoexCounters(uint32_t coexCounters[]);
 otError setRadioHoldoff(bool enabled);
-}
+} // namespace Coex
 
 namespace Test {
 otError getPtiRadioConfig(uint16_t &aRadioConfig);
 otError setCcaMode(uint8_t aMode);
-}
+} // namespace Test
 
 namespace Efr32 {
 otError getRadioCounters(efr32RadioCounters &aCounters);
 otError clearRadioCounters(void);
-}
+} // namespace Efr32
 
 } // namespace Vendor
 } // namespace Spinel

@@ -621,17 +621,24 @@ void getVdet(sl_cli_command_arg_t *args)
 
   if (status == RAIL_STATUS_INVALID_STATE) {
     responsePrintError(sl_cli_get_command_string(args, 0), RAIL_STATUS_INVALID_STATE,
-                       "VDET not initialized, measurement has not occurred since last reading/VDET was cancelled due to AuxADC contention, or VDET was aborted due to short packet.");
+                       "VDET not initialized, measurement has not occurred since last reading, VDET was aborted due to short packet, or bad AuxADC value.");
     return;
   } else if (status == RAIL_STATUS_INVALID_CALL) {
     responsePrintError(sl_cli_get_command_string(args, 0), RAIL_STATUS_INVALID_CALL,
                        "VDET is in progress, wait until VDET capture is complete and try again.");
     return;
+  } else if (status == RAIL_STATUS_INVALID_PARAMETER) {
+    responsePrintError(sl_cli_get_command_string(args, 0), RAIL_STATUS_INVALID_PARAMETER,
+                       "When using IMMEDIATE, send `enablevdet 1` before each call to `getvdet`.");
+  } else if (status == RAIL_STATUS_SUSPENDED) {
+    responsePrintStart(sl_cli_get_command_string(args, 0));
+    responsePrintEnd("Status:%s",
+                     "Blocked due to AuxADC contention");
+  } else {
+    responsePrintStart(sl_cli_get_command_string(args, 0));
+    responsePrintEnd("VDET(mV):%d",
+                     vdetMv);
   }
-  responsePrintStart(sl_cli_get_command_string(args, 0));
-  responsePrintEnd("VDET(mV):%d",
-                   vdetMv
-                   );
 #else
   responsePrintError(sl_cli_get_command_string(args, 0), 0xFF, "Feature not supported in this target.");
 #endif // RAIL_SUPPORTS_VDET

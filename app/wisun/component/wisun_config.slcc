@@ -49,6 +49,10 @@ config_file:
 - path: config/NA_1_1b/wisun_settings.wisunconf
   directory: wisun
   condition:
+    - brd4276a
+- path: config/NA_1_1b/wisun_settings.wisunconf
+  directory: wisun
+  condition:
     - brd4400a
 - path: config/NA_1_1b/wisun_settings.wisunconf
   directory: wisun

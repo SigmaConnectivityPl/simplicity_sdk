@@ -6,7 +6,9 @@ description: FreeRTOS Plus Crypto Tools.
 
 package: amazon_platform
 quality: production
-
+metadata:
+  sbom:
+    license: Zlib
 provides:
   - name: iot_crypto
   - name: mbedtls_platform_dynamic_memory_allocation_config
@@ -14,6 +16,7 @@ provides:
 
 requires:
   - name: core_pkcs11
+  - name: iot_sbom_lib_abstraction_common_io
 
 root_path: util/third_party/aws_iot_libs
 

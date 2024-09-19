@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Tcp APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,46 +29,52 @@
  *
  ******************************************************************************/
 
-#include <openthread/tcp.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/tcp.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern const otSockAddr *OT_API_REAL_NAME(otTcpGetLocalAddress)(const otTcpEndpoint * aEndpoint);
-extern const otSockAddr *OT_API_REAL_NAME(otTcpGetPeerAddress)(const otTcpEndpoint * aEndpoint);
-extern otError OT_API_REAL_NAME(otTcpAbort)(otTcpEndpoint * aEndpoint);
-extern otError OT_API_REAL_NAME(otTcpBind)(otTcpEndpoint * aEndpoint,const otSockAddr * aSockName);
-extern otError OT_API_REAL_NAME(otTcpCommitReceive)(otTcpEndpoint * aEndpoint,size_t aNumBytes,uint32_t aFlags);
-extern otError OT_API_REAL_NAME(otTcpConnect)(otTcpEndpoint * aEndpoint,const otSockAddr * aSockName,uint32_t aFlags);
-extern otError OT_API_REAL_NAME(otTcpEndpointDeinitialize)(otTcpEndpoint * aEndpoint);
-extern otError OT_API_REAL_NAME(otTcpEndpointInitialize)(otInstance * aInstance,otTcpEndpoint * aEndpoint,const otTcpEndpointInitializeArgs * aArgs);
-extern otError OT_API_REAL_NAME(otTcpListen)(otTcpListener * aListener,const otSockAddr * aSockName);
-extern otError OT_API_REAL_NAME(otTcpListenerDeinitialize)(otTcpListener * aListener);
-extern otError OT_API_REAL_NAME(otTcpListenerInitialize)(otInstance * aInstance,otTcpListener * aListener,const otTcpListenerInitializeArgs * aArgs);
-extern otError OT_API_REAL_NAME(otTcpReceiveByReference)(otTcpEndpoint * aEndpoint,const otLinkedBuffer ** aBuffer);
-extern otError OT_API_REAL_NAME(otTcpReceiveContiguify)(otTcpEndpoint * aEndpoint);
-extern otError OT_API_REAL_NAME(otTcpSendByExtension)(otTcpEndpoint * aEndpoint,size_t aNumBytes,uint32_t aFlags);
-extern otError OT_API_REAL_NAME(otTcpSendByReference)(otTcpEndpoint * aEndpoint,otLinkedBuffer * aBuffer,uint32_t aFlags);
-extern otError OT_API_REAL_NAME(otTcpSendEndOfStream)(otTcpEndpoint * aEndpoint);
-extern otError OT_API_REAL_NAME(otTcpStopListening)(otTcpListener * aListener);
-extern otInstance *OT_API_REAL_NAME(otTcpEndpointGetInstance)(otTcpEndpoint * aEndpoint);
-extern otInstance *OT_API_REAL_NAME(otTcpListenerGetInstance)(otTcpListener * aListener);
-extern void *OT_API_REAL_NAME(otTcpEndpointGetContext)(otTcpEndpoint * aEndpoint);
-extern void *OT_API_REAL_NAME(otTcpListenerGetContext)(otTcpListener * aListener);
+extern const otSockAddr *OT_API_REAL_NAME(otTcpGetLocalAddress)(const otTcpEndpoint *aEndpoint);
+extern const otSockAddr *OT_API_REAL_NAME(otTcpGetPeerAddress)(const otTcpEndpoint *aEndpoint);
+extern otError           OT_API_REAL_NAME(otTcpAbort)(otTcpEndpoint *aEndpoint);
+extern otError           OT_API_REAL_NAME(otTcpBind)(otTcpEndpoint *aEndpoint, const otSockAddr *aSockName);
+extern otError OT_API_REAL_NAME(otTcpCommitReceive)(otTcpEndpoint *aEndpoint, size_t aNumBytes, uint32_t aFlags);
+extern otError OT_API_REAL_NAME(otTcpConnect)(otTcpEndpoint *aEndpoint, const otSockAddr *aSockName, uint32_t aFlags);
+extern otError OT_API_REAL_NAME(otTcpEndpointDeinitialize)(otTcpEndpoint *aEndpoint);
+extern otError OT_API_REAL_NAME(otTcpEndpointInitialize)(otInstance                        *aInstance,
+                                                         otTcpEndpoint                     *aEndpoint,
+                                                         const otTcpEndpointInitializeArgs *aArgs);
+extern otError OT_API_REAL_NAME(otTcpListen)(otTcpListener *aListener, const otSockAddr *aSockName);
+extern otError OT_API_REAL_NAME(otTcpListenerDeinitialize)(otTcpListener *aListener);
+extern otError OT_API_REAL_NAME(otTcpListenerInitialize)(otInstance                        *aInstance,
+                                                         otTcpListener                     *aListener,
+                                                         const otTcpListenerInitializeArgs *aArgs);
+extern otError OT_API_REAL_NAME(otTcpReceiveByReference)(otTcpEndpoint *aEndpoint, const otLinkedBuffer **aBuffer);
+extern otError OT_API_REAL_NAME(otTcpReceiveContiguify)(otTcpEndpoint *aEndpoint);
+extern otError OT_API_REAL_NAME(otTcpSendByExtension)(otTcpEndpoint *aEndpoint, size_t aNumBytes, uint32_t aFlags);
+extern otError OT_API_REAL_NAME(otTcpSendByReference)(otTcpEndpoint  *aEndpoint,
+                                                      otLinkedBuffer *aBuffer,
+                                                      uint32_t        aFlags);
+extern otError OT_API_REAL_NAME(otTcpSendEndOfStream)(otTcpEndpoint *aEndpoint);
+extern otError OT_API_REAL_NAME(otTcpStopListening)(otTcpListener *aListener);
+extern otInstance *OT_API_REAL_NAME(otTcpEndpointGetInstance)(otTcpEndpoint *aEndpoint);
+extern otInstance *OT_API_REAL_NAME(otTcpListenerGetInstance)(otTcpListener *aListener);
+extern void       *OT_API_REAL_NAME(otTcpEndpointGetContext)(otTcpEndpoint *aEndpoint);
+extern void       *OT_API_REAL_NAME(otTcpListenerGetContext)(otTcpListener *aListener);
 
-const otSockAddr *OT_API_WRAPPER_NAME(otTcpGetLocalAddress)(const otTcpEndpoint * aEndpoint)
+const otSockAddr *OT_API_WRAPPER_NAME(otTcpGetLocalAddress)(const otTcpEndpoint *aEndpoint)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otSockAddr *ret = OT_API_REAL_NAME(otTcpGetLocalAddress)(aEndpoint);
@@ -76,7 +82,7 @@ const otSockAddr *OT_API_WRAPPER_NAME(otTcpGetLocalAddress)(const otTcpEndpoint 
     return ret;
 }
 
-const otSockAddr *OT_API_WRAPPER_NAME(otTcpGetPeerAddress)(const otTcpEndpoint * aEndpoint)
+const otSockAddr *OT_API_WRAPPER_NAME(otTcpGetPeerAddress)(const otTcpEndpoint *aEndpoint)
 {
     sl_ot_rtos_acquire_stack_mutex();
     const otSockAddr *ret = OT_API_REAL_NAME(otTcpGetPeerAddress)(aEndpoint);
@@ -84,7 +90,7 @@ const otSockAddr *OT_API_WRAPPER_NAME(otTcpGetPeerAddress)(const otTcpEndpoint *
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otTcpAbort)(otTcpEndpoint * aEndpoint)
+otError OT_API_WRAPPER_NAME(otTcpAbort)(otTcpEndpoint *aEndpoint)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otTcpAbort)(aEndpoint);
@@ -92,7 +98,7 @@ otError OT_API_WRAPPER_NAME(otTcpAbort)(otTcpEndpoint * aEndpoint)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otTcpBind)(otTcpEndpoint * aEndpoint,const otSockAddr * aSockName)
+otError OT_API_WRAPPER_NAME(otTcpBind)(otTcpEndpoint *aEndpoint, const otSockAddr *aSockName)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otTcpBind)(aEndpoint, aSockName);
@@ -100,7 +106,7 @@ otError OT_API_WRAPPER_NAME(otTcpBind)(otTcpEndpoint * aEndpoint,const otSockAdd
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otTcpCommitReceive)(otTcpEndpoint * aEndpoint,size_t aNumBytes,uint32_t aFlags)
+otError OT_API_WRAPPER_NAME(otTcpCommitReceive)(otTcpEndpoint *aEndpoint, size_t aNumBytes, uint32_t aFlags)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otTcpCommitReceive)(aEndpoint, aNumBytes, aFlags);
@@ -108,7 +114,7 @@ otError OT_API_WRAPPER_NAME(otTcpCommitReceive)(otTcpEndpoint * aEndpoint,size_t
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otTcpConnect)(otTcpEndpoint * aEndpoint,const otSockAddr * aSockName,uint32_t aFlags)
+otError OT_API_WRAPPER_NAME(otTcpConnect)(otTcpEndpoint *aEndpoint, const otSockAddr *aSockName, uint32_t aFlags)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otTcpConnect)(aEndpoint, aSockName, aFlags);
@@ -116,7 +122,7 @@ otError OT_API_WRAPPER_NAME(otTcpConnect)(otTcpEndpoint * aEndpoint,const otSock
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otTcpEndpointDeinitialize)(otTcpEndpoint * aEndpoint)
+otError OT_API_WRAPPER_NAME(otTcpEndpointDeinitialize)(otTcpEndpoint *aEndpoint)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otTcpEndpointDeinitialize)(aEndpoint);
@@ -124,7 +130,9 @@ otError OT_API_WRAPPER_NAME(otTcpEndpointDeinitialize)(otTcpEndpoint * aEndpoint
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otTcpEndpointInitialize)(otInstance * aInstance,otTcpEndpoint * aEndpoint,const otTcpEndpointInitializeArgs * aArgs)
+otError OT_API_WRAPPER_NAME(otTcpEndpointInitialize)(otInstance                        *aInstance,
+                                                     otTcpEndpoint                     *aEndpoint,
+                                                     const otTcpEndpointInitializeArgs *aArgs)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otTcpEndpointInitialize)(aInstance, aEndpoint, aArgs);
@@ -132,7 +140,7 @@ otError OT_API_WRAPPER_NAME(otTcpEndpointInitialize)(otInstance * aInstance,otTc
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otTcpListen)(otTcpListener * aListener,const otSockAddr * aSockName)
+otError OT_API_WRAPPER_NAME(otTcpListen)(otTcpListener *aListener, const otSockAddr *aSockName)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otTcpListen)(aListener, aSockName);
@@ -140,7 +148,7 @@ otError OT_API_WRAPPER_NAME(otTcpListen)(otTcpListener * aListener,const otSockA
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otTcpListenerDeinitialize)(otTcpListener * aListener)
+otError OT_API_WRAPPER_NAME(otTcpListenerDeinitialize)(otTcpListener *aListener)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otTcpListenerDeinitialize)(aListener);
@@ -148,7 +156,9 @@ otError OT_API_WRAPPER_NAME(otTcpListenerDeinitialize)(otTcpListener * aListener
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otTcpListenerInitialize)(otInstance * aInstance,otTcpListener * aListener,const otTcpListenerInitializeArgs * aArgs)
+otError OT_API_WRAPPER_NAME(otTcpListenerInitialize)(otInstance                        *aInstance,
+                                                     otTcpListener                     *aListener,
+                                                     const otTcpListenerInitializeArgs *aArgs)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otTcpListenerInitialize)(aInstance, aListener, aArgs);
@@ -156,7 +166,7 @@ otError OT_API_WRAPPER_NAME(otTcpListenerInitialize)(otInstance * aInstance,otTc
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otTcpReceiveByReference)(otTcpEndpoint * aEndpoint,const otLinkedBuffer ** aBuffer)
+otError OT_API_WRAPPER_NAME(otTcpReceiveByReference)(otTcpEndpoint *aEndpoint, const otLinkedBuffer **aBuffer)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otTcpReceiveByReference)(aEndpoint, aBuffer);
@@ -164,7 +174,7 @@ otError OT_API_WRAPPER_NAME(otTcpReceiveByReference)(otTcpEndpoint * aEndpoint,c
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otTcpReceiveContiguify)(otTcpEndpoint * aEndpoint)
+otError OT_API_WRAPPER_NAME(otTcpReceiveContiguify)(otTcpEndpoint *aEndpoint)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otTcpReceiveContiguify)(aEndpoint);
@@ -172,7 +182,7 @@ otError OT_API_WRAPPER_NAME(otTcpReceiveContiguify)(otTcpEndpoint * aEndpoint)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otTcpSendByExtension)(otTcpEndpoint * aEndpoint,size_t aNumBytes,uint32_t aFlags)
+otError OT_API_WRAPPER_NAME(otTcpSendByExtension)(otTcpEndpoint *aEndpoint, size_t aNumBytes, uint32_t aFlags)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otTcpSendByExtension)(aEndpoint, aNumBytes, aFlags);
@@ -180,7 +190,7 @@ otError OT_API_WRAPPER_NAME(otTcpSendByExtension)(otTcpEndpoint * aEndpoint,size
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otTcpSendByReference)(otTcpEndpoint * aEndpoint,otLinkedBuffer * aBuffer,uint32_t aFlags)
+otError OT_API_WRAPPER_NAME(otTcpSendByReference)(otTcpEndpoint *aEndpoint, otLinkedBuffer *aBuffer, uint32_t aFlags)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otTcpSendByReference)(aEndpoint, aBuffer, aFlags);
@@ -188,7 +198,7 @@ otError OT_API_WRAPPER_NAME(otTcpSendByReference)(otTcpEndpoint * aEndpoint,otLi
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otTcpSendEndOfStream)(otTcpEndpoint * aEndpoint)
+otError OT_API_WRAPPER_NAME(otTcpSendEndOfStream)(otTcpEndpoint *aEndpoint)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otTcpSendEndOfStream)(aEndpoint);
@@ -196,7 +206,7 @@ otError OT_API_WRAPPER_NAME(otTcpSendEndOfStream)(otTcpEndpoint * aEndpoint)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otTcpStopListening)(otTcpListener * aListener)
+otError OT_API_WRAPPER_NAME(otTcpStopListening)(otTcpListener *aListener)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otTcpStopListening)(aListener);
@@ -204,7 +214,7 @@ otError OT_API_WRAPPER_NAME(otTcpStopListening)(otTcpListener * aListener)
     return ret;
 }
 
-otInstance *OT_API_WRAPPER_NAME(otTcpEndpointGetInstance)(otTcpEndpoint * aEndpoint)
+otInstance *OT_API_WRAPPER_NAME(otTcpEndpointGetInstance)(otTcpEndpoint *aEndpoint)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otInstance *ret = OT_API_REAL_NAME(otTcpEndpointGetInstance)(aEndpoint);
@@ -212,7 +222,7 @@ otInstance *OT_API_WRAPPER_NAME(otTcpEndpointGetInstance)(otTcpEndpoint * aEndpo
     return ret;
 }
 
-otInstance *OT_API_WRAPPER_NAME(otTcpListenerGetInstance)(otTcpListener * aListener)
+otInstance *OT_API_WRAPPER_NAME(otTcpListenerGetInstance)(otTcpListener *aListener)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otInstance *ret = OT_API_REAL_NAME(otTcpListenerGetInstance)(aListener);
@@ -220,7 +230,7 @@ otInstance *OT_API_WRAPPER_NAME(otTcpListenerGetInstance)(otTcpListener * aListe
     return ret;
 }
 
-void *OT_API_WRAPPER_NAME(otTcpEndpointGetContext)(otTcpEndpoint * aEndpoint)
+void *OT_API_WRAPPER_NAME(otTcpEndpointGetContext)(otTcpEndpoint *aEndpoint)
 {
     sl_ot_rtos_acquire_stack_mutex();
     void *ret = OT_API_REAL_NAME(otTcpEndpointGetContext)(aEndpoint);
@@ -228,11 +238,10 @@ void *OT_API_WRAPPER_NAME(otTcpEndpointGetContext)(otTcpEndpoint * aEndpoint)
     return ret;
 }
 
-void *OT_API_WRAPPER_NAME(otTcpListenerGetContext)(otTcpListener * aListener)
+void *OT_API_WRAPPER_NAME(otTcpListenerGetContext)(otTcpListener *aListener)
 {
     sl_ot_rtos_acquire_stack_mutex();
     void *ret = OT_API_REAL_NAME(otTcpListenerGetContext)(aListener);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
-

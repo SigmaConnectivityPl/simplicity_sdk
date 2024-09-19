@@ -39,7 +39,7 @@
  *                               INCLUDES
  ******************************************************************************/
 
-#include "em_core.h"
+#include "sl_core.h"
 #include "em_device.h"
 
 #include "sl_status.h"

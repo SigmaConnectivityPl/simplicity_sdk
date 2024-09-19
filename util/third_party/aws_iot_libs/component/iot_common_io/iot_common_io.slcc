@@ -6,6 +6,9 @@ description: >
   Doc: https://docs.aws.amazon.com/freertos/latest/lib-ref/common-io/files.html
 package: amazon_platform
 quality: production
+metadata:
+  sbom:
+    license: MSLA
 ui_hints:
   visibility: never
 root_path: util/third_party/aws_iot_libs

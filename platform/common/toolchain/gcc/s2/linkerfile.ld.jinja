@@ -37,6 +37,11 @@
 {%- set flash_size = device_flash_size | first %}
 {%- set flash_page_size = device_flash_page_size | first %}
 {%- set bootloader_reset_cause_size = 4 %}
+{%- if linker_mpu is defined %}
+  {%- set ram_code_alignment = 32 %}
+{%- else %}
+  {%- set ram_code_alignment = 4 %}
+{%- endif %}
 
 {%- if bootloader_enable %}
   {%- if memory_flash_start is defined %}
@@ -189,19 +194,19 @@ SECTIONS
     __bss_start__ = .;
     *(SORT_BY_ALIGNMENT(.bss*))
     *(COMMON)
-    . = ALIGN(4);
+    . = ALIGN({{ram_code_alignment}});
     __bss_end__ = .;
   } > RAM
 
   text_application_ram :
   {
-    . = ALIGN(4);
+    . = ALIGN({{ram_code_alignment}});
     __vma_ramfuncs_start__ = .;
     __text_application_ram_start__ = .;
 
     *(text_application_ram)
 
-    . = ALIGN(4);
+    . = ALIGN({{ram_code_alignment}});
     __vma_ramfuncs_end__ = .;
     __text_application_ram_end__ = .;
   } > RAM AT > FLASH

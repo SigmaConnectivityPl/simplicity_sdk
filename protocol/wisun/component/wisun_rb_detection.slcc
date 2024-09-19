@@ -29,6 +29,10 @@ template_contribution:
     condition:
     - "brd4272a"
   - name: component_catalog
+    value: "BRD4276A"
+    condition:
+    - "brd4276a"
+  - name: component_catalog
     value: "BRD4400A"
     condition:
     - "brd4400a"

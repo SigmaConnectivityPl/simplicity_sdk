@@ -21,7 +21,9 @@
 
 #include "gbl/btl_gbl_format.h"
 
+#ifdef BOOTLOADER_SUPPORT_STORAGE
 #include "storage/btl_storage.h"
+#endif
 
 #include <string.h>
 

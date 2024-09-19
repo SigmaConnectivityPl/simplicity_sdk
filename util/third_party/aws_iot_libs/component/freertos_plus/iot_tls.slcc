@@ -6,6 +6,16 @@ description: FreeRTOS Plus TLS Layer.
 
 package: amazon_platform
 quality: production
+metadata:
+  sbom:
+    license: MIT
+    upstream:
+      name: FreeRTOS TLS
+      version: 1.3.1
+      supplier: aws
+      url: https://github.com/aws/amazon-freertos
+      package_url: https://github.com/aws/amazon-freertos/tree/c3d4a48
+      comment: amazon-freertos 202012.00 pkg
 
 provides:
   - name: iot_tls
@@ -14,6 +24,8 @@ requires:
   - name: freertos_tcpip
   - name: iot_lib_init
   - name: iot_crypto
+  - name: iot_platform_secure_sockets
+  - name: iot_transport_secure_sockets
 
 root_path: util/third_party/aws_iot_libs
 
@@ -21,10 +33,6 @@ source:
   - path: libraries/freertos_plus/standard/tls/src/iot_tls.c
   - path: libraries/freertos_plus/standard/tls/test/iot_test_tls.c
     condition: ["aws_tests_defs"]
-  - path: libraries/abstractions/secure_sockets/freertos_plus_tcp/iot_secure_sockets.c
-  - path: libraries/abstractions/secure_sockets/test/iot_test_tcp.c
-    condition: ["aws_tests_defs"]
-  - path: libraries/abstractions/transport/secure_sockets/transport_secure_sockets.c
 
 include:
   - path: libraries/freertos_plus/standard/tls/include
@@ -34,16 +42,8 @@ include:
     file_list:
       - path: iot_test_tls.h
     condition: ["aws_tests_defs"]
-  - path: libraries/abstractions/secure_sockets/include
-    file_list:
-      - path: iot_secure_sockets_config_defaults.h
-      - path: iot_secure_sockets.h
-      - path: iot_secure_sockets_wrapper_metrics.h
   - path: tests/include
     file_list:
       - path: aws_test_runner.h
       - path: aws_test_utils.h
     condition: ["aws_tests_defs"]
-  - path: libraries/abstractions/transport/secure_sockets
-    file_list:
-      - path: transport_secure_sockets.h

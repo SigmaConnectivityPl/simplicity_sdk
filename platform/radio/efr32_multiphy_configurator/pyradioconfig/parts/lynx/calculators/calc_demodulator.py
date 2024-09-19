@@ -133,7 +133,7 @@ class CALC_Demodulator_lynx(CALC_Demodulator_panther):
         return alpha
 
     def _add_demod_rate_variable(self, model):
-        self._addModelActual(model, 'demod_rate', int, ModelVariableFormat.DECIMAL)
+        self._addModelActual(model, 'demod_rate', float, ModelVariableFormat.DECIMAL)
 
     def calc_fxo_or_fdec8(self, model):
         # We can not use rx_synth_freq_actual in these calculations due to circular dependency
@@ -282,7 +282,7 @@ class CALC_Demodulator_lynx(CALC_Demodulator_panther):
         src1_actual = model.vars.src1_ratio_actual.value
         src2_actual = model.vars.src2_ratio_actual.value
 
-        demod_rate_actual = int(adc_freq_actual * src1_actual * src2_actual / (8 * dec0_actual * dec1_actual * dec2_actual))
+        demod_rate_actual = adc_freq_actual * src1_actual * src2_actual / (8 * dec0_actual * dec1_actual * dec2_actual)
 
         #Load local variables back into model variables
         model.vars.demod_rate_actual.value = demod_rate_actual

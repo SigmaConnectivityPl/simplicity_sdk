@@ -13,6 +13,7 @@ component:
   - id: "wisun_stack_debug"
   - id: "wisun_stack_lfn"
   - id: "wisun_full_radioconf"
+  - id: "wisun_keychain"
   - id: "wisun_silabs_certificates"
   - id: "wisun_default_phy"
   - id: "wisun_configuration"

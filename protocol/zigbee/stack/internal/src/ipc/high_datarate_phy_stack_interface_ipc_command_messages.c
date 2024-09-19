@@ -38,6 +38,13 @@ void sli_mac_stack_send_raw_high_datarate_phy_message_process_ipc_command(sli_zi
                                                                                                                   msg->data.send_raw_high_datarate_phy_message.request.payload);
 }
 
+void sli_mac_stack_send_raw_high_datarate_phy_scheduled_message_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
+{
+  msg->data.send_raw_high_datarate_phy_scheduled_message.response.result = sli_mac_stack_send_raw_high_datarate_phy_scheduled_message(msg->data.send_raw_high_datarate_phy_scheduled_message.request.nwk_index,
+                                                                                                                                      msg->data.send_raw_high_datarate_phy_scheduled_message.request.payload,
+                                                                                                                                      msg->data.send_raw_high_datarate_phy_scheduled_message.request.timestamp);
+}
+
 void sli_mac_stack_set_mode_switch_sync_detect_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
   msg->data.set_mode_switch_sync_detect.response.result = sli_mac_stack_set_mode_switch_sync_detect(msg->data.set_mode_switch_sync_detect.request.enable_f);
@@ -94,6 +101,29 @@ sl_status_t sl_mac_send_raw_high_datarate_phy_message(uint8_t nwk_index,
 
   memmove(payload, msg.data.send_raw_high_datarate_phy_message.request.payload, sizeof(uint8_t) * (((payload[1] << 8) + payload[0] + 2)));
   return msg.data.send_raw_high_datarate_phy_message.response.result;
+}
+
+sl_status_t sl_mac_send_raw_high_datarate_phy_scheduled_message(uint8_t nwk_index,
+                                                                uint8_t *payload,
+                                                                RAIL_Time_t timestamp)
+{
+  sli_zigbee_ipc_cmd_t msg;
+  msg.data.send_raw_high_datarate_phy_scheduled_message.request.nwk_index = nwk_index;
+
+  if (((payload[1] << 8) + payload[0] + 2) > (MAX_HIGH_DATARATE_PHY_PACKET_LENGTH)) {
+    assert(false); // "vector payload length exceeds expected maximum
+  }
+
+  memmove(msg.data.send_raw_high_datarate_phy_scheduled_message.request.payload, payload, sizeof(uint8_t) * ((payload[1] << 8) + payload[0] + 2));
+  msg.data.send_raw_high_datarate_phy_scheduled_message.request.timestamp = timestamp;
+  sli_zigbee_send_ipc_cmd(sli_mac_stack_send_raw_high_datarate_phy_scheduled_message_process_ipc_command, &msg);
+
+  if (((payload[1] << 8) + payload[0] + 2) > (MAX_HIGH_DATARATE_PHY_PACKET_LENGTH)) {
+    assert(false); // "vector payload length exceeds expected maximum
+  }
+
+  memmove(payload, msg.data.send_raw_high_datarate_phy_scheduled_message.request.payload, sizeof(uint8_t) * ((payload[1] << 8) + payload[0] + 2));
+  return msg.data.send_raw_high_datarate_phy_scheduled_message.response.result;
 }
 
 RAIL_Status_t sl_mac_set_mode_switch_sync_detect(bool enable_f)

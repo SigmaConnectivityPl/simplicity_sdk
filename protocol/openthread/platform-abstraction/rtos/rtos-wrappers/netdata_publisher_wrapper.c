@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Netdata Publisher APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,37 +29,48 @@
  *
  ******************************************************************************/
 
-#include <openthread/netdata_publisher.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/netdata_publisher.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern bool OT_API_REAL_NAME(otNetDataIsDnsSrpServiceAdded)(otInstance * aInstance);
-extern bool OT_API_REAL_NAME(otNetDataIsPrefixAdded)(otInstance * aInstance,const otIp6Prefix * aPrefix);
-extern otError OT_API_REAL_NAME(otNetDataPublishExternalRoute)(otInstance * aInstance,const otExternalRouteConfig * aConfig);
-extern otError OT_API_REAL_NAME(otNetDataPublishOnMeshPrefix)(otInstance * aInstance,const otBorderRouterConfig * aConfig);
-extern otError OT_API_REAL_NAME(otNetDataReplacePublishedExternalRoute)(otInstance * aInstance,const otIp6Prefix * aPrefix,const otExternalRouteConfig * aConfig);
-extern otError OT_API_REAL_NAME(otNetDataUnpublishPrefix)(otInstance * aInstance,const otIp6Prefix * aPrefix);
-extern void OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceAnycast)(otInstance * aInstance,uint8_t aSequenceNUmber);
-extern void OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceUnicast)(otInstance * aInstance,const otIp6Address * aAddress,uint16_t aPort);
-extern void OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceUnicastMeshLocalEid)(otInstance * aInstance,uint16_t aPort);
-extern void OT_API_REAL_NAME(otNetDataSetDnsSrpServicePublisherCallback)(otInstance * aInstance,otNetDataDnsSrpServicePublisherCallback aCallback,void * aContext);
-extern void OT_API_REAL_NAME(otNetDataSetPrefixPublisherCallback)(otInstance * aInstance,otNetDataPrefixPublisherCallback aCallback,void * aContext);
-extern void OT_API_REAL_NAME(otNetDataUnpublishDnsSrpService)(otInstance * aInstance);
+extern bool    OT_API_REAL_NAME(otNetDataIsDnsSrpServiceAdded)(otInstance *aInstance);
+extern bool    OT_API_REAL_NAME(otNetDataIsPrefixAdded)(otInstance *aInstance, const otIp6Prefix *aPrefix);
+extern otError OT_API_REAL_NAME(otNetDataPublishExternalRoute)(otInstance                  *aInstance,
+                                                               const otExternalRouteConfig *aConfig);
+extern otError OT_API_REAL_NAME(otNetDataPublishOnMeshPrefix)(otInstance                 *aInstance,
+                                                              const otBorderRouterConfig *aConfig);
+extern otError OT_API_REAL_NAME(otNetDataReplacePublishedExternalRoute)(otInstance                  *aInstance,
+                                                                        const otIp6Prefix           *aPrefix,
+                                                                        const otExternalRouteConfig *aConfig);
+extern otError OT_API_REAL_NAME(otNetDataUnpublishPrefix)(otInstance *aInstance, const otIp6Prefix *aPrefix);
+extern void    OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceAnycast)(otInstance *aInstance, uint8_t aSequenceNUmber);
+extern void    OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceUnicast)(otInstance         *aInstance,
+                                                                   const otIp6Address *aAddress,
+                                                                   uint16_t            aPort);
+extern void OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceUnicastMeshLocalEid)(otInstance *aInstance, uint16_t aPort);
+extern void OT_API_REAL_NAME(otNetDataSetDnsSrpServicePublisherCallback)(
+    otInstance                             *aInstance,
+    otNetDataDnsSrpServicePublisherCallback aCallback,
+    void                                   *aContext);
+extern void OT_API_REAL_NAME(otNetDataSetPrefixPublisherCallback)(otInstance                      *aInstance,
+                                                                  otNetDataPrefixPublisherCallback aCallback,
+                                                                  void                            *aContext);
+extern void OT_API_REAL_NAME(otNetDataUnpublishDnsSrpService)(otInstance *aInstance);
 
-bool OT_API_WRAPPER_NAME(otNetDataIsDnsSrpServiceAdded)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otNetDataIsDnsSrpServiceAdded)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otNetDataIsDnsSrpServiceAdded)(aInstance);
@@ -67,7 +78,7 @@ bool OT_API_WRAPPER_NAME(otNetDataIsDnsSrpServiceAdded)(otInstance * aInstance)
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otNetDataIsPrefixAdded)(otInstance * aInstance,const otIp6Prefix * aPrefix)
+bool OT_API_WRAPPER_NAME(otNetDataIsPrefixAdded)(otInstance *aInstance, const otIp6Prefix *aPrefix)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otNetDataIsPrefixAdded)(aInstance, aPrefix);
@@ -75,7 +86,7 @@ bool OT_API_WRAPPER_NAME(otNetDataIsPrefixAdded)(otInstance * aInstance,const ot
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otNetDataPublishExternalRoute)(otInstance * aInstance,const otExternalRouteConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otNetDataPublishExternalRoute)(otInstance *aInstance, const otExternalRouteConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otNetDataPublishExternalRoute)(aInstance, aConfig);
@@ -83,7 +94,7 @@ otError OT_API_WRAPPER_NAME(otNetDataPublishExternalRoute)(otInstance * aInstanc
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otNetDataPublishOnMeshPrefix)(otInstance * aInstance,const otBorderRouterConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otNetDataPublishOnMeshPrefix)(otInstance *aInstance, const otBorderRouterConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otNetDataPublishOnMeshPrefix)(aInstance, aConfig);
@@ -91,7 +102,9 @@ otError OT_API_WRAPPER_NAME(otNetDataPublishOnMeshPrefix)(otInstance * aInstance
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otNetDataReplacePublishedExternalRoute)(otInstance * aInstance,const otIp6Prefix * aPrefix,const otExternalRouteConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otNetDataReplacePublishedExternalRoute)(otInstance                  *aInstance,
+                                                                    const otIp6Prefix           *aPrefix,
+                                                                    const otExternalRouteConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otNetDataReplacePublishedExternalRoute)(aInstance, aPrefix, aConfig);
@@ -99,7 +112,7 @@ otError OT_API_WRAPPER_NAME(otNetDataReplacePublishedExternalRoute)(otInstance *
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otNetDataUnpublishPrefix)(otInstance * aInstance,const otIp6Prefix * aPrefix)
+otError OT_API_WRAPPER_NAME(otNetDataUnpublishPrefix)(otInstance *aInstance, const otIp6Prefix *aPrefix)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otNetDataUnpublishPrefix)(aInstance, aPrefix);
@@ -107,45 +120,50 @@ otError OT_API_WRAPPER_NAME(otNetDataUnpublishPrefix)(otInstance * aInstance,con
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otNetDataPublishDnsSrpServiceAnycast)(otInstance * aInstance,uint8_t aSequenceNUmber)
+void OT_API_WRAPPER_NAME(otNetDataPublishDnsSrpServiceAnycast)(otInstance *aInstance, uint8_t aSequenceNUmber)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceAnycast)(aInstance, aSequenceNUmber);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otNetDataPublishDnsSrpServiceUnicast)(otInstance * aInstance,const otIp6Address * aAddress,uint16_t aPort)
+void OT_API_WRAPPER_NAME(otNetDataPublishDnsSrpServiceUnicast)(otInstance         *aInstance,
+                                                               const otIp6Address *aAddress,
+                                                               uint16_t            aPort)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceUnicast)(aInstance, aAddress, aPort);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otNetDataPublishDnsSrpServiceUnicastMeshLocalEid)(otInstance * aInstance,uint16_t aPort)
+void OT_API_WRAPPER_NAME(otNetDataPublishDnsSrpServiceUnicastMeshLocalEid)(otInstance *aInstance, uint16_t aPort)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceUnicastMeshLocalEid)(aInstance, aPort);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otNetDataSetDnsSrpServicePublisherCallback)(otInstance * aInstance,otNetDataDnsSrpServicePublisherCallback aCallback,void * aContext)
+void OT_API_WRAPPER_NAME(otNetDataSetDnsSrpServicePublisherCallback)(otInstance                             *aInstance,
+                                                                     otNetDataDnsSrpServicePublisherCallback aCallback,
+                                                                     void                                   *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otNetDataSetDnsSrpServicePublisherCallback)(aInstance, aCallback, aContext);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otNetDataSetPrefixPublisherCallback)(otInstance * aInstance,otNetDataPrefixPublisherCallback aCallback,void * aContext)
+void OT_API_WRAPPER_NAME(otNetDataSetPrefixPublisherCallback)(otInstance                      *aInstance,
+                                                              otNetDataPrefixPublisherCallback aCallback,
+                                                              void                            *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otNetDataSetPrefixPublisherCallback)(aInstance, aCallback, aContext);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otNetDataUnpublishDnsSrpService)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otNetDataUnpublishDnsSrpService)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otNetDataUnpublishDnsSrpService)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
-

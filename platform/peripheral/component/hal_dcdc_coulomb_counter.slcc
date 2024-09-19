@@ -16,6 +16,8 @@ include:
     file_list:
     - path: "sl_hal_dcdc_coulomb_counter.h"
     - path: "sl_hal_dcdc_coulomb_counter_compat.h"
+    - path: "peripheral_dcdc_coulomb_counter.h"
+    - path: "peripheral_dcdc_coulomb_counter_compat.h"
 provides:
   - name: hal_dcdc_coulomb_counter
 requires:

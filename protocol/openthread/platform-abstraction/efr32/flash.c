@@ -32,8 +32,8 @@
  */
 
 #include <openthread-core-config.h>
-#include "utils/code_utils.h"
 #include "common/debug.hpp"
+#include "utils/code_utils.h"
 
 #include "platform-efr32.h"
 
@@ -216,10 +216,10 @@ otError otPlatSettingsGet(otInstance *aInstance, uint16_t aKey, int aIndex, uint
                         // number of bytes to the read destination buffer.
                         uint8_t *buf = NULL;
 
-                        status = sl_memory_alloc(valueLength, BLOCK_TYPE_SHORT_TERM, (void**)&buf);
+                        status = sl_memory_alloc(valueLength, BLOCK_TYPE_SHORT_TERM, (void **)&buf);
                         VerifyOrExit(status == SL_STATUS_OK, err = OT_ERROR_FAILED);
 
-                        err          = mapNvm3Error(nvm3_readData(nvm3_defaultHandle, nvm3Key, buf, valueLength));
+                        err = mapNvm3Error(nvm3_readData(nvm3_defaultHandle, nvm3Key, buf, valueLength));
                         if (err == OT_ERROR_NONE)
                         {
                             memcpy(aValue, buf, (valueLength < *aValueLength) ? valueLength : *aValueLength);
@@ -354,7 +354,7 @@ void otPlatSettingsWipe(otInstance *aInstance)
     {
         otPlatSettingsDelete(NULL, aKey, -1);
     }
-    
+
 exit:
     return;
 }

@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Ble Secure APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,46 +29,76 @@
  *
  ******************************************************************************/
 
-#include <openthread/ble_secure.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/ble_secure.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern bool OT_API_REAL_NAME(otBleSecureIsCommandClassAuthorized)(otInstance * aInstance,otTcatCommandClass aCommandClass);
-extern bool OT_API_REAL_NAME(otBleSecureIsConnected)(otInstance * aInstance);
-extern bool OT_API_REAL_NAME(otBleSecureIsConnectionActive)(otInstance * aInstance);
-extern bool OT_API_REAL_NAME(otBleSecureIsTcatEnabled)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otBleSecureConnect)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otBleSecureFlush)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otBleSecureGetPeerCertificateBase64)(otInstance * aInstance,unsigned char * aPeerCert,size_t * aCertLength);
-extern otError OT_API_REAL_NAME(otBleSecureGetPeerSubjectAttributeByOid)(otInstance * aInstance,const char * aOid,size_t aOidLength,uint8_t * aAttributeBuffer,size_t * aAttributeLength,int * aAsn1Type);
-extern otError OT_API_REAL_NAME(otBleSecureGetThreadAttributeFromOwnCertificate)(otInstance * aInstance,int aThreadOidDescriptor,uint8_t * aAttributeBuffer,size_t * aAttributeLength);
-extern otError OT_API_REAL_NAME(otBleSecureGetThreadAttributeFromPeerCertificate)(otInstance * aInstance,int aThreadOidDescriptor,uint8_t * aAttributeBuffer,size_t * aAttributeLength);
-extern otError OT_API_REAL_NAME(otBleSecureSend)(otInstance * aInstance,uint8_t * aBuf,uint16_t aLength);
-extern otError OT_API_REAL_NAME(otBleSecureSendApplicationTlv)(otInstance * aInstance,uint8_t * aBuf,uint16_t aLength);
-extern otError OT_API_REAL_NAME(otBleSecureSendMessage)(otInstance * aInstance,otMessage * aMessage);
-extern otError OT_API_REAL_NAME(otBleSecureStart)(otInstance * aInstance,otHandleBleSecureConnect aConnectHandler,otHandleBleSecureReceive aReceiveHandler,bool aTlvMode,void * aContext);
-extern otError OT_API_REAL_NAME(otBleSecureTcatStart)(otInstance * aInstance,const otTcatVendorInfo * aVendorInfo,otHandleTcatJoin aHandler);
-extern void OT_API_REAL_NAME(otBleSecureDisconnect)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otBleSecureSetCaCertificateChain)(otInstance * aInstance,const uint8_t * aX509CaCertificateChain,uint32_t aX509CaCertChainLength);
-extern void OT_API_REAL_NAME(otBleSecureSetCertificate)(otInstance * aInstance,const uint8_t * aX509Cert,uint32_t aX509Length,const uint8_t * aPrivateKey,uint32_t aPrivateKeyLength);
-extern void OT_API_REAL_NAME(otBleSecureSetPsk)(otInstance * aInstance,const uint8_t * aPsk,uint16_t aPskLength,const uint8_t * aPskIdentity,uint16_t aPskIdLength);
-extern void OT_API_REAL_NAME(otBleSecureSetSslAuthMode)(otInstance * aInstance,bool aVerifyPeerCertificate);
-extern void OT_API_REAL_NAME(otBleSecureStop)(otInstance * aInstance);
+extern bool    OT_API_REAL_NAME(otBleSecureIsCommandClassAuthorized)(otInstance        *aInstance,
+                                                                  otTcatCommandClass aCommandClass);
+extern bool    OT_API_REAL_NAME(otBleSecureIsConnected)(otInstance *aInstance);
+extern bool    OT_API_REAL_NAME(otBleSecureIsConnectionActive)(otInstance *aInstance);
+extern bool    OT_API_REAL_NAME(otBleSecureIsTcatEnabled)(otInstance *aInstance);
+extern otError OT_API_REAL_NAME(otBleSecureConnect)(otInstance *aInstance);
+extern otError OT_API_REAL_NAME(otBleSecureFlush)(otInstance *aInstance);
+extern otError OT_API_REAL_NAME(otBleSecureGetPeerCertificateBase64)(otInstance    *aInstance,
+                                                                     unsigned char *aPeerCert,
+                                                                     size_t        *aCertLength);
+extern otError OT_API_REAL_NAME(otBleSecureGetPeerSubjectAttributeByOid)(otInstance *aInstance,
+                                                                         const char *aOid,
+                                                                         size_t      aOidLength,
+                                                                         uint8_t    *aAttributeBuffer,
+                                                                         size_t     *aAttributeLength,
+                                                                         int        *aAsn1Type);
+extern otError OT_API_REAL_NAME(otBleSecureGetThreadAttributeFromOwnCertificate)(otInstance *aInstance,
+                                                                                 int         aThreadOidDescriptor,
+                                                                                 uint8_t    *aAttributeBuffer,
+                                                                                 size_t     *aAttributeLength);
+extern otError OT_API_REAL_NAME(otBleSecureGetThreadAttributeFromPeerCertificate)(otInstance *aInstance,
+                                                                                  int         aThreadOidDescriptor,
+                                                                                  uint8_t    *aAttributeBuffer,
+                                                                                  size_t     *aAttributeLength);
+extern otError OT_API_REAL_NAME(otBleSecureSend)(otInstance *aInstance, uint8_t *aBuf, uint16_t aLength);
+extern otError OT_API_REAL_NAME(otBleSecureSendApplicationTlv)(otInstance *aInstance, uint8_t *aBuf, uint16_t aLength);
+extern otError OT_API_REAL_NAME(otBleSecureSendMessage)(otInstance *aInstance, otMessage *aMessage);
+extern otError OT_API_REAL_NAME(otBleSecureStart)(otInstance              *aInstance,
+                                                  otHandleBleSecureConnect aConnectHandler,
+                                                  otHandleBleSecureReceive aReceiveHandler,
+                                                  bool                     aTlvMode,
+                                                  void                    *aContext);
+extern otError OT_API_REAL_NAME(otBleSecureTcatStart)(otInstance             *aInstance,
+                                                      const otTcatVendorInfo *aVendorInfo,
+                                                      otHandleTcatJoin        aHandler);
+extern void    OT_API_REAL_NAME(otBleSecureDisconnect)(otInstance *aInstance);
+extern void    OT_API_REAL_NAME(otBleSecureSetCaCertificateChain)(otInstance    *aInstance,
+                                                               const uint8_t *aX509CaCertificateChain,
+                                                               uint32_t       aX509CaCertChainLength);
+extern void    OT_API_REAL_NAME(otBleSecureSetCertificate)(otInstance    *aInstance,
+                                                        const uint8_t *aX509Cert,
+                                                        uint32_t       aX509Length,
+                                                        const uint8_t *aPrivateKey,
+                                                        uint32_t       aPrivateKeyLength);
+extern void    OT_API_REAL_NAME(otBleSecureSetPsk)(otInstance    *aInstance,
+                                                const uint8_t *aPsk,
+                                                uint16_t       aPskLength,
+                                                const uint8_t *aPskIdentity,
+                                                uint16_t       aPskIdLength);
+extern void    OT_API_REAL_NAME(otBleSecureSetSslAuthMode)(otInstance *aInstance, bool aVerifyPeerCertificate);
+extern void    OT_API_REAL_NAME(otBleSecureStop)(otInstance *aInstance);
 
-bool OT_API_WRAPPER_NAME(otBleSecureIsCommandClassAuthorized)(otInstance * aInstance,otTcatCommandClass aCommandClass)
+bool OT_API_WRAPPER_NAME(otBleSecureIsCommandClassAuthorized)(otInstance *aInstance, otTcatCommandClass aCommandClass)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otBleSecureIsCommandClassAuthorized)(aInstance, aCommandClass);
@@ -76,7 +106,7 @@ bool OT_API_WRAPPER_NAME(otBleSecureIsCommandClassAuthorized)(otInstance * aInst
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otBleSecureIsConnected)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otBleSecureIsConnected)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otBleSecureIsConnected)(aInstance);
@@ -84,7 +114,7 @@ bool OT_API_WRAPPER_NAME(otBleSecureIsConnected)(otInstance * aInstance)
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otBleSecureIsConnectionActive)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otBleSecureIsConnectionActive)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otBleSecureIsConnectionActive)(aInstance);
@@ -92,7 +122,7 @@ bool OT_API_WRAPPER_NAME(otBleSecureIsConnectionActive)(otInstance * aInstance)
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otBleSecureIsTcatEnabled)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otBleSecureIsTcatEnabled)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otBleSecureIsTcatEnabled)(aInstance);
@@ -100,7 +130,7 @@ bool OT_API_WRAPPER_NAME(otBleSecureIsTcatEnabled)(otInstance * aInstance)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBleSecureConnect)(otInstance * aInstance)
+otError OT_API_WRAPPER_NAME(otBleSecureConnect)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBleSecureConnect)(aInstance);
@@ -108,7 +138,7 @@ otError OT_API_WRAPPER_NAME(otBleSecureConnect)(otInstance * aInstance)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBleSecureFlush)(otInstance * aInstance)
+otError OT_API_WRAPPER_NAME(otBleSecureFlush)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBleSecureFlush)(aInstance);
@@ -116,7 +146,9 @@ otError OT_API_WRAPPER_NAME(otBleSecureFlush)(otInstance * aInstance)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBleSecureGetPeerCertificateBase64)(otInstance * aInstance,unsigned char * aPeerCert,size_t * aCertLength)
+otError OT_API_WRAPPER_NAME(otBleSecureGetPeerCertificateBase64)(otInstance    *aInstance,
+                                                                 unsigned char *aPeerCert,
+                                                                 size_t        *aCertLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBleSecureGetPeerCertificateBase64)(aInstance, aPeerCert, aCertLength);
@@ -124,31 +156,53 @@ otError OT_API_WRAPPER_NAME(otBleSecureGetPeerCertificateBase64)(otInstance * aI
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBleSecureGetPeerSubjectAttributeByOid)(otInstance * aInstance,const char * aOid,size_t aOidLength,uint8_t * aAttributeBuffer,size_t * aAttributeLength,int * aAsn1Type)
+otError OT_API_WRAPPER_NAME(otBleSecureGetPeerSubjectAttributeByOid)(otInstance *aInstance,
+                                                                     const char *aOid,
+                                                                     size_t      aOidLength,
+                                                                     uint8_t    *aAttributeBuffer,
+                                                                     size_t     *aAttributeLength,
+                                                                     int        *aAsn1Type)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otBleSecureGetPeerSubjectAttributeByOid)(aInstance, aOid, aOidLength, aAttributeBuffer, aAttributeLength, aAsn1Type);
+    otError ret = OT_API_REAL_NAME(otBleSecureGetPeerSubjectAttributeByOid)(aInstance,
+                                                                            aOid,
+                                                                            aOidLength,
+                                                                            aAttributeBuffer,
+                                                                            aAttributeLength,
+                                                                            aAsn1Type);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBleSecureGetThreadAttributeFromOwnCertificate)(otInstance * aInstance,int aThreadOidDescriptor,uint8_t * aAttributeBuffer,size_t * aAttributeLength)
+otError OT_API_WRAPPER_NAME(otBleSecureGetThreadAttributeFromOwnCertificate)(otInstance *aInstance,
+                                                                             int         aThreadOidDescriptor,
+                                                                             uint8_t    *aAttributeBuffer,
+                                                                             size_t     *aAttributeLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otBleSecureGetThreadAttributeFromOwnCertificate)(aInstance, aThreadOidDescriptor, aAttributeBuffer, aAttributeLength);
+    otError ret = OT_API_REAL_NAME(otBleSecureGetThreadAttributeFromOwnCertificate)(aInstance,
+                                                                                    aThreadOidDescriptor,
+                                                                                    aAttributeBuffer,
+                                                                                    aAttributeLength);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBleSecureGetThreadAttributeFromPeerCertificate)(otInstance * aInstance,int aThreadOidDescriptor,uint8_t * aAttributeBuffer,size_t * aAttributeLength)
+otError OT_API_WRAPPER_NAME(otBleSecureGetThreadAttributeFromPeerCertificate)(otInstance *aInstance,
+                                                                              int         aThreadOidDescriptor,
+                                                                              uint8_t    *aAttributeBuffer,
+                                                                              size_t     *aAttributeLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    otError ret = OT_API_REAL_NAME(otBleSecureGetThreadAttributeFromPeerCertificate)(aInstance, aThreadOidDescriptor, aAttributeBuffer, aAttributeLength);
+    otError ret = OT_API_REAL_NAME(otBleSecureGetThreadAttributeFromPeerCertificate)(aInstance,
+                                                                                     aThreadOidDescriptor,
+                                                                                     aAttributeBuffer,
+                                                                                     aAttributeLength);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBleSecureSend)(otInstance * aInstance,uint8_t * aBuf,uint16_t aLength)
+otError OT_API_WRAPPER_NAME(otBleSecureSend)(otInstance *aInstance, uint8_t *aBuf, uint16_t aLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBleSecureSend)(aInstance, aBuf, aLength);
@@ -156,7 +210,7 @@ otError OT_API_WRAPPER_NAME(otBleSecureSend)(otInstance * aInstance,uint8_t * aB
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBleSecureSendApplicationTlv)(otInstance * aInstance,uint8_t * aBuf,uint16_t aLength)
+otError OT_API_WRAPPER_NAME(otBleSecureSendApplicationTlv)(otInstance *aInstance, uint8_t *aBuf, uint16_t aLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBleSecureSendApplicationTlv)(aInstance, aBuf, aLength);
@@ -164,7 +218,7 @@ otError OT_API_WRAPPER_NAME(otBleSecureSendApplicationTlv)(otInstance * aInstanc
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBleSecureSendMessage)(otInstance * aInstance,otMessage * aMessage)
+otError OT_API_WRAPPER_NAME(otBleSecureSendMessage)(otInstance *aInstance, otMessage *aMessage)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBleSecureSendMessage)(aInstance, aMessage);
@@ -172,7 +226,11 @@ otError OT_API_WRAPPER_NAME(otBleSecureSendMessage)(otInstance * aInstance,otMes
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBleSecureStart)(otInstance * aInstance,otHandleBleSecureConnect aConnectHandler,otHandleBleSecureReceive aReceiveHandler,bool aTlvMode,void * aContext)
+otError OT_API_WRAPPER_NAME(otBleSecureStart)(otInstance              *aInstance,
+                                              otHandleBleSecureConnect aConnectHandler,
+                                              otHandleBleSecureReceive aReceiveHandler,
+                                              bool                     aTlvMode,
+                                              void                    *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBleSecureStart)(aInstance, aConnectHandler, aReceiveHandler, aTlvMode, aContext);
@@ -180,7 +238,9 @@ otError OT_API_WRAPPER_NAME(otBleSecureStart)(otInstance * aInstance,otHandleBle
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBleSecureTcatStart)(otInstance * aInstance,const otTcatVendorInfo * aVendorInfo,otHandleTcatJoin aHandler)
+otError OT_API_WRAPPER_NAME(otBleSecureTcatStart)(otInstance             *aInstance,
+                                                  const otTcatVendorInfo *aVendorInfo,
+                                                  otHandleTcatJoin        aHandler)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBleSecureTcatStart)(aInstance, aVendorInfo, aHandler);
@@ -188,45 +248,54 @@ otError OT_API_WRAPPER_NAME(otBleSecureTcatStart)(otInstance * aInstance,const o
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otBleSecureDisconnect)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otBleSecureDisconnect)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBleSecureDisconnect)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otBleSecureSetCaCertificateChain)(otInstance * aInstance,const uint8_t * aX509CaCertificateChain,uint32_t aX509CaCertChainLength)
+void OT_API_WRAPPER_NAME(otBleSecureSetCaCertificateChain)(otInstance    *aInstance,
+                                                           const uint8_t *aX509CaCertificateChain,
+                                                           uint32_t       aX509CaCertChainLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBleSecureSetCaCertificateChain)(aInstance, aX509CaCertificateChain, aX509CaCertChainLength);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otBleSecureSetCertificate)(otInstance * aInstance,const uint8_t * aX509Cert,uint32_t aX509Length,const uint8_t * aPrivateKey,uint32_t aPrivateKeyLength)
+void OT_API_WRAPPER_NAME(otBleSecureSetCertificate)(otInstance    *aInstance,
+                                                    const uint8_t *aX509Cert,
+                                                    uint32_t       aX509Length,
+                                                    const uint8_t *aPrivateKey,
+                                                    uint32_t       aPrivateKeyLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBleSecureSetCertificate)(aInstance, aX509Cert, aX509Length, aPrivateKey, aPrivateKeyLength);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otBleSecureSetPsk)(otInstance * aInstance,const uint8_t * aPsk,uint16_t aPskLength,const uint8_t * aPskIdentity,uint16_t aPskIdLength)
+void OT_API_WRAPPER_NAME(otBleSecureSetPsk)(otInstance    *aInstance,
+                                            const uint8_t *aPsk,
+                                            uint16_t       aPskLength,
+                                            const uint8_t *aPskIdentity,
+                                            uint16_t       aPskIdLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBleSecureSetPsk)(aInstance, aPsk, aPskLength, aPskIdentity, aPskIdLength);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otBleSecureSetSslAuthMode)(otInstance * aInstance,bool aVerifyPeerCertificate)
+void OT_API_WRAPPER_NAME(otBleSecureSetSslAuthMode)(otInstance *aInstance, bool aVerifyPeerCertificate)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBleSecureSetSslAuthMode)(aInstance, aVerifyPeerCertificate);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otBleSecureStop)(otInstance * aInstance)
+void OT_API_WRAPPER_NAME(otBleSecureStop)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBleSecureStop)(aInstance);
     sl_ot_rtos_release_stack_mutex();
 }
-

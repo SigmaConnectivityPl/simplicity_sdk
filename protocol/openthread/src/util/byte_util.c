@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Data store and fetch routines.
  *******************************************************************************
@@ -30,9 +30,9 @@
 
 #include "byte_util.h"
 #include <assert.h>
+#include <common/debug.hpp>
 #include <stdint.h>
 #include <string.h>
-#include <common/debug.hpp>
 
 uint16_t sl_fetch_low_high_int16u(const uint8_t *contents)
 {
@@ -99,8 +99,8 @@ uint32_t sl_fetch_int32u(bool lowHigh, const uint8_t *contents)
         b2 = contents[2];
         b3 = contents[3];
     }
-    return ((((uint32_t)((((uint16_t)b0) << 8) | ((uint16_t)b1))) << 16) |
-            (uint32_t)((((uint16_t)b2) << 8) | ((uint16_t)b3)));
+    return ((((uint32_t)((((uint16_t)b0) << 8) | ((uint16_t)b1))) << 16)
+            | (uint32_t)((((uint16_t)b2) << 8) | ((uint16_t)b3)));
 }
 
 uint64_t sl_fetch_int48u(bool lowHigh, const uint8_t *contents)
@@ -116,8 +116,8 @@ uint64_t sl_fetch_int48u(bool lowHigh, const uint8_t *contents)
         memcpy(bytes, contents, 6);
     }
 
-    return (uint64_t)(((uint64_t)bytes[0] << 40) | ((uint64_t)bytes[1] << 32) | ((uint64_t)bytes[2] << 24) |
-                      ((uint64_t)bytes[3] << 16) | ((uint64_t)bytes[4] << 8) | ((uint64_t)bytes[5]));
+    return (uint64_t)(((uint64_t)bytes[0] << 40) | ((uint64_t)bytes[1] << 32) | ((uint64_t)bytes[2] << 24)
+                      | ((uint64_t)bytes[3] << 16) | ((uint64_t)bytes[4] << 8) | ((uint64_t)bytes[5]));
 }
 
 bool sl_memory_byte_compare(const uint8_t *bytes, uint8_t count, uint8_t target)

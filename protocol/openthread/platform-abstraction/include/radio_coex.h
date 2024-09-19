@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief This file includes the Radio Coex initializers
  *******************************************************************************
@@ -49,8 +49,8 @@
 
 #ifdef SL_CATALOG_RAIL_UTIL_COEX_PRESENT
 #include "coexistence-802154.h"
-#include "coexistence.h"
 #include "coexistence-ot.h"
+#include "coexistence.h"
 #endif // SL_CATALOG_RAIL_UTIL_COEX_PRESENT
 
 #ifdef SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
@@ -70,29 +70,29 @@
 #include "common/code_utils.hpp"
 #include "utils/code_utils.h"
 
-typedef enum {
+typedef enum
+{
     SL_OT_COEX_EVENT_REQUEST_COUNT = 0,
-    SL_OT_COEX_EVENT_GRANT_IMMEDIATE_COUNT,                  
-    SL_OT_COEX_EVENT_GRANT_WAIT_COUNT,                       
-    SL_OT_COEX_EVENT_GRANT_WAIT_ACTIVATED_COUNT,              
-    SL_OT_COEX_EVENT_GRANT_WAIT_TIMEOUT_COUNT,                
-    SL_OT_COEX_EVENT_GRANT_DEACTIVATED_DURING_REQUEST_COUNT,   
-    SL_OT_COEX_EVENT_DELAYED_GRANT_COUNT,                    
+    SL_OT_COEX_EVENT_GRANT_IMMEDIATE_COUNT,
+    SL_OT_COEX_EVENT_GRANT_WAIT_COUNT,
+    SL_OT_COEX_EVENT_GRANT_WAIT_ACTIVATED_COUNT,
+    SL_OT_COEX_EVENT_GRANT_WAIT_TIMEOUT_COUNT,
+    SL_OT_COEX_EVENT_GRANT_DEACTIVATED_DURING_REQUEST_COUNT,
+    SL_OT_COEX_EVENT_DELAYED_GRANT_COUNT,
     SL_OT_COEX_EVENT_AVG_REQUEST_TO_GRANT_TIME
 } sl_coex_events;
 
 typedef struct sl_ot_coex_counter
 {
     otRadioCoexMetrics metrics;
-    uint64_t timestamp;
-    uint64_t totalTxReqToGrantDuration;
-    uint64_t totalRxReqToGrantDuration;
-} sl_ot_coex_counter_t;   
-
+    uint64_t           timestamp;
+    uint64_t           totalTxReqToGrantDuration;
+    uint64_t           totalRxReqToGrantDuration;
+} sl_ot_coex_counter_t;
 
 /**
  * Reset the radio coex counters.
  */
 void sli_radio_coex_reset(void);
 
-#endif //RADIO_COEX_H_
+#endif // RADIO_COEX_H_

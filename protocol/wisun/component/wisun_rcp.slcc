@@ -14,8 +14,8 @@ ui_hints:
 #
 #  wisun_rcp           requires   wisun_rcp_implementation
 #  wisun_rcp           recommends wisun_rcp_sources
-#  wisun_rcp_libraries requires   wisun_rcp
-#  wisun_rcp_libraries provides   wisun_rcp_implementation
+#  wisun_rcp_library   requires   wisun_rcp
+#  wisun_rcp_library   provides   wisun_rcp_implementation
 #  wisun_rcp_sources   requires   wisun_rcp
 #  wisun_rcp_sources   provides   wisun_rcp_implementation
 
@@ -28,7 +28,7 @@ requires:
   - name: wisun_rcp_implementation
 
 recommends:
-  - id: wisun_rcp_sources
+  - id: wisun_rcp_library
 
 provides:
   - name: wisun_rcp

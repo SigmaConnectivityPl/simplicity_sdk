@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Channel Manager APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,43 +29,44 @@
  *
  ******************************************************************************/
 
-#include <openthread/channel_manager.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/channel_manager.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern bool OT_API_REAL_NAME(otChannelManagerGetAutoChannelSelectionEnabled)(otInstance * aInstance);
-extern bool OT_API_REAL_NAME(otChannelManagerGetAutoCslChannelSelectionEnabled)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otChannelManagerRequestChannelSelect)(otInstance * aInstance,bool aSkipQualityCheck);
-extern otError OT_API_REAL_NAME(otChannelManagerRequestCslChannelSelect)(otInstance * aInstance,bool aSkipQualityCheck);
-extern otError OT_API_REAL_NAME(otChannelManagerSetAutoChannelSelectionInterval)(otInstance * aInstance,uint32_t aInterval);
-extern otError OT_API_REAL_NAME(otChannelManagerSetDelay)(otInstance * aInstance,uint16_t aDelay);
-extern uint16_t OT_API_REAL_NAME(otChannelManagerGetCcaFailureRateThreshold)(otInstance * aInstance);
-extern uint16_t OT_API_REAL_NAME(otChannelManagerGetDelay)(otInstance * aInstance);
-extern uint32_t OT_API_REAL_NAME(otChannelManagerGetAutoChannelSelectionInterval)(otInstance * aInstance);
-extern uint32_t OT_API_REAL_NAME(otChannelManagerGetFavoredChannels)(otInstance * aInstance);
-extern uint32_t OT_API_REAL_NAME(otChannelManagerGetSupportedChannels)(otInstance * aInstance);
-extern uint8_t OT_API_REAL_NAME(otChannelManagerGetRequestedChannel)(otInstance * aInstance);
-extern void OT_API_REAL_NAME(otChannelManagerRequestChannelChange)(otInstance * aInstance,uint8_t aChannel);
-extern void OT_API_REAL_NAME(otChannelManagerSetAutoChannelSelectionEnabled)(otInstance * aInstance,bool aEnabled);
-extern void OT_API_REAL_NAME(otChannelManagerSetAutoCslChannelSelectionEnabled)(otInstance * aInstance,bool aEnabled);
-extern void OT_API_REAL_NAME(otChannelManagerSetCcaFailureRateThreshold)(otInstance * aInstance,uint16_t aThreshold);
-extern void OT_API_REAL_NAME(otChannelManagerSetFavoredChannels)(otInstance * aInstance,uint32_t aChannelMask);
-extern void OT_API_REAL_NAME(otChannelManagerSetSupportedChannels)(otInstance * aInstance,uint32_t aChannelMask);
+extern bool    OT_API_REAL_NAME(otChannelManagerGetAutoChannelSelectionEnabled)(otInstance *aInstance);
+extern bool    OT_API_REAL_NAME(otChannelManagerGetAutoCslChannelSelectionEnabled)(otInstance *aInstance);
+extern otError OT_API_REAL_NAME(otChannelManagerRequestChannelSelect)(otInstance *aInstance, bool aSkipQualityCheck);
+extern otError OT_API_REAL_NAME(otChannelManagerRequestCslChannelSelect)(otInstance *aInstance, bool aSkipQualityCheck);
+extern otError OT_API_REAL_NAME(otChannelManagerSetAutoChannelSelectionInterval)(otInstance *aInstance,
+                                                                                 uint32_t    aInterval);
+extern otError OT_API_REAL_NAME(otChannelManagerSetDelay)(otInstance *aInstance, uint16_t aDelay);
+extern uint16_t OT_API_REAL_NAME(otChannelManagerGetCcaFailureRateThreshold)(otInstance *aInstance);
+extern uint16_t OT_API_REAL_NAME(otChannelManagerGetDelay)(otInstance *aInstance);
+extern uint32_t OT_API_REAL_NAME(otChannelManagerGetAutoChannelSelectionInterval)(otInstance *aInstance);
+extern uint32_t OT_API_REAL_NAME(otChannelManagerGetFavoredChannels)(otInstance *aInstance);
+extern uint32_t OT_API_REAL_NAME(otChannelManagerGetSupportedChannels)(otInstance *aInstance);
+extern uint8_t  OT_API_REAL_NAME(otChannelManagerGetRequestedChannel)(otInstance *aInstance);
+extern void     OT_API_REAL_NAME(otChannelManagerRequestChannelChange)(otInstance *aInstance, uint8_t aChannel);
+extern void     OT_API_REAL_NAME(otChannelManagerSetAutoChannelSelectionEnabled)(otInstance *aInstance, bool aEnabled);
+extern void OT_API_REAL_NAME(otChannelManagerSetAutoCslChannelSelectionEnabled)(otInstance *aInstance, bool aEnabled);
+extern void OT_API_REAL_NAME(otChannelManagerSetCcaFailureRateThreshold)(otInstance *aInstance, uint16_t aThreshold);
+extern void OT_API_REAL_NAME(otChannelManagerSetFavoredChannels)(otInstance *aInstance, uint32_t aChannelMask);
+extern void OT_API_REAL_NAME(otChannelManagerSetSupportedChannels)(otInstance *aInstance, uint32_t aChannelMask);
 
-bool OT_API_WRAPPER_NAME(otChannelManagerGetAutoChannelSelectionEnabled)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otChannelManagerGetAutoChannelSelectionEnabled)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otChannelManagerGetAutoChannelSelectionEnabled)(aInstance);
@@ -73,7 +74,7 @@ bool OT_API_WRAPPER_NAME(otChannelManagerGetAutoChannelSelectionEnabled)(otInsta
     return ret;
 }
 
-bool OT_API_WRAPPER_NAME(otChannelManagerGetAutoCslChannelSelectionEnabled)(otInstance * aInstance)
+bool OT_API_WRAPPER_NAME(otChannelManagerGetAutoCslChannelSelectionEnabled)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otChannelManagerGetAutoCslChannelSelectionEnabled)(aInstance);
@@ -81,7 +82,7 @@ bool OT_API_WRAPPER_NAME(otChannelManagerGetAutoCslChannelSelectionEnabled)(otIn
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otChannelManagerRequestChannelSelect)(otInstance * aInstance,bool aSkipQualityCheck)
+otError OT_API_WRAPPER_NAME(otChannelManagerRequestChannelSelect)(otInstance *aInstance, bool aSkipQualityCheck)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otChannelManagerRequestChannelSelect)(aInstance, aSkipQualityCheck);
@@ -89,7 +90,7 @@ otError OT_API_WRAPPER_NAME(otChannelManagerRequestChannelSelect)(otInstance * a
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otChannelManagerRequestCslChannelSelect)(otInstance * aInstance,bool aSkipQualityCheck)
+otError OT_API_WRAPPER_NAME(otChannelManagerRequestCslChannelSelect)(otInstance *aInstance, bool aSkipQualityCheck)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otChannelManagerRequestCslChannelSelect)(aInstance, aSkipQualityCheck);
@@ -97,7 +98,7 @@ otError OT_API_WRAPPER_NAME(otChannelManagerRequestCslChannelSelect)(otInstance 
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otChannelManagerSetAutoChannelSelectionInterval)(otInstance * aInstance,uint32_t aInterval)
+otError OT_API_WRAPPER_NAME(otChannelManagerSetAutoChannelSelectionInterval)(otInstance *aInstance, uint32_t aInterval)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otChannelManagerSetAutoChannelSelectionInterval)(aInstance, aInterval);
@@ -105,7 +106,7 @@ otError OT_API_WRAPPER_NAME(otChannelManagerSetAutoChannelSelectionInterval)(otI
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otChannelManagerSetDelay)(otInstance * aInstance,uint16_t aDelay)
+otError OT_API_WRAPPER_NAME(otChannelManagerSetDelay)(otInstance *aInstance, uint16_t aDelay)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otChannelManagerSetDelay)(aInstance, aDelay);
@@ -113,7 +114,7 @@ otError OT_API_WRAPPER_NAME(otChannelManagerSetDelay)(otInstance * aInstance,uin
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otChannelManagerGetCcaFailureRateThreshold)(otInstance * aInstance)
+uint16_t OT_API_WRAPPER_NAME(otChannelManagerGetCcaFailureRateThreshold)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otChannelManagerGetCcaFailureRateThreshold)(aInstance);
@@ -121,7 +122,7 @@ uint16_t OT_API_WRAPPER_NAME(otChannelManagerGetCcaFailureRateThreshold)(otInsta
     return ret;
 }
 
-uint16_t OT_API_WRAPPER_NAME(otChannelManagerGetDelay)(otInstance * aInstance)
+uint16_t OT_API_WRAPPER_NAME(otChannelManagerGetDelay)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint16_t ret = OT_API_REAL_NAME(otChannelManagerGetDelay)(aInstance);
@@ -129,7 +130,7 @@ uint16_t OT_API_WRAPPER_NAME(otChannelManagerGetDelay)(otInstance * aInstance)
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otChannelManagerGetAutoChannelSelectionInterval)(otInstance * aInstance)
+uint32_t OT_API_WRAPPER_NAME(otChannelManagerGetAutoChannelSelectionInterval)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otChannelManagerGetAutoChannelSelectionInterval)(aInstance);
@@ -137,7 +138,7 @@ uint32_t OT_API_WRAPPER_NAME(otChannelManagerGetAutoChannelSelectionInterval)(ot
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otChannelManagerGetFavoredChannels)(otInstance * aInstance)
+uint32_t OT_API_WRAPPER_NAME(otChannelManagerGetFavoredChannels)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otChannelManagerGetFavoredChannels)(aInstance);
@@ -145,7 +146,7 @@ uint32_t OT_API_WRAPPER_NAME(otChannelManagerGetFavoredChannels)(otInstance * aI
     return ret;
 }
 
-uint32_t OT_API_WRAPPER_NAME(otChannelManagerGetSupportedChannels)(otInstance * aInstance)
+uint32_t OT_API_WRAPPER_NAME(otChannelManagerGetSupportedChannels)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otChannelManagerGetSupportedChannels)(aInstance);
@@ -153,7 +154,7 @@ uint32_t OT_API_WRAPPER_NAME(otChannelManagerGetSupportedChannels)(otInstance * 
     return ret;
 }
 
-uint8_t OT_API_WRAPPER_NAME(otChannelManagerGetRequestedChannel)(otInstance * aInstance)
+uint8_t OT_API_WRAPPER_NAME(otChannelManagerGetRequestedChannel)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint8_t ret = OT_API_REAL_NAME(otChannelManagerGetRequestedChannel)(aInstance);
@@ -161,45 +162,44 @@ uint8_t OT_API_WRAPPER_NAME(otChannelManagerGetRequestedChannel)(otInstance * aI
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otChannelManagerRequestChannelChange)(otInstance * aInstance,uint8_t aChannel)
+void OT_API_WRAPPER_NAME(otChannelManagerRequestChannelChange)(otInstance *aInstance, uint8_t aChannel)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otChannelManagerRequestChannelChange)(aInstance, aChannel);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otChannelManagerSetAutoChannelSelectionEnabled)(otInstance * aInstance,bool aEnabled)
+void OT_API_WRAPPER_NAME(otChannelManagerSetAutoChannelSelectionEnabled)(otInstance *aInstance, bool aEnabled)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otChannelManagerSetAutoChannelSelectionEnabled)(aInstance, aEnabled);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otChannelManagerSetAutoCslChannelSelectionEnabled)(otInstance * aInstance,bool aEnabled)
+void OT_API_WRAPPER_NAME(otChannelManagerSetAutoCslChannelSelectionEnabled)(otInstance *aInstance, bool aEnabled)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otChannelManagerSetAutoCslChannelSelectionEnabled)(aInstance, aEnabled);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otChannelManagerSetCcaFailureRateThreshold)(otInstance * aInstance,uint16_t aThreshold)
+void OT_API_WRAPPER_NAME(otChannelManagerSetCcaFailureRateThreshold)(otInstance *aInstance, uint16_t aThreshold)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otChannelManagerSetCcaFailureRateThreshold)(aInstance, aThreshold);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otChannelManagerSetFavoredChannels)(otInstance * aInstance,uint32_t aChannelMask)
+void OT_API_WRAPPER_NAME(otChannelManagerSetFavoredChannels)(otInstance *aInstance, uint32_t aChannelMask)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otChannelManagerSetFavoredChannels)(aInstance, aChannelMask);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otChannelManagerSetSupportedChannels)(otInstance * aInstance,uint32_t aChannelMask)
+void OT_API_WRAPPER_NAME(otChannelManagerSetSupportedChannels)(otInstance *aInstance, uint32_t aChannelMask)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otChannelManagerSetSupportedChannels)(aInstance, aChannelMask);
     sl_ot_rtos_release_stack_mutex();
 }
-

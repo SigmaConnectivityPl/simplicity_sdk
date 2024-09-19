@@ -86,7 +86,7 @@ void user_credential_app_event_handler(const uint8_t event, const void *data)
       zaf_event_distributor_enqueue_cc_event(COMMAND_CLASS_DOOR_LOCK, CC_DOOR_LOCK_CODE_EVENT_TOGGLE, NULL);
       break;
     case CC_USER_CREDENTIAL_EVENT_LEARN_START: {
-      if (*(u3c_credential_type *)data == CREDENTIAL_TYPE_PIN_CODE) {
+      if (((u3c_credential_learn_event_data *)data)->target.type == CREDENTIAL_TYPE_PIN_CODE) {
         // Request app to read PIN code
         zaf_event_distributor_enqueue_app_event(EVENT_APP_CREDENTIAL_LEARN_START);
       } else {

@@ -156,19 +156,7 @@ sl_status_t sl_memory_reserve_block(size_t size,
     }
 
     // Update head pointers accordingly.
-    if (sli_free_blocks_number != 0) {
-      // There is at least one other free block in the heap.
-      if (sli_free_lt_list_head == free_block_metadata) {
-        sli_free_lt_list_head = sli_memory_find_head_free_block(BLOCK_TYPE_LONG_TERM, NULL);
-      }
-      if (sli_free_st_list_head == free_block_metadata) {
-        sli_free_st_list_head = sli_memory_find_head_free_block(BLOCK_TYPE_SHORT_TERM, neighbour_block);
-      }
-    } else {
-      // No more free blocks.
-      sli_free_lt_list_head = NULL;
-      sli_free_st_list_head = NULL;
-    }
+    sli_update_free_list_heads(neighbour_block, free_block_metadata, true);
   }
 
   CORE_EXIT_ATOMIC();
@@ -239,7 +227,8 @@ sl_status_t sl_memory_release_block(sl_memory_reservation_t *handle)
   }
   next_block = ((uintptr_t)current_metadata >= (uintptr_t)handle->block_address) ? current_metadata : NULL;
 
-  new_free_block_length = (uint16_t)SLI_BLOCK_LEN_BYTE_TO_DWORD(handle->block_size);
+  new_free_block = (sli_block_metadata_t *)handle->block_address;
+  new_free_block_length = (uint16_t)SLI_BLOCK_LEN_BYTE_TO_DWORD(handle->block_size) - SLI_BLOCK_METADATA_SIZE_DWORD;
 
   // Create a new free block while trying to merge it with the previous and next free blocks if possible.
   if (prev_block != NULL) {
@@ -249,15 +238,17 @@ sl_status_t sl_memory_release_block(sl_memory_reservation_t *handle)
     reserved_block_offset -= prev_block->length;
 
     // Make sure there's no reserved block between the freed block and the previous block.
+    // Layout around the reserved block to free (aka R1) will be:
+    // |...|Metadata Free block|Data Free block|R1||
     if ((prev_block->block_in_use == 0) && (reserved_block_offset < SLI_BLOCK_RESERVATION_MIN_SIZE_DWORD)) {
       // New freed block's previous block is free, so merge both free blocks.
       new_free_block = prev_block;
       prev_block = (sli_block_metadata_t *)((uint64_t *)prev_block - prev_block->offset_neighbour_prev);
-      new_free_block_length += new_free_block->length;
+      new_free_block_length += new_free_block->length + SLI_BLOCK_METADATA_SIZE_DWORD;
     } else {
-      // Create a new free block, because previous block is a dynamic allocation or a reserved block.
-      new_free_block = (sli_block_metadata_t *)handle->block_address;
-      new_free_block_length -= SLI_BLOCK_METADATA_SIZE_DWORD;
+      // Create a new free block, because previous block is a dynamic allocation, a reserved block or the start of the heap.
+      // Layout around the reserved block to free (aka R1) will be:
+      // |...|Metadata Free block|Data Free block|R2|R1|| or |...|Metadata ST1|Data ST1|R1|| or |...|Metadata LT|Data LT|R1||
       sli_free_blocks_number++;
     }
   }
@@ -292,13 +283,7 @@ sl_status_t sl_memory_release_block(sl_memory_reservation_t *handle)
 
   if (next_block != NULL) {
     new_free_block->offset_neighbour_next = (uint16_t)((uint64_t *)next_block - (uint64_t *)new_free_block);
-    if ((uintptr_t)new_free_block == (uintptr_t)handle->block_address) {
-      // Case where reserved block not merged with previous neighbor:
-      // Update next block's previous neighbor offset accordingly.
-      next_block->offset_neighbour_prev = new_free_block->offset_neighbour_next;
-    }
-    // If the reserved block was merged with the previous neighbor, no need to update next block's
-    // previous neighbor offset as this one already points to the correct previous neighbor.
+    next_block->offset_neighbour_prev = new_free_block->offset_neighbour_next;
   } else {
     // Heap end.
     new_free_block->offset_neighbour_next = 0;
@@ -306,13 +291,7 @@ sl_status_t sl_memory_release_block(sl_memory_reservation_t *handle)
 
   if (prev_block != NULL) {
     new_free_block->offset_neighbour_prev = (uint16_t)((uint64_t *)new_free_block - (uint64_t *)prev_block);
-    if ((uintptr_t)new_free_block == (uintptr_t)handle->block_address) {
-      // Case where reserved block not merged with previous neighbor:
-      // Update previous block's next neighbor offset accordingly.
-      prev_block->offset_neighbour_next = new_free_block->offset_neighbour_prev;
-    }
-    // If the reserved block was merged with the previous neighbor, no need to update previous block's
-    // next neighbor offset as this one already points to the correct next neighbor.
+    prev_block->offset_neighbour_next = new_free_block->offset_neighbour_prev;
   } else {
     // Heap start.
     new_free_block->offset_neighbour_prev = 0;

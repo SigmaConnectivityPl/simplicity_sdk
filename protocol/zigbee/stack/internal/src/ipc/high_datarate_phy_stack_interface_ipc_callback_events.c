@@ -21,7 +21,8 @@ extern void sl_zigbee_wakeup_common_task(void);
 
 void sli_mac_stack_high_datarate_phy_rx_callback(uint8_t *packet,
                                                  uint8_t linkQuality,
-                                                 int8_t rssi)
+                                                 int8_t rssi,
+                                                 uint32_t pkt_rx_timestamp)
 {
   sl_zigbee_stack_cb_event_t *cb_event = (sl_zigbee_stack_cb_event_t *) malloc(sizeof(sl_zigbee_stack_cb_event_t));
 
@@ -31,6 +32,7 @@ void sli_mac_stack_high_datarate_phy_rx_callback(uint8_t *packet,
 
   cb_event->data.high_datarate_phy_rx_callback.linkQuality = linkQuality;
   cb_event->data.high_datarate_phy_rx_callback.rssi = rssi;
+  cb_event->data.high_datarate_phy_rx_callback.pkt_rx_timestamp = pkt_rx_timestamp;
   cb_event->tag = SLI_MAC_STACK_HIGH_DATARATE_PHY_RX_CALLBACK_IPC_EVENT_TYPE;
   sl_event_publish(&sli_zigbee_ipc_publisher, SL_EVENT_CLASS_ZIGBEE, 1 /*priority*/, cb_event);
   sl_zigbee_wakeup_common_task();
@@ -63,7 +65,8 @@ void sli_zigbee_high_datarate_phy_stack_interface_process_ipc_event(sl_zigbee_st
     case SLI_MAC_STACK_HIGH_DATARATE_PHY_RX_CALLBACK_IPC_EVENT_TYPE:
       sl_mac_high_datarate_phy_rx_callback(cb_event->data.high_datarate_phy_rx_callback.packet,
                                            cb_event->data.high_datarate_phy_rx_callback.linkQuality,
-                                           cb_event->data.high_datarate_phy_rx_callback.rssi);
+                                           cb_event->data.high_datarate_phy_rx_callback.rssi,
+                                           cb_event->data.high_datarate_phy_rx_callback.pkt_rx_timestamp);
       break;
 
     case SLI_MAC_STACK_HIGH_DATARATE_PHY_TX_CALLBACK_IPC_EVENT_TYPE:

@@ -6,7 +6,9 @@ description: C SDK Doubly Linked List Library.
 
 package: amazon_platform
 quality: production
-
+metadata:
+  sbom:
+    reference: iot_sbom_freertos_common
 provides:
   - name: iot_doubly_linked_list
 

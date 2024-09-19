@@ -286,6 +286,13 @@ __STATIC_INLINE sl_status_t sl_tftp_clnt_get(sl_tftp_clnt_t * const clnt, const 
 }
 
 /***************************************************************************//**
+ * @brief TFTP Client terminate session
+ * @details Terminate TFTP session
+ * @param[in,out] clnt Client
+ ******************************************************************************/
+sl_status_t sl_tftp_clnt_terminate_session(sl_tftp_clnt_t * const clnt);
+
+/***************************************************************************//**
  * @brief TFT Client Put
  * @details Send buffer content to file on remote server
  * @param[in,out] clnt Client
@@ -321,6 +328,14 @@ bool sl_tftp_clnt_is_op_get(const sl_tftp_clnt_t * const clnt);
  * @return true Is in progress otherwise false
  ******************************************************************************/
 bool sl_tftp_clnt_is_op_put(const sl_tftp_clnt_t * const clnt);
+
+/***************************************************************************//**
+ * @brief TFTP Client is RRQ or WRQ failed
+ * @details Check Read or Write Request operation is failed
+ * @param[in] clnt Client
+ * @return true Is failed otherwise false
+ ******************************************************************************/
+bool sl_tftp_clnt_is_op_rrq_wrq_failed(const sl_tftp_clnt_t * const clnt);
 
 #endif
 

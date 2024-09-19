@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief  OpenThread wrapper functions for OpenThread Border Router APIs
  *   allowing access to the thread stack in a multi-threaded environment.
@@ -29,34 +29,44 @@
  *
  ******************************************************************************/
 
-#include <openthread/border_router.h>
 #include "sl_ot_rtos_adaptation.h"
+#include <openthread/border_router.h>
 
 #if defined(__GNUC__)
-    #define REAL_NAME(function)             __real_##function
-    #define WRAPPER_NAME(function)          __wrap_##function
-    #define OT_API_REAL_NAME(function)      REAL_NAME(function)
-    #define OT_API_WRAPPER_NAME(function)   WRAPPER_NAME(function)
+#define REAL_NAME(function) __real_##function
+#define WRAPPER_NAME(function) __wrap_##function
+#define OT_API_REAL_NAME(function) REAL_NAME(function)
+#define OT_API_WRAPPER_NAME(function) WRAPPER_NAME(function)
 // #elif defined(__IAR_SYSTEMS_ICC__)
 //     #define REAL_NAME(function)             $Super$$##function
 //     #define WRAPPER_NAME(function)          $Sub$$##function
 //     #define OT_API_REAL_NAME(function)      $Super$$__iar_dl##function
 //     #define OT_API_WRAPPER_NAME(function)   $Sub$$__iar_dl##function
 #else
-    #error Unsupported compiler
+#error Unsupported compiler
 #endif
 
-extern otError OT_API_REAL_NAME(otBorderRouterAddOnMeshPrefix)(otInstance * aInstance,const otBorderRouterConfig * aConfig);
-extern otError OT_API_REAL_NAME(otBorderRouterAddRoute)(otInstance * aInstance,const otExternalRouteConfig * aConfig);
-extern otError OT_API_REAL_NAME(otBorderRouterGetNetData)(otInstance * aInstance,bool aStable,uint8_t * aData,uint8_t * aDataLength);
-extern otError OT_API_REAL_NAME(otBorderRouterGetNextOnMeshPrefix)(otInstance * aInstance,otNetworkDataIterator * aIterator,otBorderRouterConfig * aConfig);
-extern otError OT_API_REAL_NAME(otBorderRouterGetNextRoute)(otInstance * aInstance,otNetworkDataIterator * aIterator,otExternalRouteConfig * aConfig);
-extern otError OT_API_REAL_NAME(otBorderRouterRegister)(otInstance * aInstance);
-extern otError OT_API_REAL_NAME(otBorderRouterRemoveOnMeshPrefix)(otInstance * aInstance,const otIp6Prefix * aPrefix);
-extern otError OT_API_REAL_NAME(otBorderRouterRemoveRoute)(otInstance * aInstance,const otIp6Prefix * aPrefix);
-extern void OT_API_REAL_NAME(otBorderRouterSetNetDataFullCallback)(otInstance * aInstance,otBorderRouterNetDataFullCallback aCallback,void * aContext);
+extern otError OT_API_REAL_NAME(otBorderRouterAddOnMeshPrefix)(otInstance                 *aInstance,
+                                                               const otBorderRouterConfig *aConfig);
+extern otError OT_API_REAL_NAME(otBorderRouterAddRoute)(otInstance *aInstance, const otExternalRouteConfig *aConfig);
+extern otError OT_API_REAL_NAME(otBorderRouterGetNetData)(otInstance *aInstance,
+                                                          bool        aStable,
+                                                          uint8_t    *aData,
+                                                          uint8_t    *aDataLength);
+extern otError OT_API_REAL_NAME(otBorderRouterGetNextOnMeshPrefix)(otInstance            *aInstance,
+                                                                   otNetworkDataIterator *aIterator,
+                                                                   otBorderRouterConfig  *aConfig);
+extern otError OT_API_REAL_NAME(otBorderRouterGetNextRoute)(otInstance            *aInstance,
+                                                            otNetworkDataIterator *aIterator,
+                                                            otExternalRouteConfig *aConfig);
+extern otError OT_API_REAL_NAME(otBorderRouterRegister)(otInstance *aInstance);
+extern otError OT_API_REAL_NAME(otBorderRouterRemoveOnMeshPrefix)(otInstance *aInstance, const otIp6Prefix *aPrefix);
+extern otError OT_API_REAL_NAME(otBorderRouterRemoveRoute)(otInstance *aInstance, const otIp6Prefix *aPrefix);
+extern void    OT_API_REAL_NAME(otBorderRouterSetNetDataFullCallback)(otInstance                       *aInstance,
+                                                                   otBorderRouterNetDataFullCallback aCallback,
+                                                                   void                             *aContext);
 
-otError OT_API_WRAPPER_NAME(otBorderRouterAddOnMeshPrefix)(otInstance * aInstance,const otBorderRouterConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otBorderRouterAddOnMeshPrefix)(otInstance *aInstance, const otBorderRouterConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBorderRouterAddOnMeshPrefix)(aInstance, aConfig);
@@ -64,7 +74,7 @@ otError OT_API_WRAPPER_NAME(otBorderRouterAddOnMeshPrefix)(otInstance * aInstanc
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBorderRouterAddRoute)(otInstance * aInstance,const otExternalRouteConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otBorderRouterAddRoute)(otInstance *aInstance, const otExternalRouteConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBorderRouterAddRoute)(aInstance, aConfig);
@@ -72,7 +82,10 @@ otError OT_API_WRAPPER_NAME(otBorderRouterAddRoute)(otInstance * aInstance,const
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBorderRouterGetNetData)(otInstance * aInstance,bool aStable,uint8_t * aData,uint8_t * aDataLength)
+otError OT_API_WRAPPER_NAME(otBorderRouterGetNetData)(otInstance *aInstance,
+                                                      bool        aStable,
+                                                      uint8_t    *aData,
+                                                      uint8_t    *aDataLength)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBorderRouterGetNetData)(aInstance, aStable, aData, aDataLength);
@@ -80,7 +93,9 @@ otError OT_API_WRAPPER_NAME(otBorderRouterGetNetData)(otInstance * aInstance,boo
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBorderRouterGetNextOnMeshPrefix)(otInstance * aInstance,otNetworkDataIterator * aIterator,otBorderRouterConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otBorderRouterGetNextOnMeshPrefix)(otInstance            *aInstance,
+                                                               otNetworkDataIterator *aIterator,
+                                                               otBorderRouterConfig  *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBorderRouterGetNextOnMeshPrefix)(aInstance, aIterator, aConfig);
@@ -88,7 +103,9 @@ otError OT_API_WRAPPER_NAME(otBorderRouterGetNextOnMeshPrefix)(otInstance * aIns
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBorderRouterGetNextRoute)(otInstance * aInstance,otNetworkDataIterator * aIterator,otExternalRouteConfig * aConfig)
+otError OT_API_WRAPPER_NAME(otBorderRouterGetNextRoute)(otInstance            *aInstance,
+                                                        otNetworkDataIterator *aIterator,
+                                                        otExternalRouteConfig *aConfig)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBorderRouterGetNextRoute)(aInstance, aIterator, aConfig);
@@ -96,7 +113,7 @@ otError OT_API_WRAPPER_NAME(otBorderRouterGetNextRoute)(otInstance * aInstance,o
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBorderRouterRegister)(otInstance * aInstance)
+otError OT_API_WRAPPER_NAME(otBorderRouterRegister)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBorderRouterRegister)(aInstance);
@@ -104,7 +121,7 @@ otError OT_API_WRAPPER_NAME(otBorderRouterRegister)(otInstance * aInstance)
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBorderRouterRemoveOnMeshPrefix)(otInstance * aInstance,const otIp6Prefix * aPrefix)
+otError OT_API_WRAPPER_NAME(otBorderRouterRemoveOnMeshPrefix)(otInstance *aInstance, const otIp6Prefix *aPrefix)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBorderRouterRemoveOnMeshPrefix)(aInstance, aPrefix);
@@ -112,7 +129,7 @@ otError OT_API_WRAPPER_NAME(otBorderRouterRemoveOnMeshPrefix)(otInstance * aInst
     return ret;
 }
 
-otError OT_API_WRAPPER_NAME(otBorderRouterRemoveRoute)(otInstance * aInstance,const otIp6Prefix * aPrefix)
+otError OT_API_WRAPPER_NAME(otBorderRouterRemoveRoute)(otInstance *aInstance, const otIp6Prefix *aPrefix)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBorderRouterRemoveRoute)(aInstance, aPrefix);
@@ -120,10 +137,11 @@ otError OT_API_WRAPPER_NAME(otBorderRouterRemoveRoute)(otInstance * aInstance,co
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otBorderRouterSetNetDataFullCallback)(otInstance * aInstance,otBorderRouterNetDataFullCallback aCallback,void * aContext)
+void OT_API_WRAPPER_NAME(otBorderRouterSetNetDataFullCallback)(otInstance                       *aInstance,
+                                                               otBorderRouterNetDataFullCallback aCallback,
+                                                               void                             *aContext)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBorderRouterSetNetDataFullCallback)(aInstance, aCallback, aContext);
     sl_ot_rtos_release_stack_mutex();
 }
-

@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Bluetooth CLI support
  *******************************************************************************
@@ -34,12 +34,12 @@
 #include "common/code_utils.hpp"
 
 #include "sl_bt_api.h"
-#include "sl_ot_custom_cli.h"
 #include "sl_component_catalog.h"
+#include "sl_ot_custom_cli.h"
 
-static int Hex2Bin(const char *aHex, uint8_t *aBin, uint16_t aBinLength, bool aAllowTruncate);
+static int     Hex2Bin(const char *aHex, uint8_t *aBin, uint16_t aBinLength, bool aAllowTruncate);
 static otError helpCommand(void *context, uint8_t argc, char *argv[]);
-void printBleAddress(bd_addr address);
+void           printBleAddress(bd_addr address);
 
 static otError ParseUnsignedLong(char *aString, unsigned long *aLong)
 {
@@ -48,48 +48,57 @@ static otError ParseUnsignedLong(char *aString, unsigned long *aLong)
     return (*endptr == '\0') ? OT_ERROR_NONE : OT_ERROR_PARSE;
 }
 
-static otError getAddressCommand(void *context, uint8_t argc, char *argv[]) {
+static otError getAddressCommand(void *context, uint8_t argc, char *argv[])
+{
     OT_UNUSED_VARIABLE(context);
     OT_UNUSED_VARIABLE(argc);
     OT_UNUSED_VARIABLE(argv);
     sl_status_t status;
-    bd_addr address;
-    uint8_t type;
+    bd_addr     address;
+    uint8_t     type;
     status = sl_bt_system_get_identity_address(&address, &type);
 
-    if (status == SL_STATUS_OK) {
+    if (status == SL_STATUS_OK)
+    {
         otCliOutputFormat("BLE address: ");
         printBleAddress(address);
         otCliOutputFormat("\r\n");
-    } else {
+    }
+    else
+    {
         otCliOutputFormat("error: 0x%04x\r\n", status);
     }
 
     return OT_ERROR_NONE;
 }
 
-static otError createAdvSetCommand(void *context, uint8_t argc, char *argv[]) {
+static otError createAdvSetCommand(void *context, uint8_t argc, char *argv[])
+{
     OT_UNUSED_VARIABLE(context);
     OT_UNUSED_VARIABLE(argc);
     OT_UNUSED_VARIABLE(argv);
     sl_status_t status;
-    uint8_t handle;
+    uint8_t     handle;
 
     status = sl_bt_advertiser_create_set(&handle);
 
-    if (status == SL_STATUS_OK) {
+    if (status == SL_STATUS_OK)
+    {
         otCliOutputFormat("success handle=%d\r\n", handle);
-    } else {
+    }
+    else
+    {
         otCliOutputFormat("error: 0x%04x\r\n", status);
     }
 
     return OT_ERROR_NONE;
 }
 
-static otError setAdvTimingCommand(void *context, uint8_t argc, char *argv[]) {
+static otError setAdvTimingCommand(void *context, uint8_t argc, char *argv[])
+{
     OT_UNUSED_VARIABLE(context);
-    otError error = OT_ERROR_NONE;
-    sl_status_t status = SL_STATUS_OK;
+    otError       error  = OT_ERROR_NONE;
+    sl_status_t   status = SL_STATUS_OK;
     unsigned long handle, interval_min, interval_max, duration, max_events;
 
     VerifyOrExit(argc == 5, error = OT_ERROR_INVALID_ARGS);
@@ -100,9 +109,12 @@ static otError setAdvTimingCommand(void *context, uint8_t argc, char *argv[]) {
     SuccessOrExit(error = ParseUnsignedLong(argv[4], &max_events));
 
     status = sl_bt_advertiser_set_timing(handle, interval_min, interval_max, duration, max_events);
-    if (status == SL_STATUS_OK) {
+    if (status == SL_STATUS_OK)
+    {
         otCliOutputFormat("success\r\n");
-    } else {
+    }
+    else
+    {
         otCliOutputFormat("error: 0x%04x\r\n", status);
     }
 
@@ -110,23 +122,27 @@ exit:
     return error;
 }
 
-static otError setAdvRandomAddressCommand(void *context, uint8_t argc, char *argv[]) {
+static otError setAdvRandomAddressCommand(void *context, uint8_t argc, char *argv[])
+{
     OT_UNUSED_VARIABLE(context);
-    otError error = OT_ERROR_NONE;
-    sl_status_t status = SL_STATUS_OK;
+    otError       error  = OT_ERROR_NONE;
+    sl_status_t   status = SL_STATUS_OK;
     unsigned long handle;
-    bd_addr unusedAddress;
+    bd_addr       unusedAddress;
 
     VerifyOrExit(argc == 1, error = OT_ERROR_INVALID_ARGS);
     SuccessOrExit(error = ParseUnsignedLong(argv[0], &handle));
     // TO DO: Check the third parameter.
     status = sl_bt_advertiser_set_random_address(handle, 2, unusedAddress, &unusedAddress);
-    if (status == SL_STATUS_OK) {
+    if (status == SL_STATUS_OK)
+    {
         otCliOutputFormat("success\r\n");
-	    otCliOutputFormat("Random address: ");
-	    printBleAddress(unusedAddress);
-	    otCliOutputFormat("\r\n");
-    } else {
+        otCliOutputFormat("Random address: ");
+        printBleAddress(unusedAddress);
+        otCliOutputFormat("\r\n");
+    }
+    else
+    {
         otCliOutputFormat("error: 0x%04x\r\n", status);
     }
 
@@ -134,10 +150,11 @@ exit:
     return error;
 }
 
-static otError startAdvertisingCommand(void *context, uint8_t argc, char *argv[]) {
+static otError startAdvertisingCommand(void *context, uint8_t argc, char *argv[])
+{
     OT_UNUSED_VARIABLE(context);
-    otError error = OT_ERROR_NONE;
-    sl_status_t status = SL_STATUS_OK;
+    otError       error  = OT_ERROR_NONE;
+    sl_status_t   status = SL_STATUS_OK;
     unsigned long handle, discoverableMode, connectableMode;
 
     VerifyOrExit(argc == 3, error = OT_ERROR_INVALID_ARGS);
@@ -168,23 +185,32 @@ static otError startAdvertisingCommand(void *context, uint8_t argc, char *argv[]
     // it is invalid for generating the advertising data, thus is ignored. As the
     // result, the advertiser will advertise with empty data payload if
     // sl_bt_legacy_advertiser_generate_data has not been called.
-    if (discoverableMode <= sl_bt_advertiser_general_discoverable) {
-      status = sl_bt_legacy_advertiser_generate_data(handle, discoverableMode);
-      if (status == SL_STATUS_OK) {
-          otCliOutputFormat("Generate advertising data success\r\n");
-      } else {
-          otCliOutputFormat("Generate advertising data error: 0x%04x\r\n", status);
-      }
-    } else {
-      otCliOutputFormat("WRANING: Invalid discoverable mode: 0x%02x\r\n", discoverableMode);
+    if (discoverableMode <= sl_bt_advertiser_general_discoverable)
+    {
+        status = sl_bt_legacy_advertiser_generate_data(handle, discoverableMode);
+        if (status == SL_STATUS_OK)
+        {
+            otCliOutputFormat("Generate advertising data success\r\n");
+        }
+        else
+        {
+            otCliOutputFormat("Generate advertising data error: 0x%04x\r\n", status);
+        }
+    }
+    else
+    {
+        otCliOutputFormat("WRANING: Invalid discoverable mode: 0x%02x\r\n", discoverableMode);
     }
     /* End of advertising discoverable mode handling */
 
     status = sl_bt_legacy_advertiser_start(handle, connectableMode);
 
-    if (status == SL_STATUS_OK) {
+    if (status == SL_STATUS_OK)
+    {
         otCliOutputFormat("success\r\n");
-    } else {
+    }
+    else
+    {
         otCliOutputFormat("error: 0x%04x\r\n", status);
     }
 
@@ -192,10 +218,11 @@ exit:
     return error;
 }
 
-static otError stopAdvertisingCommand(void *context, uint8_t argc, char *argv[]) {
+static otError stopAdvertisingCommand(void *context, uint8_t argc, char *argv[])
+{
     OT_UNUSED_VARIABLE(context);
-    otError error = OT_ERROR_NONE;
-    sl_status_t status = SL_STATUS_OK;
+    otError       error  = OT_ERROR_NONE;
+    sl_status_t   status = SL_STATUS_OK;
     unsigned long handle;
 
     VerifyOrExit(argc == 1, error = OT_ERROR_INVALID_ARGS);
@@ -203,9 +230,12 @@ static otError stopAdvertisingCommand(void *context, uint8_t argc, char *argv[])
 
     status = sl_bt_advertiser_stop(handle);
 
-    if (status == SL_STATUS_OK) {
+    if (status == SL_STATUS_OK)
+    {
         otCliOutputFormat("success\r\n");
-    } else {
+    }
+    else
+    {
         otCliOutputFormat("error: 0x%04x\r\n", status);
     }
 
@@ -213,10 +243,11 @@ exit:
     return error;
 }
 
-static otError startDiscoveryCommand(void *context, uint8_t argc, char *argv[]) {
+static otError startDiscoveryCommand(void *context, uint8_t argc, char *argv[])
+{
     OT_UNUSED_VARIABLE(context);
-    otError error = OT_ERROR_NONE;
-    sl_status_t status = SL_STATUS_OK;
+    otError       error  = OT_ERROR_NONE;
+    sl_status_t   status = SL_STATUS_OK;
     unsigned long mode;
 
     VerifyOrExit(argc == 1, error = OT_ERROR_INVALID_ARGS);
@@ -224,9 +255,12 @@ static otError startDiscoveryCommand(void *context, uint8_t argc, char *argv[]) 
 
     status = sl_bt_scanner_start(1, mode); // 1=1M phy
 
-    if (status == SL_STATUS_OK) {
+    if (status == SL_STATUS_OK)
+    {
         otCliOutputFormat("success\r\n");
-    } else {
+    }
+    else
+    {
         otCliOutputFormat("error: 0x%04x\r\n", status);
     }
 
@@ -234,10 +268,11 @@ exit:
     return error;
 }
 
-static otError setConnTimingCommand(void *context, uint8_t argc, char *argv[]) {
+static otError setConnTimingCommand(void *context, uint8_t argc, char *argv[])
+{
     OT_UNUSED_VARIABLE(context);
-    otError error = OT_ERROR_NONE;
-    sl_status_t status = SL_STATUS_OK;
+    otError       error  = OT_ERROR_NONE;
+    sl_status_t   status = SL_STATUS_OK;
     unsigned long min_interval, max_interval, latency, timeout;
 
     VerifyOrExit(argc == 4, error = OT_ERROR_INVALID_ARGS);
@@ -247,9 +282,12 @@ static otError setConnTimingCommand(void *context, uint8_t argc, char *argv[]) {
     SuccessOrExit(error = ParseUnsignedLong(argv[3], &timeout));
 
     status = sl_bt_connection_set_default_parameters(min_interval, max_interval, latency, timeout, 0, 0xffff);
-    if (status == SL_STATUS_OK) {
+    if (status == SL_STATUS_OK)
+    {
         otCliOutputFormat("success\r\n");
-    } else {
+    }
+    else
+    {
         otCliOutputFormat("error: 0x%04x\r\n", status);
     }
 
@@ -257,31 +295,36 @@ exit:
     return error;
 }
 
-static otError connOpenCommand(void *context, uint8_t argc, char *argv[]) {
+static otError connOpenCommand(void *context, uint8_t argc, char *argv[])
+{
     OT_UNUSED_VARIABLE(context);
-    otError error = OT_ERROR_NONE;
-    sl_status_t status = SL_STATUS_OK;
-    bd_addr address;
-    uint8_t len = sizeof(address.addr);
+    otError       error  = OT_ERROR_NONE;
+    sl_status_t   status = SL_STATUS_OK;
+    bd_addr       address;
+    uint8_t       len = sizeof(address.addr);
     unsigned long addressType;
-    uint8_t handle;
+    uint8_t       handle;
 
     VerifyOrExit(argc == 2, error = OT_ERROR_INVALID_ARGS);
     VerifyOrExit(Hex2Bin(argv[0], address.addr, len, false) >= 0, error = OT_ERROR_PARSE);
     SuccessOrExit(error = ParseUnsignedLong(argv[1], &addressType));
 
     // Hex2Bin makes it little endian but it needs to be big endian
-    for (size_t i = 0; i < len / 2; i++) {
-      uint8_t temp = address.addr[len - i - 1];
-      address.addr[len - i - 1] = address.addr[i];
-      address.addr[i] = temp;
+    for (size_t i = 0; i < len / 2; i++)
+    {
+        uint8_t temp              = address.addr[len - i - 1];
+        address.addr[len - i - 1] = address.addr[i];
+        address.addr[i]           = temp;
     }
     // TO DO: Check how is the handle returned?
     status = sl_bt_connection_open(address, addressType, 1, &handle); // 1=1M phy
 
-    if (status == SL_STATUS_OK) {
+    if (status == SL_STATUS_OK)
+    {
         otCliOutputFormat("success\r\n");
-    } else {
+    }
+    else
+    {
         otCliOutputFormat("error: 0x%04x\r\n", status);
     }
 
@@ -289,10 +332,11 @@ exit:
     return error;
 }
 
-static otError connCloseCommand(void *context, uint8_t argc, char *argv[]) {
+static otError connCloseCommand(void *context, uint8_t argc, char *argv[])
+{
     OT_UNUSED_VARIABLE(context);
-    otError error = OT_ERROR_NONE;
-    sl_status_t status = SL_STATUS_OK;
+    otError       error  = OT_ERROR_NONE;
+    sl_status_t   status = SL_STATUS_OK;
     unsigned long handle;
 
     VerifyOrExit(argc == 1, error = OT_ERROR_INVALID_ARGS);
@@ -300,9 +344,12 @@ static otError connCloseCommand(void *context, uint8_t argc, char *argv[]) {
 
     status = sl_bt_connection_close(handle);
 
-    if (status == SL_STATUS_OK) {
+    if (status == SL_STATUS_OK)
+    {
         otCliOutputFormat("success\r\n");
-    } else {
+    }
+    else
+    {
         otCliOutputFormat("error: 0x%04x\r\n", status);
     }
 
@@ -310,7 +357,8 @@ exit:
     return error;
 }
 
-static otError gattDiscoverPrimaryServicesCommand(void *context, uint8_t argc, char *argv[]) {
+static otError gattDiscoverPrimaryServicesCommand(void *context, uint8_t argc, char *argv[])
+{
     OT_UNUSED_VARIABLE(context);
     OT_UNUSED_VARIABLE(argc);
     OT_UNUSED_VARIABLE(argv);
@@ -318,7 +366,8 @@ static otError gattDiscoverPrimaryServicesCommand(void *context, uint8_t argc, c
     return OT_ERROR_NONE;
 }
 
-static otError gattDiscoverCharacteristicsCommand(void *context, uint8_t argc, char *argv[]) {
+static otError gattDiscoverCharacteristicsCommand(void *context, uint8_t argc, char *argv[])
+{
     OT_UNUSED_VARIABLE(context);
     OT_UNUSED_VARIABLE(argc);
     OT_UNUSED_VARIABLE(argv);
@@ -326,7 +375,8 @@ static otError gattDiscoverCharacteristicsCommand(void *context, uint8_t argc, c
     return OT_ERROR_NONE;
 }
 
-static otError gattWriteCharacteristicCommand(void *context, uint8_t argc, char *argv[]) {
+static otError gattWriteCharacteristicCommand(void *context, uint8_t argc, char *argv[])
+{
     OT_UNUSED_VARIABLE(context);
     OT_UNUSED_VARIABLE(argc);
     OT_UNUSED_VARIABLE(argv);
@@ -334,7 +384,8 @@ static otError gattWriteCharacteristicCommand(void *context, uint8_t argc, char 
     return OT_ERROR_NONE;
 }
 
-static otError setTxPowerCommand(void *context, uint8_t argc, char *argv[]) {
+static otError setTxPowerCommand(void *context, uint8_t argc, char *argv[])
+{
     OT_UNUSED_VARIABLE(context);
     OT_UNUSED_VARIABLE(argc);
     OT_UNUSED_VARIABLE(argv);
@@ -350,9 +401,12 @@ static otError bleStartCommand(void *context, uint8_t argc, char *argv[])
 
     sl_status_t status = sl_bt_system_start_bluetooth();
 
-    if (status == SL_STATUS_OK) {
+    if (status == SL_STATUS_OK)
+    {
         otCliOutputFormat("Starting Bluetooth Stack: success\n");
-    } else {
+    }
+    else
+    {
         otCliOutputFormat("error: 0x%2x\r\n", status);
     }
     return OT_ERROR_NONE;
@@ -366,19 +420,22 @@ static otError bleStopCommand(void *context, uint8_t argc, char *argv[])
 
     sl_status_t status = sl_bt_system_stop_bluetooth();
 
-    if (status == SL_STATUS_OK) {
+    if (status == SL_STATUS_OK)
+    {
         otCliOutputFormat("Stopping Bluetooth Stack: success\n");
-    } else {
+    }
+    else
+    {
         otCliOutputFormat("error: 0x%2x\r\n", status);
     }
     return OT_ERROR_NONE;
 }
-#endif //SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT
+#endif // SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT
 static int Hex2Bin(const char *aHex, uint8_t *aBin, uint16_t aBinLength, bool aAllowTruncate)
 {
     size_t      hexLength = strlen(aHex);
     const char *hexEnd    = aHex + hexLength;
-    uint8_t *   cur       = aBin;
+    uint8_t    *cur       = aBin;
     uint8_t     numChars  = hexLength & 1;
     uint8_t     byte      = 0;
     int         len       = 0;
@@ -437,8 +494,9 @@ exit:
 
 void printBleAddress(bd_addr address)
 {
-    for (size_t i = 0; i < 6; i++) {
-        otCliOutputFormat("%02x", address.addr[5-i]);
+    for (size_t i = 0; i < 6; i++)
+    {
+        otCliOutputFormat("%02x", address.addr[5 - i]);
     }
 }
 
@@ -463,7 +521,7 @@ static otCliCommand bleCommands[] = {
 #ifdef SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT
     {"start", &bleStartCommand},
     {"stop", &bleStopCommand},
-#endif //SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT
+#endif // SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT
 };
 
 otError bleCommand(void *context, uint8_t argc, char *argv[])
@@ -472,13 +530,14 @@ otError bleCommand(void *context, uint8_t argc, char *argv[])
 
     if (error == OT_ERROR_INVALID_COMMAND)
     {
-        (void) helpCommand(NULL, 0, NULL);
+        (void)helpCommand(NULL, 0, NULL);
     }
 
     return error;
 }
 
-static otError helpCommand(void *context, uint8_t argc, char *argv[]) {
+static otError helpCommand(void *context, uint8_t argc, char *argv[])
+{
     OT_UNUSED_VARIABLE(context);
     OT_UNUSED_VARIABLE(argc);
     OT_UNUSED_VARIABLE(argv);

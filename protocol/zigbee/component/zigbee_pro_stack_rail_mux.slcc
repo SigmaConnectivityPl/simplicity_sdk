@@ -1,9 +1,9 @@
 id: zigbee_pro_stack_rail_mux
-label: Pro Stack Alt MAC
+label: Pro Stack RAIL MUX
 package: Zigbee
 category: Zigbee|Stack|Pro Core
 quality: production
-description: Provides Zigbee PRO stack functionality along with APIs to interface with rail MUX.
+description: Provides Zigbee PRO stack functionality along with APIs to interface with RAIL MUX.
 
 provides:
   - name: zigbee_pro_stack_rail_mux

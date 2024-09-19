@@ -34,6 +34,8 @@
 #include "btl_crc32.h"
 #include "common.h"
 #include "patch.h"
+#include "core/btl_reset.h"
+#include "btl_reset_info.h"
 #endif
 
 #if defined(__GNUC__)
@@ -273,6 +275,7 @@ int32_t storage_initParseSlot(uint32_t                  slotId,
 
 #if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
   context->parserContext.deltaPatchAddress = slot.address;
+  context->parserContext.endOfStorageSlot = slot.address + slot.length;
 #endif
 
   return BOOTLOADER_OK;
@@ -619,7 +622,8 @@ static bool bootloadFromSlot(BootloaderParserContext_t         *context,
     is_end_of_patch
   };
 
-  uint32_t temp_deltaLength = context->parserContext.deltaGBLLength;
+  uint32_t gblLength = context->parserContext.gblLength;
+  uint32_t endOfSlot = context->parserContext.endOfStorageSlot;
 #endif //BTL_PARSER_SUPPORT_DELTA_DFU
 
   parser_init(&(context->parserContext),
@@ -628,9 +632,10 @@ static bool bootloadFromSlot(BootloaderParserContext_t         *context,
               PARSER_FLAG_PARSE_CUSTOM_TAGS);
 
 #if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
-  if (temp_deltaLength != 0x00) {
-    context->parserContext.deltaGBLLength = temp_deltaLength;
-  }
+  //Restore the value of deltaGBLLength in the parser context
+  context->parserContext.gblLength = gblLength;
+  //Restore the value of end of storage slot
+  context->parserContext.endOfStorageSlot = endOfSlot;
 #endif //BTL_PARSER_SUPPORT_DELTA_DFU
   // Run through the image and flash it
   while ((0 == context->errorCode)
@@ -670,9 +675,10 @@ static bool bootloadFromSlot(BootloaderParserContext_t         *context,
         //Valid app present. Reconstruct-image.
         uint32_t slot_space = (user_ctx.slotInfo.address + user_ctx.slotInfo.length)
                               - user_ctx.new_fw_base_addr;
+
         if (user_ctx.new_fw_size > slot_space) {
-          //Not enough space in slot.
-          return false;
+          //Not enough space in slot. Reset with appropriate reset reason
+          reset_resetWithReason(BOOTLOADER_RESET_REASON_NO_SLOT_SPACE);
         }
         ddfu_stat = ddfu_patch_apply(&io, &ddfuBuff, &user_ctx);
       }
@@ -685,7 +691,7 @@ static bool bootloadFromSlot(BootloaderParserContext_t         *context,
           }
         } else {
           //CRC Calculation has failed.
-          return false;
+          reset_resetWithReason(BOOTLOADER_RESET_REASON_DDFU_FAIL);
         }
       } else {
         BTL_DEBUG_PRINTLN("Re-construction complete.");
@@ -703,13 +709,22 @@ static bool bootloadFromSlot(BootloaderParserContext_t         *context,
           }
         } else {
           //CRC calculation has failed.
-          return false;
+          BTL_DEBUG_PRINTLN("CRC calculation failed.");
+          reset_resetWithReason(BOOTLOADER_RESET_REASON_BADCRC);
         }
       }
     }
   #endif //BTL_PARSER_SUPPORT_DELTA_DFU
     return true;
   } else {
+  #if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
+    // Parsing did not complete. Check if we ran out of slot space.
+    if (context->errorCode == BOOTLOADER_ERROR_PARSER_OOB_WRITE) {
+      //Reset with BOOTLOADER_RESET_REASON_NO_SLOT_SPACE
+      BTL_DEBUG_PRINTLN("BOOTLOADER_ERROR_PARSER_OOB_WRITE. Reset device!");
+      reset_resetWithReason(BOOTLOADER_RESET_REASON_NO_SLOT_SPACE);
+    }
+  #endif //BTL_PARSER_SUPPORT_DELTA_DFU
     return false;
   }
 }
@@ -777,7 +792,7 @@ bool storage_bootloadApplicationFromSlot(uint32_t slotId, uint32_t version, uint
                                       &parseCtx,
                                       sizeof(BootloaderParserContext_t));
 #if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
-  parseCtx.parserContext.deltaGBLLength = deltaGBLLen;
+  parseCtx.parserContext.gblLength = deltaGBLLen;
 #else
   (void)deltaGBLLen;
 #endif//BTL_PARSER_SUPPORT_DELTA_DFU

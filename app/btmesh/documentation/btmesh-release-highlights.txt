@@ -1,2 +1,2 @@
-Bluetooth Mesh SDK 7.0.1.0
-- Support for delta-compressed firmware updates.
+Bluetooth Mesh SDK 7.0.2.0
+- Targeted quality improvements and bug fixes.

@@ -6,6 +6,9 @@ description: >
   Doc: https://docs.aws.amazon.com/freertos/latest/lib-ref/common-io/files.html
 package: amazon_platform
 quality: production
+metadata:
+  sbom:
+    license: Zlib
 instantiable:
   prefix: inst
 provides:
@@ -18,6 +21,8 @@ requires:
   - name: freertos
   - name: device_init
   - name: status
+  - name: iot_sbom_lib_abstraction_common_io
+
 root_path: util/third_party/aws_iot_libs
 config_file:
   - path: vendors/siliconlabs/boards/all/ports/common_io/iot_gpio/config/iot_gpio_cfg_{{instance}}.h

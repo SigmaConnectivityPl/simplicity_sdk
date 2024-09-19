@@ -90,6 +90,10 @@
       instance: sensor
     path: brd2608a/sl_i2cspm_sensor_config.h
   - override:
+      component: icm40627_driver
+      file_id: icm40627_config
+    path: brd2608a/sl_icm40627_config.h
+  - override:
       component: iostream_eusart
       file_id: iostream_eusart_config
       instance: vcom

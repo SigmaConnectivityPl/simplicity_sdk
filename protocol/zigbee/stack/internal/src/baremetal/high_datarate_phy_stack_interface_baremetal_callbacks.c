@@ -20,11 +20,13 @@
 
 void sli_mac_stack_high_datarate_phy_rx_callback(uint8_t *packet,
                                                  uint8_t linkQuality,
-                                                 int8_t rssi)
+                                                 int8_t rssi,
+                                                 uint32_t pkt_rx_timestamp)
 {
   sl_mac_high_datarate_phy_rx_callback(packet,
                                        linkQuality,
-                                       rssi);
+                                       rssi,
+                                       pkt_rx_timestamp);
 }
 
 void sli_mac_stack_high_datarate_phy_tx_callback(uint8_t mac_index,

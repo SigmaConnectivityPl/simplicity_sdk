@@ -63,9 +63,9 @@
 #define USE_EFR32_LOG (OPENTHREAD_CONFIG_LOG_OUTPUT == OPENTHREAD_CONFIG_LOG_OUTPUT_PLATFORM_DEFINED)
 
 #if defined(SL_CATALOG_OPENTHREAD_CLI_PRESENT) && defined(SL_CATALOG_KERNEL_PRESENT)
-#define CLI_TASK_ENABLED        (SL_OPENTHREAD_ENABLE_CLI_TASK)
+#define CLI_TASK_ENABLED (SL_OPENTHREAD_ENABLE_CLI_TASK)
 #else
-#define CLI_TASK_ENABLED        (0)
+#define CLI_TASK_ENABLED (0)
 #endif
 
 otInstance *sInstance;
@@ -84,7 +84,7 @@ __WEAK void sl_openthread_init(void)
     // Placeholder for enabling Silabs specific features available only through Simplicity Studio
 }
 #else
-void sl_openthread_init(void);
+void        sl_openthread_init(void);
 #endif // SL_COMPONENT_CATALOG_PRESENT
 
 void otSysInit(int argc, char *argv[])
@@ -146,7 +146,6 @@ __WEAK void otSysEventSignalPending(void)
 
 static void efr32SerialProcess(void)
 {
-
 #if (OPENTHREAD_RADIO)
     efr32NcpProcess();
 #elif (CLI_TASK_ENABLED == 0)

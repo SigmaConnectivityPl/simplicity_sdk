@@ -45,7 +45,7 @@
 #include "iot_test_common_io_internal.h"
 #include "iot_test_common_io_config.h"
 
-#include "em_core.h"
+#include "sl_core.h"
 #include "em_device.h"
 
 #include "sl_power_manager.h"

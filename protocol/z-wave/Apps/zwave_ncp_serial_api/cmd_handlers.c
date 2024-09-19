@@ -382,6 +382,7 @@ ZCB_ComplHandler_ZW_SendData(
 
 static uint8_t SendData(uint16_t nodeID, const uint8_t *pData, uint8_t dataLength, uint8_t txOptions, ZW_TX_Callback_t pCallBack)
 {
+#ifndef ZW_SECURITY_PROTOCOL
   SZwaveTransmitPackage FramePackage = { 
     .uTransmitParams.SendData.DestNodeId = nodeID,
     .uTransmitParams.SendData.FrameConfig.TransmitOptions = txOptions,
@@ -389,8 +390,17 @@ static uint8_t SendData(uint16_t nodeID, const uint8_t *pData, uint8_t dataLengt
     .eTransmitType = EZWAVETRANSMITTYPE_STD,
     .uTransmitParams.SendData.FrameConfig.iFrameLength = dataLength,
    };
-
   memcpy(FramePackage.uTransmitParams.SendData.FrameConfig.aFrame, pData, dataLength);
+#else
+  SZwaveTransmitPackage FramePackage = {
+    .uTransmitParams.SendDataEx.DestNodeId = nodeID,
+    .uTransmitParams.SendDataEx.FrameConfig.TransmitOptions = txOptions,
+    .uTransmitParams.SendDataEx.FrameConfig.Handle = pCallBack,
+    .eTransmitType = EZWAVETRANSMITTYPE_EX,
+    .uTransmitParams.SendDataEx.FrameConfig.iFrameLength = dataLength,
+     };
+  memcpy(FramePackage.uTransmitParams.SendDataEx.FrameConfig.aFrame, pData, dataLength);
+#endif
   return (EQUEUENOTIFYING_STATUS_SUCCESS == QueueNotifyingSendToBack(ZAF_getZwTxQueue(), (uint8_t *)&FramePackage, 0));
 }
 

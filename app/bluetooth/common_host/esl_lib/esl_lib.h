@@ -325,6 +325,7 @@ typedef enum esl_lib_status_e {
   ESL_LIB_STATUS_CONN_TAG_CONFIG_FAILED,
   ESL_LIB_STATUS_CONTROL_FAILED,
   ESL_LIB_STATUS_UNKNOWN_COMMAND,
+  ESL_LIB_STATUS_SYSTEM_ERROR,
 } esl_lib_status_t;
 
 // -------------------------------

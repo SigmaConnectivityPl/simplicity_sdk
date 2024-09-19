@@ -23,7 +23,6 @@
 #include "network-creator-security.h"
 #include "network-steering.h"
 #include "find-and-bind-target.h"
-#include "zll-commissioning.h"
 #ifdef SL_CATALOG_ZIGBEE_GREEN_POWER_SERVER_PRESENT
 #include "green-power-server.h"
 #include "green-power-common.h"

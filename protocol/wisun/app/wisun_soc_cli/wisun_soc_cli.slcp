@@ -14,6 +14,7 @@ component:
   - id: "wisun_stack_lfn"
   - id: "wisun_stack_ffn"
   - id: "wisun_full_radioconf"
+  - id: "wisun_keychain"
   - id: "wisun_silabs_certificates"
   - id: "wisun_default_phy"
   - id: "wisun_configuration"
@@ -464,6 +465,15 @@ template_contribution:
       argument:
         - type: uint32
           help: "Socket Id"
+  - name: "cli_command"
+    value:
+      group: "wisun"
+      name: "set_leaf"
+      handler: "app_set_leaf"
+      help: "Set Leaf behavior"
+      argument:
+        - type: uint8
+          help: "is_leaf: True to act as RPL leaf"
 
 
 # -------------------------------

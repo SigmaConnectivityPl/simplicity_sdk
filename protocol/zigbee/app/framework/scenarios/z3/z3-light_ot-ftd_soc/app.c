@@ -24,8 +24,6 @@
 #include "network-creator-security.h"
 #include "network-steering.h"
 #include "find-and-bind-target.h"
-#include "zll-commissioning.h"
-
 #if defined(SL_CATALOG_LED0_PRESENT)
 #include "sl_led.h"
 #include "sl_simple_led_instances.h"
