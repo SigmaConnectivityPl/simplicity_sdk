@@ -80,7 +80,7 @@ void reporting_cache_init_binding_table()
   for(i = 0; i< SL_ZIGBEE_BINDING_TABLE_SIZE; i++){
       sl_zigbee_af_status_t status = (sl_zigbee_af_status_t)sl_zigbee_get_binding(i, &bindingEntry);
       if (status == (sl_zigbee_af_status_t)SL_STATUS_OK){
-          reporting_cache_set_binding(i, &reporting_cache_set_binding);
+          reporting_cache_set_binding(i, &bindingEntry);
       }
   }
 #endif //(EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
