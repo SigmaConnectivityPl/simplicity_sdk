@@ -92,6 +92,12 @@
  #endif
 #endif
 
+// configure here if you want to cache the reporting table
+#define EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM 1
+
+// configure here is you want to cache the binding table
+#define EMBER_AF_PLUGIN_REPORTING_BINDING_TABLE_CACHE_IN_RAM 1
+
 typedef struct {
   uint32_t lastReportTimeMs;
   sl_zigbee_af_difference_type_t lastReportValue;

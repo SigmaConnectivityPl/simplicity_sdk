@@ -33,6 +33,63 @@
 #define READ_DATA_SIZE 8 // max size if attributes aren't present
 #endif
 
+#if (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+typedef struct {
+  bool is_ready;
+  sl_zigbee_af_plugin_reporting_entry_t entry[REPORT_TABLE_SIZE];
+} sli_reporting_table_cache_t;
+#endif //(EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+
+
+#if (EMBER_AF_PLUGIN_REPORTING_BINDING_TABLE_CACHE_IN_RAM == 1)
+sl_zigbee_binding_table_entry_t sli_cache_binding_table[SL_ZIGBEE_BINDING_TABLE_SIZE];
+#endif //(EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+
+void reporting_cache_set_binding(uint8_t index, sl_zigbee_binding_table_entry_t *value)
+{
+#if (EMBER_AF_PLUGIN_REPORTING_BINDING_TABLE_CACHE_IN_RAM == 1)
+  memcpy(&sli_cache_binding_table[index], value, sizeof(sl_zigbee_binding_table_entry_t));
+#endif //(EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+}
+
+void reporting_cache_delete_binding(uint8_t index)
+{
+#if (EMBER_AF_PLUGIN_REPORTING_BINDING_TABLE_CACHE_IN_RAM == 1)
+  memset(&sli_cache_binding_table[index], 0, sizeof(sl_zigbee_binding_table_entry_t));
+#endif //(EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+}
+
+
+void reporting_cache_clear_binding_table(void)
+{
+#if (EMBER_AF_PLUGIN_REPORTING_BINDING_TABLE_CACHE_IN_RAM == 1)
+  uint8_t i;
+
+  for(i = 0; i< SL_ZIGBEE_BINDING_TABLE_SIZE; i++){
+      reporting_cache_delete_binding(i);
+    }
+#endif //(EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+}
+
+void reporting_cache_init_binding_table()
+{
+#if (EMBER_AF_PLUGIN_REPORTING_BINDING_TABLE_CACHE_IN_RAM == 1)
+  sl_zigbee_binding_table_entry_t bindingEntry;
+  uint8_t i;
+
+  for(i = 0; i< SL_ZIGBEE_BINDING_TABLE_SIZE; i++){
+      sl_zigbee_af_status_t status = (sl_zigbee_af_status_t)sl_zigbee_get_binding(i, &bindingEntry);
+      if (status == (sl_zigbee_af_status_t)SL_STATUS_OK){
+          reporting_cache_set_binding(i, &reporting_cache_set_binding);
+      }
+  }
+#endif //(EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+}
+
+#if (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+static sli_reporting_table_cache_t reporting_table_cache = { 0 };
+#endif // (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+
 static uint16_t reportTableActiveLength = 0;
 
 static void conditionallySendReport(uint8_t endpoint, sl_zigbee_af_cluster_id_t clusterId);
@@ -118,12 +175,24 @@ void sli_zigbee_af_reporting_get_entry(uint16_t index, sl_zigbee_af_plugin_repor
 }
 void sli_zigbee_af_reporting_set_entry(uint16_t index, sl_zigbee_af_plugin_reporting_entry_t *value)
 {
-  ifValidIndex(memmove(&table[index], value, sizeof(sl_zigbee_af_plugin_reporting_entry_t)));
+#if (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+  if (true == reporting_table_cache.is_ready) {
+      memmove(result, &(reporting_table_cache.entry[index]), sizeof(EmberAfPluginReportingEntry));
+  } else
+#endif // (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+  {
+      ifValidIndex(memmove(&table[index], value, sizeof(sl_zigbee_af_plugin_reporting_entry_t)));
+  }
 }
 #elif defined(ENABLE_EXPANDED_TABLE) // SOC and expanded table is enabled
 #define reportingTableKey(index) (NVM3KEY_REPORTING_TABLE_EXPANDED + (index))
 void sli_zigbee_af_reporting_get_entry(uint16_t index, sl_zigbee_af_plugin_reporting_entry_t *result)
 {
+#if (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+  if (true == reporting_table_cache.is_ready) {
+      memmove(&(reporting_table_cache.entry[index]), value, sizeof(EmberAfPluginReportingEntry));
+  }
+#endif // (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
   ifValidIndex(nvm3_readData(nvm3_defaultHandle, reportingTableKey(index), result, sizeof(sl_zigbee_af_plugin_reporting_entry_t)));
 }
 void sli_zigbee_af_reporting_set_entry(uint16_t index, sl_zigbee_af_plugin_reporting_entry_t *value)
@@ -133,10 +202,22 @@ void sli_zigbee_af_reporting_set_entry(uint16_t index, sl_zigbee_af_plugin_repor
 #else // SoC and expanded table is disabled
 void sli_zigbee_af_reporting_get_entry(uint16_t index, sl_zigbee_af_plugin_reporting_entry_t *result)
 {
-  ifValidIndex(halCommonGetIndexedToken(result, TOKEN_REPORT_TABLE, index));
+#if (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+  if (true == reporting_table_cache.is_ready) {
+      memmove(result, &(reporting_table_cache.entry[index]), sizeof(sl_zigbee_af_plugin_reporting_entry_t));
+  } else
+#endif // (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+  {
+    ifValidIndex(halCommonGetIndexedToken(result, TOKEN_REPORT_TABLE, index));
+  }
 }
 void sli_zigbee_af_reporting_set_entry(uint16_t index, sl_zigbee_af_plugin_reporting_entry_t *value)
 {
+#if (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+  if (true == reporting_table_cache.is_ready) {
+      memmove(&(reporting_table_cache.entry[index]), value, sizeof(sl_zigbee_af_plugin_reporting_entry_t));
+  }
+#endif // (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
   ifValidIndex(halCommonSetIndexedToken(TOKEN_REPORT_TABLE, index, value));
 }
 #endif
@@ -179,13 +260,22 @@ void sl_zigbee_af_reporting_init_cb(uint8_t init_level)
           // we structure the table so that all "active" entries fall within
           // a single range.  When we encounter an unused entry, assume
           // we've reached the end of active entries and break the loop
+#if (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+            memmove(&(reporting_table_cache.entry[i]), &entry, sizeof(sl_zigbee_af_plugin_reporting_entry_t));
+#endif // (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
           break;
         }
         if (sl_zigbee_af_endpoint_is_enabled(entry.endpoint)
             && entry.direction == SL_ZIGBEE_ZCL_REPORTING_DIRECTION_REPORTED) {
           sli_zigbee_af_report_volatile_data[i].reportableChange = true;
+#if (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+          memmove(&(reporting_table_cache.entry[i]), &entry, sizeof(sl_zigbee_af_plugin_reporting_entry_t));
+#endif // (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
         }
       }
+#if (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
+      reporting_table_cache.is_ready = true;
+#endif // (EMBER_AF_PLUGIN_REPORTING_TABLE_CACHE_IN_RAM == 1)
       reportTableActiveLength = i;
       scheduleTick();
       break;
@@ -287,7 +377,11 @@ void sl_zigbee_af_reporting_tick_event_handler(sl_zigbee_af_event_t * event)
       uint8_t index;
       smallestPayloadMaxLength = MAX_INT8U_VALUE;
       for (index = 0; index < SL_ZIGBEE_BINDING_TABLE_SIZE; index++) {
+        #if (EMBER_AF_PLUGIN_REPORTING_BINDING_TABLE_CACHE_IN_RAM == 1)
+          bindingEntry = sli_cache_binding_table[i];
+        #else
         status = (sl_zigbee_af_status_t)sl_zigbee_get_binding(index, &bindingEntry);
+        #endif //(EMBER_AF_PLUGIN_REPORTING_BINDING_TABLE_CACHE_IN_RAM == 1)
         if (status == (sl_zigbee_af_status_t)SL_STATUS_OK && bindingEntry.local == entry.endpoint && bindingEntry.clusterId == entry.clusterId) {
           currentPayloadMaxLength = sl_zigbee_af_maximum_aps_payload_length(bindingEntry.type, bindingEntry.networkIndex, apsFrame);
           if (currentPayloadMaxLength < smallestPayloadMaxLength) {
